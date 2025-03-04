@@ -3,6 +3,7 @@
     "name": "AlumniNest",
     "slug": "AlumniNest",
     "version": "1.0.0",
+    "packageName":"com.alumninest",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
