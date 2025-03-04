@@ -1,9 +1,9 @@
 import { Image, StyleSheet, Platform } from 'react-native';
-
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Text } from 'react-native';
 
 export default function HomeScreen() {
   return (
@@ -12,13 +12,13 @@ export default function HomeScreen() {
       headerImage={
         <Image
           source={require('@/assets/images/partial-react-logo.png')}
-          className='bg-white'
         />
       }>
 
 
-      <ThemedView>
-        <ThemedText type="subtitle" className='text-lg bg-white'>Step 3: Get a fresh start</ThemedText>
+      <ThemedView >
+        <Text className="text-red-300">Run</Text>
+        <ThemedText type="subtitle" className='bg-white'>Step 3: Get a fresh start</ThemedText>
         <ThemedText>
           When you're ready, run{' '}
           <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
@@ -31,21 +31,3 @@ export default function HomeScreen() {
   );
 }
 
-// const styles = StyleSheet.create({
-//   titleContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 8,
-//   },
-//   stepContainer: {
-//     gap: 8,
-//     marginBottom: 8,
-//   },
-//   reactLogo: {
-//     height: 178,
-//     width: 290,
-//     bottom: 0,
-//     left: 0,
-//     position: 'absolute',
-//   },
-// });
