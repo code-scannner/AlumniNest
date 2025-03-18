@@ -69,7 +69,7 @@ const LoginScreen = () => {
             </Link>
 
             <Text style={styles.signupText}>Don’t have an account?
-                <Link href="sign/signup"><Text style={styles.highlight}> Sign up</Text></Link>
+                <Link href="signup"><Text style={styles.highlight}> Sign up</Text></Link>
             </Text>
 
         </View>
