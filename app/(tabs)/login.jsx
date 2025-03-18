@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
+import "../../global.css"
 
 const LoginScreen = () => {
     const router = useRouter();
@@ -18,7 +19,7 @@ const LoginScreen = () => {
             </Pressable>
 
             {/* Title */}
-            <Text style={styles.title}>Welcome <Text style={styles.highlight}>Back!</Text></Text>
+            <Text style={styles.title}>Alumni <Text style={styles.highlight}>Nest</Text></Text>
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 80,
         fontStyle: "italic",
+        fontFamily:"Sans",
         textDecorationStyle: "solid",
     },
     highlight: {
