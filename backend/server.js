@@ -1,42 +1,76 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
 
-mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((error) => console.error("MongoDB Connection Error:", error));
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true }
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 });
+
 const User = mongoose.model("User", UserSchema);
 
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
 
-app.post("/api/users/create", async (req, res) => {
+// 📝 Register API
+app.post("/api/users/register", async (req, res) => {
   try {
-    const { name, email } = req.body;
-    const newUser = new User({ name, email });
+    const { name, email, password } = req.body;
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    // Hash Password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create User
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
-    res.status(201).json(newUser);
+
+    res.status(201).json({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      token: generateToken(newUser._id),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get("/api/users", async (req, res) => {
+// 🔐 Login API
+app.post("/api/users/login", async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Validate Password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
