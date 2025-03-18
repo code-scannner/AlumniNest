@@ -20,6 +20,7 @@ const LoginScreen = () => {
 
             {/* Title */}
             <Text style={styles.title}>Alumni <Text style={styles.highlight}>Nest</Text></Text>
+            <Text style={styles.textline}>Log in your account</Text>
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
@@ -83,6 +84,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#E3F2FD", // Light blue background
         padding: 20,
     },
+    textline:{
+        fontSize:15,
+        marginBottom:20,
+        color: "#1565C0"
+    },
     backButton: {
         position: "absolute",
         top: 40,
@@ -93,7 +99,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#0D47A1", // Deep blue
         textAlign: "center",
-        marginBottom: 80,
+        marginBottom:20,
         fontStyle: "italic",
         fontFamily:"Sans",
         textDecorationStyle: "solid",
