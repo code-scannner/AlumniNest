@@ -57,7 +57,7 @@ const LoginScreen = () => {
             </Pressable>
 
             {/* Log In Button */}
-            <Pressable style={styles.button} onPress={() => router.push("/HomePage/Home")}>
+            <Pressable style={styles.button} onPress={() => router.push("/pages/profile")}>
                 <Text style={styles.buttonText}>LOG IN</Text>
             </Pressable>
 
