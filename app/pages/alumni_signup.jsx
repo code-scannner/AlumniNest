@@ -61,7 +61,7 @@ const SignupScreen = () => {
 
       {/* Create Account */}
       <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>CREATE ACCOUNT</Text>
+        <Text style={styles.buttonText} onPress={()=>router.push("/pages/profile")}>CREATE ACCOUNT</Text>
       </TouchableOpacity>
 
       {/* Footer */}
