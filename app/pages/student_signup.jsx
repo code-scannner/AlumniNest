@@ -13,6 +13,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { SelectList } from "react-native-dropdown-select-list";
 import "../../global.css";
 import { Link } from "expo-router";
+import { Stack } from "expo-router";
 
 // Reusable Input Field Component
 const InputField = ({
@@ -84,8 +85,9 @@ const SignupScreen = () => {
       contentContainerStyle={styles.scrollContainer}
       keyboardShouldPersistTaps="handled"
     >
+      <Stack.Screen options={{ headerShown: false }} />
       <TouchableOpacity
-        onPress={() => router.push("sign/login")}
+        onPress={() => router.push("/signup")}
         style={styles.backButton}
       >
         <Feather name="arrow-left" size={24} color="#1565C0" />
@@ -196,7 +198,7 @@ const SignupScreen = () => {
       </View>
 
       {/* Resume Upload */}
-      <TouchableOpacity style={styles.button} onPress={handleResumeUpload}>
+      <TouchableOpacity className = "bg-green-700 w-44" style={styles.button} onPress={handleResumeUpload}>
         <Text style={styles.buttonText}>
           {resume ? "Resume Uploaded" : "Upload Resume"}
         </Text>

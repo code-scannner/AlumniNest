@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Stack } from "expo-router";
 
 // Reusable Input Field Component
 const InputField = ({ icon, placeholder, value, onChangeText, keyboardType, secureTextEntry }) => (
@@ -41,7 +42,8 @@ const SignupScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-      <TouchableOpacity onPress={() => router.push("sign/login")} style={styles.backButton}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <TouchableOpacity onPress={() => router.push("/signup")} style={styles.backButton}>
         <Feather name="arrow-left" size={24} color="#1565C0" />
       </TouchableOpacity>
 

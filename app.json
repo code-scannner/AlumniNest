@@ -26,6 +26,9 @@
     "plugins": [
       "expo-router",
       [
+        {
+          "headerShown":"false"
+        },
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",

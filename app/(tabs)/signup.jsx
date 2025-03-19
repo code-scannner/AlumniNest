@@ -36,7 +36,7 @@ export default function Signup() {
         <TouchableOpacity
           onPress={() => {
             setRole("student");
-            router.push("/student_signup");
+            router.push("pages/student_signup");
           }}
         >
           <Image
@@ -48,7 +48,7 @@ export default function Signup() {
         <TouchableOpacity
           onPress={() => {
             setRole("alumni");
-            router.push("/alumni_signup");
+            router.push("pages/alumni_signup");
           }}
           style={styles.logoWrapper}
         >
