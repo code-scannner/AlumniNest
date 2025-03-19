@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Pressable
 } from "react-native";
 import { Link, router, useRouter } from "expo-router";
+import { SimpleLineIcons, Feather } from "@expo/vector-icons";
+
 export default function Signup() {
   const [role, setRole] = useState("student");
   const [formData, setFormData] = useState({
@@ -27,6 +30,9 @@ export default function Signup() {
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.backButton} onPress={() => router.push("/")}>
+        <Feather name="arrow-left" size={24} color="white" />
+      </Pressable>
       <Text style={styles.title}>
         Alumni <Text style={styles.highlight}>Nest</Text>
       </Text>
@@ -91,6 +97,11 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontFamily: "Sans",
     textDecorationStyle: "solid",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
   },
   highlight: {
     color: "#1565C0", // Medium blue highlight

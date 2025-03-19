@@ -14,7 +14,7 @@ const LoginScreen = () => {
     return (
         <View style={styles.container}>
             {/* Back Button */}
-            <Pressable style={styles.backButton} onPress={() => router.push("index")}>
+            <Pressable style={styles.backButton} onPress={() => router.push("/")}>
                 <Feather name="arrow-left" size={24} color="white" />
             </Pressable>
 
