@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
         flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20
     },
     title: {
-        fontSize: 44, fontWeight: "bold", color: "#0D47A1", textAlign: "center", marginBottom: 15
+        fontSize: 44, fontWeight: "bold", color: "#0D47A1", textAlign: "center", marginBottom: 5
     },
     highlight: {
         color: "#1565C0"
