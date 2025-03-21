@@ -14,6 +14,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import "../../global.css";
 import { Link } from "expo-router";
 import { Stack } from "expo-router";
+import { upload } from "fontawesome";
 
 // Reusable Input Field Component
 const InputField = ({
@@ -140,6 +141,7 @@ const SignupScreen = () => {
       />
 
       {/* Dropdowns */}
+      <Text style={styles.dropdownLabel}>Branch</Text>
       <View
         style={[
           styles.dropdownContainer,
@@ -149,11 +151,12 @@ const SignupScreen = () => {
         <SelectList
           setSelected={setBranch}
           data={branches.map((b) => ({ key: b, value: b }))}
-          placeholder="Select Branch"
+          placeholder="Select Option"
           onFocus={() => setActiveDropdown("branch")}
           onBlur={() => setActiveDropdown(null)}
         />
       </View>
+      <Text style={styles.dropdownLabel}>Semester</Text>
       <View
         style={[
           styles.dropdownContainer,
@@ -163,11 +166,12 @@ const SignupScreen = () => {
         <SelectList
           setSelected={setSemester}
           data={semesters.map((s) => ({ key: s, value: s }))}
-          placeholder="Select Semester"
+          placeholder="Select Option"
           onFocus={() => setActiveDropdown("semester")}
           onBlur={() => setActiveDropdown(null)}
         />
       </View>
+      <Text style={styles.dropdownLabel}>Course</Text>
       <View
         style={[
           styles.dropdownContainer,
@@ -177,40 +181,64 @@ const SignupScreen = () => {
         <SelectList
           setSelected={setCourse}
           data={courses.map((c) => ({ key: c, value: c }))}
-          placeholder="Select Course"
+          placeholder="Select Option"
           onFocus={() => setActiveDropdown("course")}
           onBlur={() => setActiveDropdown(null)}
         />
       </View>
+      <Text style={styles.dropdownLabel}>Graduation Year</Text>
       <View
         style={[
           styles.dropdownContainer,
           { zIndex: activeDropdown === "graduationYear" ? 2 : 1 },
         ]}
+        className="bg-blue-500"
       >
         <SelectList
           setSelected={setGraduationYear}
           data={years.map((y) => ({ key: y, value: y }))}
-          placeholder="Select Graduation Year"
+          placeholder="Select Option"
           onFocus={() => setActiveDropdown("graduationYear")}
           onBlur={() => setActiveDropdown(null)}
         />
       </View>
 
       {/* Resume Upload */}
-      <TouchableOpacity className = "bg-green-700 w-44" style={styles.button} onPress={handleResumeUpload}>
-        <Text style={styles.buttonText}>
+      <TouchableOpacity
+        onPress={handleResumeUpload}
+        className="w-44 flex flex-row justify-center items-center"
+        style={[
+          styles.uploadButton,
+          {
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        ]}
+      >
+        <FontAwesome
+          name="file"
+          size={20}
+          color="#1565C0"
+          style={{ marginRight: 10 }}
+        />
+        <Text style={styles.uploadButtonText}>
           {resume ? "Resume Uploaded" : "Upload Resume"}
         </Text>
       </TouchableOpacity>
 
       {/* Create Account */}
       <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText} onPress={()=>router.push("/pages/profile")}>CREATE ACCOUNT</Text>
+        <Text
+          style={styles.buttonText}
+          onPress={() => router.push("/pages/profile")}
+        >
+          CREATE ACCOUNT
+        </Text>
       </TouchableOpacity>
 
       {/* Footer */}
-      <TouchableOpacity>
+      <TouchableOpacity className="flex flex-row justify-center items-center">
         <Link href="login" style={styles.bottomText}>
           Already have an account?{" "}
           <Text style={styles.highlightText}>Sign in</Text>
@@ -224,10 +252,16 @@ const SignupScreen = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    // justifyContent: "center",
+    // alignItems: "center",
     padding: 20,
     backgroundColor: "#E3F2FD",
+  },
+  dropdownLabel: {
+    color: "#555",
+    marginBottom: 6,
+    fontSize: 14,
+    marginLeft: 4,
   },
   backButton: { alignSelf: "flex-start", marginBottom: 20 },
   welcomeTitle: {
@@ -235,6 +269,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#0D47A1",
     marginBottom: 20,
+  },
+  centerButton: {
+    alignSelf: "center",
   },
   highlightText: { color: "#1565C0" },
   inputContainer: {
@@ -245,11 +282,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#1565C0",
   },
   inputIcon: { marginRight: 10 },
   input: { flex: 1, color: "#0D47A1" },
-  dropdownContainer: { width: "100%", marginBottom: 15 },
+  dropdownContainer: {
+    width: "100%",
+    marginBottom: 15,
+    backgroundColor: "#BBDEFB",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#1565C0",
+  },
   button: {
     backgroundColor: "#0D47A1",
     paddingVertical: 15,
@@ -258,6 +304,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
   },
+  uploadButton: {
+    backgroundColor: "#E3F2FD",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#1565C0",
+  },
+  uploadButtonText: { color: "#1565C0", fontSize: 16, fontWeight: "bold" },
   buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
   bottomText: { color: "#0D47A1", marginTop: 10 },
 });
