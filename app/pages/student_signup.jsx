@@ -1,62 +1,23 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { router } from "expo-router";
-import { Feather, FontAwesome } from "@expo/vector-icons";
-import * as DocumentPicker from "expo-document-picker";
+import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { SimpleLineIcons, Feather, FontAwesome } from "@expo/vector-icons";
 import { SelectList } from "react-native-dropdown-select-list";
-import "../../global.css";
-import { Link } from "expo-router";
-import { Stack } from "expo-router";
-import { upload } from "fontawesome";
-
-// Reusable Input Field Component
-const InputField = ({
-  icon,
-  placeholder,
-  value,
-  onChangeText,
-  keyboardType,
-  secureTextEntry,
-}) => (
-  <View style={styles.inputContainer}>
-    <FontAwesome
-      name={icon}
-      size={20}
-      color="#1565C0"
-      style={styles.inputIcon}
-    />
-    <TextInput
-      style={styles.input}
-      placeholder={placeholder}
-      placeholderTextColor="#555"
-      secureTextEntry={secureTextEntry}
-      keyboardType={keyboardType}
-      value={value}
-      onChangeText={onChangeText}
-    />
-  </View>
-);
+import * as DocumentPicker from "expo-document-picker";
 
 const SignupScreen = () => {
+  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [cgpa, setCgpa] = useState("");
   const [branch, setBranch] = useState("Computer Science");
   const [semester, setSemester] = useState("1");
-  const [cgpa, setCgpa] = useState("");
-  const [graduationYear, setGraduationYear] = useState("");
-  const [linkedin, setLinkedin] = useState("");
   const [course, setCourse] = useState("BTech");
+  const [graduationYear, setGraduationYear] = useState("");
   const [resume, setResume] = useState(null);
-
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   const branches = [
@@ -82,240 +43,195 @@ const SignupScreen = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Stack.Screen options={{ headerShown: false }} />
-      <TouchableOpacity
-        onPress={() => router.push("/signup")}
-        style={styles.backButton}
-      >
-        <Feather name="arrow-left" size={24} color="#1565C0" />
-      </TouchableOpacity>
+    <View style={{ flex: 1 }} className="bg-primary-dark">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
+        {/* Back Button positioned a bit higher */}
+        <Pressable className="absolute top-7 left-5" onPress={() => {
+          router.push("/")}}> 
+            <Feather name="arrow-left" size={24} color="white" />
+        </Pressable>
 
-      <Text style={styles.welcomeTitle}>
-        Sign Up as <Text style={styles.highlightText}>Student</Text>
-      </Text>
-
-      {/* Input Fields */}
-      <InputField
-        icon="user"
-        placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
-      />
-      <InputField
-        icon="envelope"
-        placeholder="Email Address"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <InputField
-        icon="id-card"
-        placeholder="Roll Number"
-        value={rollNumber}
-        onChangeText={setRollNumber}
-        keyboardType="numeric"
-      />
-      <InputField
-        icon="mobile"
-        placeholder="Mobile Number"
-        value={mobileNumber}
-        onChangeText={setMobileNumber}
-        keyboardType="numeric"
-      />
-      <InputField
-        icon="linkedin"
-        placeholder="LinkedIn Profile"
-        value={linkedin}
-        onChangeText={setLinkedin}
-      />
-      <InputField
-        icon="book"
-        placeholder="CGPA"
-        value={cgpa}
-        onChangeText={setCgpa}
-        keyboardType="decimal-pad"
-      />
-
-      {/* Dropdowns */}
-      <Text style={styles.dropdownLabel}>Branch</Text>
-      <View
-        style={[
-          styles.dropdownContainer,
-          { zIndex: activeDropdown === "branch" ? 3 : 1 },
-        ]}
-      >
-        <SelectList
-          setSelected={setBranch}
-          data={branches.map((b) => ({ key: b, value: b }))}
-          placeholder="Select Option"
-          onFocus={() => setActiveDropdown("branch")}
-          onBlur={() => setActiveDropdown(null)}
-        />
-      </View>
-      <Text style={styles.dropdownLabel}>Semester</Text>
-      <View
-        style={[
-          styles.dropdownContainer,
-          { zIndex: activeDropdown === "semester" ? 2 : 1 },
-        ]}
-      >
-        <SelectList
-          setSelected={setSemester}
-          data={semesters.map((s) => ({ key: s, value: s }))}
-          placeholder="Select Option"
-          onFocus={() => setActiveDropdown("semester")}
-          onBlur={() => setActiveDropdown(null)}
-        />
-      </View>
-      <Text style={styles.dropdownLabel}>Course</Text>
-      <View
-        style={[
-          styles.dropdownContainer,
-          { zIndex: activeDropdown === "course" ? 2 : 1 },
-        ]}
-      >
-        <SelectList
-          setSelected={setCourse}
-          data={courses.map((c) => ({ key: c, value: c }))}
-          placeholder="Select Option"
-          onFocus={() => setActiveDropdown("course")}
-          onBlur={() => setActiveDropdown(null)}
-        />
-      </View>
-      <Text style={styles.dropdownLabel}>Graduation Year</Text>
-      <View
-        style={[
-          styles.dropdownContainer,
-          { zIndex: activeDropdown === "graduationYear" ? 2 : 1 },
-        ]}
-        className="bg-blue-500"
-      >
-        <SelectList
-          setSelected={setGraduationYear}
-          data={years.map((y) => ({ key: y, value: y }))}
-          placeholder="Select Option"
-          onFocus={() => setActiveDropdown("graduationYear")}
-          onBlur={() => setActiveDropdown(null)}
-        />
-      </View>
-
-      {/* Resume Upload */}
-      <TouchableOpacity
-        onPress={handleResumeUpload}
-        className="w-44 flex flex-row justify-center items-center"
-        style={[
-          styles.uploadButton,
-          {
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          },
-        ]}
-      >
-        <FontAwesome
-          name="file"
-          size={20}
-          color="#1565C0"
-          style={{ marginRight: 10 }}
-        />
-        <Text style={styles.uploadButtonText}>
-          {resume ? "Resume Uploaded" : "Upload Resume"}
+        {/* Title */}
+        <Text className="text-3xl font-bold text-blue-600 text-center">
+          Sign Up as <Text className="text-blue-500">Student</Text>
         </Text>
-      </TouchableOpacity>
 
-      {/* Create Account */}
-      <TouchableOpacity style={styles.button}>
-        <Text
-          style={styles.buttonText}
-          onPress={() => router.push("/pages/profile")}
-        >
-          CREATE ACCOUNT
-        </Text>
-      </TouchableOpacity>
+        {/* Input Fields & Dropdowns */}
+        <View className="mt-8 w-full space-y-6">
+          {/* Full Name */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="Full Name"
+              placeholderTextColor="#bbb"
+              value={fullName}
+              onChangeText={setFullName}
+            />
+          </View>
+          {/* Email */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <SimpleLineIcons name="envelope" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="Email Address"
+              placeholderTextColor="#ffffff"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+          </View>
+          {/* Roll Number */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <FontAwesome name="id-card" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="Roll Number"
+              placeholderTextColor="#bbb"
+              value={rollNumber}
+              onChangeText={setRollNumber}
+              keyboardType="numeric"
+            />
+          </View>
+          {/* Mobile Number */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <SimpleLineIcons name="phone" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="Mobile Number"
+              placeholderTextColor="#ffffff"
+              value={mobileNumber}
+              onChangeText={setMobileNumber}
+              keyboardType="numeric"
+            />
+          </View>
+          {/* LinkedIn Profile */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <SimpleLineIcons name="social-linkedin" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="LinkedIn Profile"
+              placeholderTextColor="#ffffff"
+              value={linkedin}
+              onChangeText={setLinkedin}
+            />
+          </View>
+          {/* CGPA */}
+          <View className="flex-row items-center bg-primary-999 border border-blue-500 px-4 py-3 rounded-lg">
+            <FontAwesome name="book" size={20} color="white" className="mr-2" />
+            <TextInput
+              className="flex-1 text-white"
+              placeholder="CGPA"
+              placeholderTextColor="#ffffff"
+              value={cgpa}
+              onChangeText={setCgpa}
+              keyboardType="decimal-pad"
+            />
+          </View>
 
-      {/* Footer */}
-      <TouchableOpacity className="flex flex-row justify-center items-center">
-        <Link href="login" style={styles.bottomText}>
-          Already have an account?{" "}
-          <Text style={styles.highlightText}>Sign in</Text>
-        </Link>
-      </TouchableOpacity>
-    </ScrollView>
+          {/* Dropdown: Branch */}
+          <Text className="text-gray-300 ml-1">Branch</Text>
+          <View className="bg-primary-999 border border-blue-500 rounded-lg mb-4">
+            <SelectList
+              setSelected={setBranch}
+              data={branches.map((b) => ({ key: b, value: b }))}
+              placeholder="Select Branch"
+              onFocus={() => setActiveDropdown("branch")}
+              onBlur={() => setActiveDropdown(null)}
+              boxStyles={{ backgroundColor: "transparent", borderWidth: 0 }}
+              inputStyles={{ color: "#ffffff" }}
+              dropdownTextStyles={{ color: "#ffffff" }}
+              arrowicon={<Feather name="chevron-down" size={20} color="#ffffff" />}
+              closeicon={<Feather name="x" size={20} color="#ffffff" />}
+              searchicon={<Feather name="search" size={20} color="#ffffff" />}
+            />
+          </View>
+
+          {/* Dropdown: Semester */}
+          <Text className="text-gray-300 ml-1">Semester</Text>
+          <View className="bg-primary-999 border border-blue-500 rounded-lg mb-4">
+            <SelectList
+              setSelected={setSemester}
+              data={semesters.map((s) => ({ key: s, value: s }))}
+              placeholder="Select Semester"
+              onFocus={() => setActiveDropdown("semester")}
+              onBlur={() => setActiveDropdown(null)}
+              boxStyles={{ backgroundColor: "transparent", borderWidth: 0 }}
+              inputStyles={{ color: "#ffffff" }}
+              dropdownTextStyles={{ color: "#ffffff" }}
+              arrowicon={<Feather name="chevron-down" size={20} color="#ffffff" />}
+              closeicon={<Feather name="x" size={20} color="#ffffff" />}
+              searchicon={<Feather name="search" size={20} color="#ffffff" />}
+            />
+          </View>
+
+          {/* Dropdown: Course */}
+          <Text className="text-gray-300 ml-1">Course</Text>
+          <View className="bg-primary-999 border border-blue-500 rounded-lg mb-4">
+            <SelectList
+              setSelected={setCourse}
+              data={courses.map((c) => ({ key: c, value: c }))}
+              placeholder="Select Course"
+              onFocus={() => setActiveDropdown("course")}
+              onBlur={() => setActiveDropdown(null)}
+              boxStyles={{ backgroundColor: "transparent", borderWidth: 0 }}
+              inputStyles={{ color: "#ffffff" }}
+              dropdownTextStyles={{ color: "#ffffff" }}
+              arrowicon={<Feather name="chevron-down" size={20} color="#ffffff" />}
+              closeicon={<Feather name="x" size={20} color="#ffffff" />}
+              searchicon={<Feather name="search" size={20} color="#ffffff" />}
+            />
+          </View>
+
+          {/* Dropdown: Graduation Year */}
+          <Text className="text-gray-300 ml-1">Graduation Year</Text>
+          <View className="bg-primary-999 border border-blue-500 rounded-lg mb-4">
+            <SelectList
+              setSelected={setGraduationYear}
+              data={years.map((y) => ({ key: y, value: y }))}
+              placeholder="Select Graduation Year"
+              onFocus={() => setActiveDropdown("graduationYear")}
+              onBlur={() => setActiveDropdown(null)}
+              boxStyles={{ backgroundColor: "transparent", borderWidth: 0 }}
+              inputStyles={{ color: "#ffffff" }}
+              dropdownTextStyles={{ color: "#ffffff" }}
+              arrowicon={<Feather name="chevron-down" size={20} color="#ffffff" />}
+              closeicon={<Feather name="x" size={20} color="#ffffff" />}
+              searchicon={<Feather name="search" size={20} color="#ffffff" />}
+            />
+          </View>
+
+          {/* Resume Upload */}
+          <Pressable
+            onPress={handleResumeUpload}
+            className="w-44 flex-row justify-center items-center bg-gray-900 border border-blue-500 p-3 rounded-lg mb-4"
+          >
+            <FontAwesome name="file" size={20} color="white" className="mr-2" />
+            <Text className="text-blue-500 font-bold">
+              {resume ? "Resume Uploaded" : "Upload Resume"}
+            </Text>
+          </Pressable>
+
+          {/* Create Account Button */}
+          <Pressable
+            className="bg-blue-500 py-3 rounded-lg w-full items-center mt-3"
+            onPress={() => router.push("/pages/profile")}
+          >
+            <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>
+          </Pressable>
+        </View>
+
+        {/* Footer */}
+        <View className="mt-5 flex-row justify-center">
+          <Text className="text-white">Already have an account? </Text>
+          <Link href="/login" className="text-blue-400 font-semibold">
+            Sign in
+          </Link>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
-// Styles
-const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
-    padding: 20,
-    backgroundColor: "#E3F2FD",
-  },
-  dropdownLabel: {
-    color: "#555",
-    marginBottom: 6,
-    fontSize: 14,
-    marginLeft: 4,
-  },
-  backButton: { alignSelf: "flex-start", marginBottom: 20 },
-  welcomeTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#0D47A1",
-    marginBottom: 20,
-  },
-  centerButton: {
-    alignSelf: "center",
-  },
-  highlightText: { color: "#1565C0" },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#BBDEFB",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 10,
-    width: "100%",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#1565C0",
-  },
-  inputIcon: { marginRight: 10 },
-  input: { flex: 1, color: "#0D47A1" },
-  dropdownContainer: {
-    width: "100%",
-    marginBottom: 15,
-    backgroundColor: "#BBDEFB",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#1565C0",
-  },
-  button: {
-    backgroundColor: "#0D47A1",
-    paddingVertical: 15,
-    borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  uploadButton: {
-    backgroundColor: "#E3F2FD",
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#1565C0",
-  },
-  uploadButtonText: { color: "#1565C0", fontSize: 16, fontWeight: "bold" },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-  bottomText: { color: "#0D47A1", marginTop: 10 },
-});
-
 export default SignupScreen;
+

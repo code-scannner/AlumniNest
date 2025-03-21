@@ -1,90 +1,71 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { router } from "expo-router";
-import { Feather, FontAwesome } from "@expo/vector-icons";
-import { Stack } from "expo-router";
-
-// Reusable Input Field Component
-const InputField = ({ icon, placeholder, value, onChangeText, keyboardType, secureTextEntry }) => (
-  <View style={styles.inputContainer}>
-    <FontAwesome name={icon} size={20} color="#1565C0" style={styles.inputIcon} />
-    <TextInput
-      style={styles.input}
-      placeholder={placeholder}
-      placeholderTextColor="#555"
-      secureTextEntry={secureTextEntry}
-      keyboardType={keyboardType}
-      value={value}
-      onChangeText={onChangeText}
-    />
-  </View>
-);
+import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 
 const SignupScreen = () => {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [rollNumber, setRollNumber] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [batchYear, setBatchYear] = useState("");
-  const [currentCompany, setCurrentCompany] = useState("");
-  const [currentRole, setCurrentRole] = useState("");
-  const [linkedin, setLinkedin] = useState("");
+    const router = useRouter();
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [mobileNumber, setMobileNumber] = useState("");
+    const [currentCompany, setCurrentCompany] = useState("");
+    const [currentRole, setCurrentRole] = useState("");
+    const [linkedin, setLinkedin] = useState("");
+    const [batchYear, setBatchYear] = useState("");
 
-  const [activeDropdown, setActiveDropdown] = useState(null);
+    return (
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#121212" }}>
+            {/* Back Button */}
+            <Pressable className="absolute top-10 left-5" onPress={() => {
+              router.push("/")}}> 
+                <Feather name="arrow-left" size={24} color="white" />
+            </Pressable>
 
+            {/* Title */}
+            <Text className="text-5xl font-bold italic text-primary-600 mb-4">Alumni <Text className="text-primary-500">Nest</Text></Text>
+            <Text className="text-lg text-primary-400 mb-5">Create your account</Text>
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-      <Stack.Screen options={{ headerShown: false }} />
-      <TouchableOpacity onPress={() => router.push("/signup")} style={styles.backButton}>
-        <Feather name="arrow-left" size={24} color="#1565C0" />
-      </TouchableOpacity>
+            {/* Input Fields */}
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Full Name" placeholderTextColor="#bbb" value={fullName} onChangeText={setFullName} />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="envelope" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Email Address" placeholderTextColor="#bbb" value={email} onChangeText={setEmail} />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="phone" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Mobile Number" placeholderTextColor="#bbb" value={mobileNumber} onChangeText={setMobileNumber} keyboardType="numeric" />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="briefcase" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Current Company" placeholderTextColor="#bbb" value={currentCompany} onChangeText={setCurrentCompany} />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Current Role" placeholderTextColor="#bbb" value={currentRole} onChangeText={setCurrentRole} />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="linkedin" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="LinkedIn Profile" placeholderTextColor="#bbb" value={linkedin} onChangeText={setLinkedin} />
+            </View>
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="calendar" size={20} color="white" className="mr-2" />
+                <TextInput className="flex-1 text-white" placeholder="Batch Year" placeholderTextColor="#bbb" value={batchYear} onChangeText={setBatchYear} keyboardType="numeric" />
+            </View>
 
-      <Text style={styles.welcomeTitle}>Sign up as <Text style={styles.highlightText}>Alumni</Text></Text>
+            {/* Create Account Button */}
+            <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={() => router.push("/pages/profile")}> 
+                <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>
+            </Pressable>
 
-      {/* Input Fields */}
-      <InputField icon="user" placeholder="Full Name" value={fullName} onChangeText={setFullName} />
-      <InputField icon="envelope" placeholder="Email Address" value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <InputField icon="mobile" placeholder="Mobile Number" value={mobileNumber} onChangeText={setMobileNumber} keyboardType="numeric" />
-      <InputField icon="building" placeholder="Current Company" value={currentCompany} onChangeText={setCurrentCompany} />
-      <InputField icon="briefcase" placeholder="Current Role" value={currentRole} onChangeText={setCurrentRole} />
-      <InputField icon="linkedin" placeholder="LinkedIn Profile" value={linkedin} onChangeText={setLinkedin} />
-      <InputField icon="calendar" placeholder="Batch Year" value={batchYear} onChangeText={setBatchYear} keyboardType="numeric" />
-
-
-      {/* Create Account */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText} onPress={()=>router.push("/pages/profile")}>CREATE ACCOUNT</Text>
-      </TouchableOpacity>
-
-      {/* Footer */}
-      <TouchableOpacity onPress={() => router.push("userloginsign/login")}>
-        <Text style={styles.bottomText}>Already have an account? <Text style={styles.highlightText}>Sign in</Text></Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
+            {/* Footer */}
+            <Text className="text-white mt-5">Already have an account?
+                <Link href="/login"><Text className="text-primary-300"> Sign in</Text></Link>
+            </Text>
+        </ScrollView>
+    );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#E3F2FD" },
-  backButton: { alignSelf: "flex-start", marginBottom: 20 },
-  welcomeTitle: { fontSize: 28, fontWeight: "bold", color: "#0D47A1", marginBottom: 20 },
-  highlightText: { color: "#1565C0" },
-  inputContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#BBDEFB", paddingHorizontal: 15, paddingVertical: 12, borderRadius: 10, width: "100%", marginBottom: 15 },
-  inputIcon: { marginRight: 10 },
-  input: { flex: 1, color: "#0D47A1" },
-  dropdownContainer: { width: "100%", marginBottom: 15 },
-  button: { backgroundColor: "#0D47A1", paddingVertical: 15, borderRadius: 10, width: "100%", alignItems: "center", marginBottom: 15 },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-  bottomText: { color: "#0D47A1", marginTop: 10 },
-});
 
 export default SignupScreen;
