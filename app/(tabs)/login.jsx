@@ -18,7 +18,7 @@ const LoginScreen = () => {
             </Pressable>
 
             {/* Title */}
-            <Text className="text-5xl font-bold italic text-primary-400 mb-4">Alumni <Text className="text-primary-500">Nest</Text></Text>
+            <Text className="text-5xl font-bold italic text-primary-600 mb-4">Alumni <Text className="text-primary-500">Nest</Text></Text>
             <Text className="text-lg text-primary-400 mb-5">Log in to your account</Text>
 
             {/* Email Input */}
@@ -57,7 +57,7 @@ const LoginScreen = () => {
 
             {/* Log In Button */}
             <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={() => router.push("/pages/profile")}> 
-                <Text className="text-white text-lg font-bold">LOG IN</Text>
+                <Text className="text-black text-lg font-bold">LOG IN</Text>
             </Pressable>
 
             {/* Forgot Password & Sign Up Links */}
