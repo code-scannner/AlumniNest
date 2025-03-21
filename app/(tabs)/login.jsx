@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground } from "react-native";
+import { View, Text, TextInput, Pressable } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
-import "../../global.css"
 
 const LoginScreen = () => {
     const router = useRouter();
@@ -12,35 +11,35 @@ const LoginScreen = () => {
     const [rememberMe, setRememberMe] = useState(false);
 
     return (
-        <View style={styles.container}>
+        <View className="flex-1 justify-center items-center bg-primary-dark p-5">
             {/* Back Button */}
-            <Pressable style={styles.backButton} onPress={() => router.push("/")}>
+            <Pressable className="absolute top-10 left-5" onPress={() => router.push("/")}> 
                 <Feather name="arrow-left" size={24} color="white" />
             </Pressable>
 
             {/* Title */}
-            <Text style={styles.title}>Alumni <Text style={styles.highlight}>Nest</Text></Text>
-            <Text style={styles.textline}>Log in your account</Text>
+            <Text className="text-5xl font-bold italic text-primary-400 mb-4">Alumni <Text className="text-primary-500">Nest</Text></Text>
+            <Text className="text-lg text-primary-400 mb-5">Log in to your account</Text>
 
             {/* Email Input */}
-            <View style={styles.inputContainer}>
-                <SimpleLineIcons name="envelope" size={20} color="white" style={styles.inputIcon} />
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="envelope" size={20} color="white" className="mr-2" />
                 <TextInput
-                    style={styles.input}
+                    className="flex-1 text-white"
                     placeholder="Email Address"
-                    placeholderTextColor="#aaa"
+                    placeholderTextColor="#bbb"
                     value={email}
                     onChangeText={setEmail}
                 />
             </View>
 
             {/* Password Input */}
-            <View style={styles.inputContainer}>
-                <SimpleLineIcons name="lock" size={20} color="white" style={styles.inputIcon} />
+            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="lock" size={20} color="white" className="mr-2" />
                 <TextInput
-                    style={styles.input}
+                    className="flex-1 text-white"
                     placeholder="Password"
-                    placeholderTextColor="#aaa"
+                    placeholderTextColor="#bbb"
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
@@ -51,111 +50,28 @@ const LoginScreen = () => {
             </View>
 
             {/* Remember Me Checkbox */}
-            <Pressable style={styles.rememberContainer} onPress={() => setRememberMe(!rememberMe)}>
+            <Pressable className="flex-row items-center mb-4" onPress={() => setRememberMe(!rememberMe)}>
                 <Feather name={rememberMe ? "check-square" : "square"} size={20} color="white" />
-                <Text style={styles.rememberText}> Remember for 30 days</Text>
+                <Text className="text-white ml-2">Remember for 30 days</Text>
             </Pressable>
 
             {/* Log In Button */}
-            <Pressable style={styles.button} onPress={() => router.push("/pages/profile")}>
-                <Text style={styles.buttonText}>LOG IN</Text>
+            <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={() => router.push("/pages/profile")}> 
+                <Text className="text-white text-lg font-bold">LOG IN</Text>
             </Pressable>
 
             {/* Forgot Password & Sign Up Links */}
             <Link href="/forgot-password" asChild>
                 <Pressable>
-                    <Text style={styles.forgotText}>Forgot Password?</Text>
+                    <Text className="text-primary-300 mt-4">Forgot Password?</Text>
                 </Pressable>
             </Link>
 
-            <Text style={styles.signupText}>Don’t have an account?
-                <Link href="signup"><Text style={styles.highlight}> Sign up</Text></Link>
+            <Text className="text-white mt-5">Don’t have an account?
+                <Link href="/signup"><Text className="text-primary-300"> Sign up</Text></Link>
             </Text>
-
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#E3F2FD", // Light blue background
-        padding: 20,
-    },
-    textline:{
-        fontSize:15,
-        marginBottom:20,
-        color: "#1565C0"
-    },
-    backButton: {
-        position: "absolute",
-        top: 40,
-        left: 20,
-    },
-    title: {
-        fontSize: 50,
-        fontWeight: "bold",
-        color: "#0D47A1", // Deep blue
-        textAlign: "center",
-        marginBottom:20,
-        fontStyle: "italic",
-        fontFamily:"Sans",
-        textDecorationStyle: "solid",
-    },
-    highlight: {
-        color: "#1565C0", // Medium blue highlight
-    },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "#BBDEFB", // Light blue-gray input field
-        paddingHorizontal: 15,
-        paddingVertical: 12,
-        borderRadius: 10,
-        width: "90%",
-        marginBottom: 15,
-    },
-    inputIcon: {
-        marginRight: 10,
-    },
-    input: {
-        flex: 1,
-        color: "#0D47A1", // Deep blue text
-    },
-    rememberContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 20,
-    },
-    rememberText: {
-        color: "#1565C0", // Medium blue text
-        marginLeft: 10,
-    },
-    button: {
-        backgroundColor: "#0D47A1", // Strong blue button
-        paddingVertical: 15,
-        borderRadius: 10,
-        width: "90%",
-        alignItems: "center",
-        marginTop: 10,
-    },
-    buttonText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "bold",
-    },
-    forgotText: {
-        color: "#1565C0", // Medium blue
-        marginVertical: 10,
-        marginBottom: 50,
-    },
-    signupText: {
-        color: "#0D47A1", // Deep blue text
-        marginTop: 10,
-        textAlign: "center",
-    },
-});
 
 export default LoginScreen;
