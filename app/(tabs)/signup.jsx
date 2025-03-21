@@ -39,7 +39,7 @@ export default function Signup() {
               style={{ width: 80, height: 80, resizeMode: "contain" }}
             />
           </View>
-          <Text className="text-primary-500 mt-2">Student</Text>
+          <Text className="text-primary-500 mt-2 mb-10">Student</Text>
         </Pressable>
         <Pressable
           onPress={() => {
