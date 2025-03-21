@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
+import axios from "axios";
 
 const LoginScreen = () => {
     const router = useRouter();
@@ -9,6 +10,35 @@ const LoginScreen = () => {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert("Missing fields", "Please enter both email and password.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await axios.post("https://192.168.0.128:5000/api/login", {
+                email,
+                password,
+            });
+
+            // Example: storing token or navigating after successful login
+            const { token, user } = response.data;
+
+            // Save token locally (optional) & navigate
+            // await AsyncStorage.setItem('authToken', token);
+            router.push("/pages/profile");
+        } catch (error) {
+            console.error("Login error:", error);
+            Alert.alert("Login Failed", error.response?.data?.message || "An error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View className="flex-1 justify-center items-center bg-primary-dark p-5">
@@ -30,6 +60,8 @@ const LoginScreen = () => {
                     placeholderTextColor="#bbb"
                     value={email}
                     onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
                 />
             </View>
 
@@ -56,8 +88,16 @@ const LoginScreen = () => {
             </Pressable>
 
             {/* Log In Button */}
-            <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={() => router.push("/pages/profile")}> 
-                <Text className="text-black text-lg font-bold">LOG IN</Text>
+            <Pressable
+                className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3"
+                onPress={handleLogin}
+                disabled={loading}
+            >
+                {loading ? (
+                    <ActivityIndicator color="black" />
+                ) : (
+                    <Text className="text-black text-lg font-bold">LOG IN</Text>
+                )}
             </Pressable>
 
             {/* Forgot Password & Sign Up Links */}
@@ -67,7 +107,8 @@ const LoginScreen = () => {
                 </Pressable>
             </Link>
 
-            <Text className="text-white mt-5">Don’t have an account?
+            <Text className="text-white mt-5">
+                Don’t have an account?
                 <Link href="/signup"><Text className="text-primary-300"> Sign up</Text></Link>
             </Text>
         </View>
