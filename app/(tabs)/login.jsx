@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from "reac
 import { Link, useRouter } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const LoginScreen = () => {
     const router = useRouter();
@@ -17,20 +18,14 @@ const LoginScreen = () => {
             Alert.alert("Missing fields", "Please enter both email and password.");
             return;
         }
-
         setLoading(true);
-
         try {
-            const response = await axios.post("https://192.168.0.128:5000/api/login", {
+            const response = await axios.post("http://192.168.0.140:5000/api/login", {
                 email,
                 password,
             });
-
-            // Example: storing token or navigating after successful login
             const { token, user } = response.data;
-
-            // Save token locally (optional) & navigate
-            // await AsyncStorage.setItem('authToken', token);
+            await SecureStore.setItemAsync("token", token);
             router.push("/pages/profile");
         } catch (error) {
             console.error("Login error:", error);
@@ -80,12 +75,6 @@ const LoginScreen = () => {
                     <Feather name={showPassword ? "eye-off" : "eye"} size={20} color="white" />
                 </Pressable>
             </View>
-
-            {/* Remember Me Checkbox */}
-            <Pressable className="flex-row items-center mb-4" onPress={() => setRememberMe(!rememberMe)}>
-                <Feather name={rememberMe ? "check-square" : "square"} size={20} color="white" />
-                <Text className="text-white ml-2">Remember for 30 days</Text>
-            </Pressable>
 
             {/* Log In Button */}
             <Pressable

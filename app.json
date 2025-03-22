@@ -3,7 +3,7 @@
     "name": "AlumniNest",
     "slug": "AlumniNest",
     "version": "1.0.0",
-    "packageName":"com.alumninest",
+    "packageName": "com.alumninest",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -33,7 +33,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
