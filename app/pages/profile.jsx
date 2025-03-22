@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import axios from "axios"; // Import axios
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -12,33 +11,12 @@ export default function ProfilePage() {
   const [website, setWebsite] = useState("www.example.com");
   const [location, setLocation] = useState("City, Country");
 
-  const token = await SecureStore.getItemAsync("authToken"); // Get the token from SecureStore
-
-  useEffect(() => {
-    const fetchProfile= async () => { 
-      try {
-        const res = await axios.get("http://localhost:5000/api/user/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = res.data;
-        console.log(data);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error.message);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
   return (
-    <View style={styles.container} className="flex-1 justify-center items-center bg-primary-dark p-5">
+    <View style={styles.container}>
         <Stack.Screen options={{ headerShown: false }} />
       {/* Profile Picture */}
       <Image source={require("../../assets/images/student_logo.png")} style={styles.profilePic} />
-      <Text className="text-3xl font-bold italic text-primary-600 mb-4">Utkarsh Trivedi</Text>
+      
       {/* Personal Information */}
       <View style={styles.infoContainer}>
         <Text style={styles.sectionTitle}>Personal Information</Text>
@@ -82,13 +60,14 @@ export default function ProfilePage() {
         </TouchableOpacity>
       </View>
     </View>
-  );rofile = async () => 
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#E3F2FD",
     padding: 20,
   },
   profilePic: {
@@ -96,8 +75,6 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     marginBottom: 20,
-    borderWidth: 2,
-    borderColor: 'hsl(197, 100%, 56%)',
   },
   infoContainer: {
     backgroundColor: "#BBDEFB",

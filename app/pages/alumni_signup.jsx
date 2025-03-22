@@ -22,7 +22,7 @@ const SignupScreen = () => {
             </Pressable>
 
             {/* Title */}
-            <Text className="text-5xl font-bold italic text-primary-600 mb-4">Alumni <Text className="text-primary-500">Nest</Text></Text>
+            <Text className="text-3xl font-bold italic text-primary-600 mb-4">Sign up as <Text className="text-primary-500">Alumni</Text></Text>
             <Text className="text-lg text-primary-400 mb-5">Create your account</Text>
 
             {/* Input Fields */}
@@ -47,7 +47,7 @@ const SignupScreen = () => {
                 <TextInput className="flex-1 text-white" placeholder="Current Role" placeholderTextColor="#bbb" value={currentRole} onChangeText={setCurrentRole} />
             </View>
             <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
-                <SimpleLineIcons name="linkedin" size={20} color="white" className="mr-2" />
+                <SimpleLineIcons name="social-linkedin" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="LinkedIn Profile" placeholderTextColor="#bbb" value={linkedin} onChangeText={setLinkedin} />
             </View>
             <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
