@@ -52,7 +52,7 @@ const SignupScreen = () => {
         </Pressable>
 
         {/* Title */}
-        <Text className="text-3xl font-bold text-blue-600 text-center">
+        <Text className="text-3xl font-bold italic text-blue-600 text-center">
           Sign Up as <Text className="text-blue-500">Student</Text>
         </Text>
 
@@ -201,20 +201,9 @@ const SignupScreen = () => {
             />
           </View>
 
-          {/* Resume Upload */}
-          <Pressable
-            onPress={handleResumeUpload}
-            className="w-44 flex-row justify-center items-center bg-gray-900 border border-blue-500 p-3 rounded-lg mb-4"
-          >
-            <FontAwesome name="file" size={20} color="white" className="mr-2" />
-            <Text className="text-blue-500 font-bold">
-              {resume ? "Resume Uploaded" : "Upload Resume"}
-            </Text>
-          </Pressable>
-
           {/* Create Account Button */}
           <Pressable
-            className="bg-blue-500 py-3 rounded-lg w-full items-center mt-3"
+            className="bg-primary-400 py-3 rounded-lg w-full items-center mt-3"
             onPress={() => router.push("/pages/profile")}
           >
             <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>

@@ -3,14 +3,13 @@ import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from "reac
 import { Link, useRouter } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+import * as secureStore from "expo-secure-store";
 
 const LoginScreen = () => {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
@@ -25,7 +24,8 @@ const LoginScreen = () => {
                 password,
             });
             const { token, user } = response.data;
-            await SecureStore.setItemAsync("token", token);
+            console.log(token)
+            await secureStore.setItemAsync("token", token);
             router.push("/pages/profile");
         } catch (error) {
             console.error("Login error:", error);

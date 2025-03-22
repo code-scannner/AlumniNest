@@ -1,83 +1,155 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ScrollView,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
+import axios from "axios";
+import * as secureStore from "expo-secure-store";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
-  const [email, setEmail] = useState("user@example.com");
-  const [phone, setPhone] = useState("+1234567890");
-  const [website, setWebsite] = useState("www.example.com");
-  const [location, setLocation] = useState("City, Country");
+  const [res, setRes] = useState({});
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = await secureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://192.168.0.140:5000/api/profile/",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = response.data.info;
+        setRes(data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error.message);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container} className="bg-primary-dark p-5">
         <Stack.Screen options={{ headerShown: false }} />
-      {/* Profile Picture */}
-      <Image source={require("../../assets/images/student_logo.png")} style={styles.profilePic} />
-      
-      {/* Personal Information */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        <TouchableOpacity style={styles.editIcon} onPress={() => setIsEditing(!isEditing)}>
-          <Feather name={isEditing ? "save" : "edit"} size={20} color="#1565C0" />
+
+        {/* Profile Picture with Edit Icon */}
+        <View style={styles.profileWrapper}>
+          <Image
+            source={require("../../assets/images/student_logo.png")}
+            style={styles.profilePic}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.editIconOverlay}
+          onPress={() => router.push("/edit-profile")}
+        >
+          <Feather name="edit" size={20} color="white" />
         </TouchableOpacity>
-        {isEditing ? (
-          <>
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} />
-            <TextInput style={styles.input} value={phone} onChangeText={setPhone} />
-            <TextInput style={styles.input} value={website} onChangeText={setWebsite} />
-            <TextInput style={styles.input} value={location} onChangeText={setLocation} />
-          </>
-        ) : (
-          <>
-            <Text style={styles.infoText}><Feather name="mail" size={16} />  Email: {email}</Text>
-            <Text style={styles.infoText}><Feather name="phone" size={16} />  Phone: {phone}</Text>
-            <Text style={styles.infoText}><Feather name="globe" size={16} />  Website: {website}</Text>
-            <Text style={styles.infoText}><Feather name="map-pin" size={16} />  Location: {location}</Text>
-          </>
-        )}
+
+        {/* Name */}
+        <Text className="text-3xl font-bold italic text-primary-600 mb-4">
+          {res?.full_name}
+        </Text>
+
+        {/* Personal Information */}
+        <View
+          style={styles.infoContainer}
+          className="bg-primary-200 rounded-lg"
+        >
+          <Text style={styles.sectionTitle}>Personal Information</Text>
+          <Text style={styles.infoText}>
+            <Feather name="user" size={16} /> Username: {res.username}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="mail" size={16} /> Email: {res.email}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="phone" size={16} /> Phone: {res.phone_no}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="book" size={16} /> Course: {res.course}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="layers" size={16} /> Branch: {res.branch}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="home" size={16} /> College: {res.college}
+          </Text>
+          <Text style={styles.infoText}>
+            <Feather name="calendar" size={16} /> Passout Year:{" "}
+            {res.passout_year}
+          </Text>
+        </View>
+
+        {/* Utilities */}
+        <View style={styles.utilitiesContainer}>
+          <TouchableOpacity style={styles.utilityButton}>
+            <Feather name="download" size={20} color="#1565C0" />
+            <Text style={styles.utilityText}>Downloads</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.utilityButton}>
+            <Feather name="users" size={20} color="#1565C0" />
+            <Text style={styles.utilityText}>Connections</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.utilityButton}>
+            <Feather name="help-circle" size={20} color="#1565C0" />
+            <Text style={styles.utilityText}>Help Desk</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.utilityButton}
+            onPress={() => router.push("/login")}
+          >
+            <Feather name="log-out" size={20} color="red" />
+            <Text style={[styles.utilityText, { color: "red" }]}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      
-      {/* Utilities */}
-      <View style={styles.utilitiesContainer}>
-        <TouchableOpacity style={styles.utilityButton}>
-          <Feather name="download" size={20} color="#1565C0" />
-          <Text style={styles.utilityText}>Downloads</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.utilityButton}>
-          <Feather name="users" size={20} color="#1565C0" />
-          <Text style={styles.utilityText}>Connections</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.utilityButton}>
-          <Feather name="help-circle" size={20} color="#1565C0" />
-          <Text style={styles.utilityText}>Help Desk</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.utilityButton} onPress={() => router.push("/login")}> 
-          <Feather name="log-out" size={20} color="red" />
-          <Text style={[styles.utilityText, { color: "red" }]}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    paddingBottom: 40,
+  },
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: "center",
     backgroundColor: "#E3F2FD",
     padding: 20,
+    marginTop: 40,
+  },
+  profileWrapper: {
+    position: "relative",
+    marginBottom: 20,
   },
   profilePic: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "hsl(197, 100%, 56%)",
+  },
+  editIconOverlay: {
+    position: "absolute",
+    top: 20,
+    right: 15,
+    borderRadius: 20,
+    padding: 6,
+    zIndex: 10,
   },
   infoContainer: {
-    backgroundColor: "#BBDEFB",
     padding: 15,
     borderRadius: 10,
     width: "90%",
@@ -86,26 +158,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#0D47A1",
+    color: "hsl(210, 80%, 33%)",
     marginBottom: 10,
-  },
-  editIcon: {
-    position: "absolute",
-    top: 10,
-    right: 10,
   },
   infoText: {
     fontSize: 14,
     color: "#0D47A1",
     marginVertical: 5,
-  },
-  input: {
-    fontSize: 14,
-    color: "#0D47A1",
-    backgroundColor: "white",
-    padding: 5,
-    marginVertical: 5,
-    borderRadius: 5,
   },
   utilitiesContainer: {
     width: "90%",
