@@ -1,13 +1,14 @@
-const jwt = require("jsonwebtoken");
-const Student = require("../models/Student");
-const Alumni = require("../models/Alumni");
+import pkg from "jsonwebtoken";
+const { verify } = pkg;
+import Student from "../models/Student.js";
+import Alumni from "../models/Alumni.js";
 
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
     try {
         const token = req.header("Authorization")?.replace("Bearer ", "");
         if (!token) return res.status(401).json({ message: "Access Denied. No Token Provided" });
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = verify(token, "secret");
         req.user = decoded;
 
         // Check if the user exists in Student or Alumni collection
@@ -25,5 +26,19 @@ const authMiddleware = async (req, res, next) => {
         res.status(401).json({ message: "Invalid Token" });
     }
 };
+export const alumniAuthMiddleware = async (req, res, next) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-module.exports = authMiddleware;
+        const decoded = verify(token, "secret");
+        const alumni = await Alumni.findById(decoded.id);
+
+        if (!alumni) return res.status(401).json({ message: "Alumni not found" });
+
+        req.alumni = alumni; // Store alumni info in request
+        next();
+    } catch (error) {
+        res.status(401).json({ message: "Invalid token" });
+    }
+};

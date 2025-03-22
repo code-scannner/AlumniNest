@@ -1,8 +1,8 @@
-const Student = require("../models/Student");
-const Alumni = require("../models/Alumni");
+import Student from "../models/Student.js";
+import Alumni from "../models/Alumni.js";
 
 // Get Profile
-const getProfile = async (req, res) => {
+export const getProfile = async (req, res) => {
     try {
         res.status(200).json({ info: req.user.profile, type: req.user.role });
     } catch (error) {
@@ -11,7 +11,7 @@ const getProfile = async (req, res) => {
 };
 
 // Update Profile
-const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
     try {
         const { role, profile } = req.user;
         const { full_name, profile_pic, bio, phone_no, resume, curr_work, position } = req.body;
@@ -37,4 +37,3 @@ const updateProfile = async (req, res) => {
     }
 };
 
-module.exports = { getProfile, updateProfile };

@@ -1,10 +1,10 @@
-const express = require("express");
-const { getProfile, updateProfile } = require("../controller/UserController");
-const authMiddleware = require("../middlewares/authMiddleware");
+import { Router } from "express";
+import { getProfile, updateProfile } from "../controller/UserController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/", authMiddleware, getProfile); // Login for both students and alumni
 router.put("/", authMiddleware, updateProfile); // Student registrationn
 
-module.exports = router;
+export default router;

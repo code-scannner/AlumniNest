@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const LikeSchema = new mongoose.Schema({
-    post_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
+const LikeSchema = new Schema({
+    post_id: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
+    user_id: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
     timestamp: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Like', LikeSchema);
+export default model('Like', LikeSchema);

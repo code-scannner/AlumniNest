@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const ConnectionSchema = new mongoose.Schema({
-    student_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
-    alumni_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Alumni', required: true },
+const ConnectionSchema = new Schema({
+    student_id: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    alumni_id: { type: Schema.Types.ObjectId, ref: 'Alumni', required: true },
     status: { type: String, enum: ["accepted", "pending", "rejected"], required: true }
 });
 
-module.exports = mongoose.model('Connection', ConnectionSchema);
+export default model('Connection', ConnectionSchema);

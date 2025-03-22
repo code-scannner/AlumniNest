@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const NotificationSchema = new mongoose.Schema({
-    receiver_id: { type: mongoose.Schema.Types.ObjectId, refPath: 'receiverModel', required: true },
+const NotificationSchema = new Schema({
+    receiver_id: { type: Schema.Types.ObjectId, refPath: 'receiverModel', required: true },
     receiverModel: { type: String, enum: ['Student', 'Alumni'], required: true },
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
@@ -9,4 +9,4 @@ const NotificationSchema = new mongoose.Schema({
     read: { type: Boolean, default: false }
 });
 
-module.exports = mongoose.model('Notification', NotificationSchema);
+export default model('Notification', NotificationSchema);

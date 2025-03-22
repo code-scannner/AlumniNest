@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const AlumniSchema = new mongoose.Schema({
+const AlumniSchema = new Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -12,4 +12,4 @@ const AlumniSchema = new mongoose.Schema({
     bio: { type: String }
 });
 
-module.exports = mongoose.model('Alumni', AlumniSchema);
+export default model('Alumni', AlumniSchema);
