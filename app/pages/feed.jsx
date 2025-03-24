@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import Post from "../../components/Post"; // Adjust the path if needed
+import  Post  from "../../components/Post"; 
 import { StyleSheet } from "nativewind";
+import { Stack } from "expo-router";
 const posts = [
   {
     id: 1,
@@ -34,6 +35,7 @@ const FeedPage = ({ username = "John" }) => {
   return (
     <ScrollView className="flex-1 bg-primary-dark px-5 pt-10">
       {/* Header */}
+      <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-row justify-between items-center mb-5">
         <View className="flex-row items-center">
           <Image
