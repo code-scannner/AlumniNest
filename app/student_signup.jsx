@@ -19,7 +19,10 @@ const SignupScreen = () => {
   const [graduationYear, setGraduationYear] = useState("");
   const [resume, setResume] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setshowConfirmPassword] = useState(false);
   // function to select photo
   const [profilePhoto, setProfilePhoto] = useState(null);
   const handlePhotoUpload = async () => {
@@ -66,7 +69,14 @@ const SignupScreen = () => {
   const semesters = Array.from({ length: 8 }, (_, i) => (i + 1).toString());
   const courses = ["BTech", "MTech", "MBA", "PhD"];
   const years = Array.from({ length: 20 }, (_, i) => (2005 + i).toString());
-
+  //check confirm password==password
+  const handleCreateAccount = () => {
+    if (password !== confirmPassword) {
+      alert("Password and Confirm Password do not match!");
+      return;
+    }
+    router.push("/(tabs)/profile");
+  };
   return (
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#121212" }}>
         {/* Back Button positioned a bit higher */}
@@ -102,38 +112,38 @@ const SignupScreen = () => {
             )}
           </Pressable>
           {/* Full Name */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2  rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1  rounded-lg w-11/12 mb-4">
               <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
               <TextInput className="flex-1 text-white" placeholder="Full Name" placeholderTextColor="#bbb" value={fullName} onChangeText={setFullName} />
           </View>
           {/* Email */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2 rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
               <SimpleLineIcons name="envelope" size={20} color="white" className="mr-2" />
               <TextInput className="flex-1 text-white" placeholder="Email Address" placeholderTextColor="#bbb" value={email} onChangeText={setEmail} />
           </View>
           {/* Roll Number */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2 rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
               <FontAwesome name="id-card" size={20} color="white" className="mr-2" />
               <TextInput keyboardType="numeric" className="flex-1 text-white" placeholder="Roll Number" placeholderTextColor="#bbb" value={rollNumber} onChangeText={setRollNumber} />
           </View>
           {/* Mobile Number */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2 rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
               <FontAwesome name="phone" size={20} color="white" className="mr-2" />
               <TextInput keyboardType="numeric" className="flex-1 text-white" placeholder="Mobile Number" placeholderTextColor="#bbb" value={mobileNumber} onChangeText={setMobileNumber} />
           </View>
           {/* LinkedIn Profile */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2 rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
               <SimpleLineIcons name="social-linkedin" size={18} color="white" className="mr-2" />
               <TextInput className="flex-1 text-white" placeholder="LinkedIn Profile" placeholderTextColor="#bbb" value={linkedin} onChangeText={setLinkedin} />
           </View>
           {/* CGPA */}
-          <View className="flex-row items-center bg-primary-999 px-4 py-2 rounded-lg w-11/12 mb-4">
+          <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
             <FontAwesome name="book" size={20} color="white" className="mr-2" />
               <TextInput keyboardType="decimal-pad" className="flex-1 text-white" placeholder="CGPA" placeholderTextColor="#bbb" value={cgpa} onChangeText={setCgpa} />
           </View>
 
           {/* Dropdown: Branch */}
-          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-1">
+          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-0.5">
             <SelectList
               setSelected={setBranch}
               data={branches.map((b) => ({ key: b, value: b }))}
@@ -150,7 +160,7 @@ const SignupScreen = () => {
           </View>
 
           {/* Dropdown: Semester */}
-          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-1">
+          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-0.5">
             <SelectList
               setSelected={setSemester}
               data={semesters.map((s) => ({ key: s, value: s }))}
@@ -167,7 +177,7 @@ const SignupScreen = () => {
           </View>
 
           {/* Dropdown: Course */}
-          <View className="bg-primary-999 w-11/12 rounded-lg mb-4 py-1">
+          <View className="bg-primary-999 w-11/12 rounded-lg mb-4 py-0.5">
             <SelectList
               setSelected={setCourse}
               data={courses.map((c) => ({ key: c, value: c }))}
@@ -184,7 +194,7 @@ const SignupScreen = () => {
           </View>
 
           {/* Dropdown: Graduation Year */}
-          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-1">
+          <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-0.5">
             <SelectList
               setSelected={setGraduationYear}
               data={years.map((y) => ({ key: y, value: y }))}
@@ -200,10 +210,42 @@ const SignupScreen = () => {
             />
           </View>
 
+          {/* Password Field */}
+          <View className="flex-row items-center bg-primary-999 px-5 py-1 rounded-lg w-11/12 mb-4">
+              <SimpleLineIcons name="lock" size={20} color="white" className="mr-2" />
+              <TextInput
+                  className="flex-1 text-white"
+                  placeholder="Password"
+                  placeholderTextColor="#bbb"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+              />
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={20} color="white" />
+              </Pressable>
+          </View>
+          
+          {/* Confirm Password Field */}
+          <View className="flex-row items-center bg-primary-999 px-5 py-1 rounded-lg w-11/12 mb-4">
+              <SimpleLineIcons name="lock" size={20} color="white" className="mr-2" />
+              <TextInput
+                  className="flex-1 text-white"
+                  placeholder="Confirm Password"
+                  placeholderTextColor="#bbb"
+                  secureTextEntry={!showConfirmPassword}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+              />
+              <Pressable onPress={() => setshowConfirmPassword(!showConfirmPassword)}>
+                  <Feather name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="white" />
+              </Pressable>
+          </View>
+
           {/* Create Account Button */}
           <Pressable
             className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3"
-            onPress={() => router.push("/(tabs)/profile")}
+            onPress={handleCreateAccount}
           >
             <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>
           </Pressable>

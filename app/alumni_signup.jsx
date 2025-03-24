@@ -16,7 +16,10 @@ const SignupScreen = () => {
     const [linkedin, setLinkedin] = useState("");
     const [batchYear, setBatchYear] = useState("");
     const years = Array.from({ length: 20 }, (_, i) => (2005 + i).toString());
-
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setshowConfirmPassword] = useState(false);
     // function to select photo
     const [profilePhoto, setProfilePhoto] = useState(null);
     const handlePhotoUpload = async () => {
@@ -50,6 +53,14 @@ const SignupScreen = () => {
         setProfilePhoto(result.assets[0].uri);
         }
     }
+    };
+    //check confirm password==password
+    const handleCreateAccount = () => {
+        if (password !== confirmPassword) {
+        alert("Password and Confirm Password do not match!");
+        return;
+        }
+        router.push("/(tabs)/profile");
     };
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#121212" }}>
@@ -85,33 +96,33 @@ const SignupScreen = () => {
                     </View>
                 )}
             </Pressable>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="Full Name" placeholderTextColor="#bbb" value={fullName} onChangeText={setFullName} />
             </View>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="envelope" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="Email Address" placeholderTextColor="#bbb" value={email} onChangeText={setEmail} />
             </View>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="phone" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="Mobile Number" placeholderTextColor="#bbb" value={mobileNumber} onChangeText={setMobileNumber} keyboardType="numeric" />
             </View>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="briefcase" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="Current Company" placeholderTextColor="#bbb" value={currentCompany} onChangeText={setCurrentCompany} />
             </View>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="user" size={20} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="Current Role" placeholderTextColor="#bbb" value={currentRole} onChangeText={setCurrentRole} />
             </View>
-            <View className="flex-row items-center bg-primary-999 px-4 py-3 rounded-lg w-11/12 mb-4">
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
                 <SimpleLineIcons name="social-linkedin" size={18} color="white" className="mr-2" />
                 <TextInput className="flex-1 text-white" placeholder="LinkedIn Profile" placeholderTextColor="#bbb" value={linkedin} onChangeText={setLinkedin} />
             </View>
             {/* Dropdown: Batch Year */}
-            <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-3 flex-row items-center px-4">
-                <SimpleLineIcons name="calendar" size={20} color="white" className="mr-1"/>
+            <View className="bg-primary-999 rounded-lg w-11/12 mb-4 py-0.5 flex-row items-center">
+                <SimpleLineIcons name="calendar" size={20} color="white" className="ml-3"/>
                 <View className="flex-1">
                     <SelectList
                     setSelected={setBatchYear}
@@ -128,10 +139,41 @@ const SignupScreen = () => {
                     />
                 </View>
             </View>
-
+                
+            {/* Password Field */}
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="lock" size={20} color="white" className="mr-2" />
+                <TextInput
+                    className="flex-1 text-white"
+                    placeholder="Password"
+                    placeholderTextColor="#bbb"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                <Pressable onPress={() => setShowPassword(!showPassword)}>
+                    <Feather name={showPassword ? "eye-off" : "eye"} size={20} color="white" />
+                </Pressable>
+            </View>
+            
+            {/* Confirm Password Field */}
+            <View className="flex-row items-center bg-primary-999 px-4 py-1 rounded-lg w-11/12 mb-4">
+                <SimpleLineIcons name="lock" size={20} color="white" className="mr-2" />
+                <TextInput
+                    className="flex-1 text-white"
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#bbb"
+                    secureTextEntry={!showConfirmPassword}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                />
+                <Pressable onPress={() => setshowConfirmPassword(!showConfirmPassword)}>
+                    <Feather name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="white" />
+                </Pressable>
+            </View>
 
             {/* Create Account Button */}
-            <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={() => router.push("/pages/profile")}> 
+            <Pressable className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3" onPress={handleCreateAccount}> 
                 <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>
             </Pressable>
 
