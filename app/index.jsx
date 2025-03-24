@@ -40,14 +40,14 @@ export default function HomePage() {
         <View style={{ marginTop:10, display:"flex", flexDirection:"row", gap:10, alignItems: "center" }}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/(tabs)/login")}
+          onPress={() => router.push("/login")}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push("/(tabs)/signup")}
+          onPress={() => router.push("/signup")}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>

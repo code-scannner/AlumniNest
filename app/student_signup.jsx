@@ -203,7 +203,7 @@ const SignupScreen = () => {
           {/* Create Account Button */}
           <Pressable
             className="bg-primary-400 py-3 rounded-lg w-11/12 items-center mt-3"
-            onPress={() => router.push("/pages/profile")}
+            onPress={() => router.push("/(tabs)/profile")}
           >
             <Text className="text-black text-lg font-bold">CREATE ACCOUNT</Text>
           </Pressable>

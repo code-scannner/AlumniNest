@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { View, Text, Image, Pressable } from "react-native";
 import { Link, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-
+import { Stack } from "expo-router";
 export default function Signup() {
   const [role, setRole] = useState("student");
 
   return (
     <View className="flex-1 justify-center items-center bg-primary-dark p-5">
       {/* Back Button */}
+      
       <Pressable
         className="absolute top-10 left-5"
         onPress={() => router.push("/")}
@@ -29,13 +30,13 @@ export default function Signup() {
         <Pressable
           onPress={() => {
             setRole("student");
-            router.push("pages/student_signup");
+            router.push("/student_signup");
           }}
           className="items-center"
         >
           <View className="border-2 border-primary-500 rounded-lg p-1">
             <Image
-              source={require("../../assets/images/student_logo.png")}
+              source={require("../assets/images/student_logo.png")}
               style={{ width: 80, height: 80, resizeMode: "contain" }}
             />
           </View>
@@ -44,13 +45,13 @@ export default function Signup() {
         <Pressable
           onPress={() => {
             setRole("alumni");
-            router.push("pages/alumni_signup");
+            router.push("/alumni_signup");
           }}
           className="items-center"
         >
           <View className="border-2 border-primary-500 rounded-lg p-1">
             <Image
-              source={require("../../assets/images/alumni_logo.png")}
+              source={require("../assets/images/alumni_logo.png")}
               style={{ width: 80, height: 80, resizeMode: "contain" }}
             />
           </View>

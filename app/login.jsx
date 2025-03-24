@@ -26,7 +26,7 @@ const LoginScreen = () => {
             const { token, user } = response.data;
             console.log(token)
             await secureStore.setItemAsync("token", token);
-            router.push("/pages/profile");
+            router.push("/(tabs)/profile");
         } catch (error) {
             console.error("Login error:", error);
             Alert.alert("Login Failed", error.response?.data?.message || "An error occurred.");

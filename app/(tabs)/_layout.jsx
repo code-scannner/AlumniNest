@@ -1,44 +1,61 @@
-// import { Tabs } from 'expo-router';
-// import React from 'react';
-// import { Platform } from 'react-native';
-// import "@/global.css"
-// import { HapticTab } from '@/components/HapticTab';
-// import { IconSymbol } from '@/components/ui/IconSymbol';
-// import TabBarBackground from '@/components/ui/TabBarBackground';
-// import { Colors } from '@/constants/Colors';
-// import { useColorScheme } from '@/hooks/useColorScheme';
+// app/(tabs)/_layout.jsx
+import { Tabs } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
-// export default function TabLayout() {
-//   const colorScheme = useColorScheme();
-
-//   return (
-//     <Tabs
-//       screenOptions={{
-//         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-//         headerShown: false,
-//         tabBarButton: HapticTab,
-//         tabBarBackground: TabBarBackground,
-//         tabBarStyle: Platform.select({
-//           ios: {
-//             position: 'absolute',
-//           },
-//           default: {},
-//         }),
-//       }}>
-//       {/* <Tabs.Screen
-//         name="login"
-//         options={{
-//           title: 'Login',
-//           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-//         }}
-//       /> */}
-//       {/* <Tabs.Screen
-//         name="signup"
-//         options={{
-//           title: 'Signup',
-//           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-//         }}
-//       /> */}
-//     </Tabs>
-//   );
-// }
+export default function TabsLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#007aff",
+        tabBarStyle: { backgroundColor: "#000" }, // Dark theme bar
+      }}
+    >
+      <Tabs.Screen
+        name="feed"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="connections"
+        options={{
+          title: "Connections",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="users" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="post"
+        options={{
+          title: "Post",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="plus-square" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: "Notifications",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="bell" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="user" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
