@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import  Post  from "../../components/Post"; 
-import { StyleSheet } from "nativewind";
+import { StyleSheet } from "react-native";
 import { Stack } from "expo-router";
 const posts = [
   {

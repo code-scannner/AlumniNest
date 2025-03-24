@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { StyleSheet } from "nativewind";
+import { StyleSheet } from "react-native";
 
 const Post = ({
   id,
