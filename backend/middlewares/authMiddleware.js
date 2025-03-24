@@ -26,6 +26,7 @@ export const authMiddleware = async (req, res, next) => {
         res.status(401).json({ message: "Invalid Token" });
     }
 };
+
 export const alumniAuthMiddleware = async (req, res, next) => {
     try {
         const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -36,7 +37,24 @@ export const alumniAuthMiddleware = async (req, res, next) => {
 
         if (!alumni) return res.status(401).json({ message: "Alumni not found" });
 
-        req.alumni = alumni; // Store alumni info in request
+        req.user = alumni; // Store alumni info in request
+        next();
+    } catch (error) {
+        res.status(401).json({ message: "Invalid token" });
+    }
+};
+
+export const studentAuthMiddleware = async (req, res, next) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+        const decoded = jwt.verify(token, "secret"); // Replace "secret" with process.env.JWT_SECRET
+        const student = await Student.findById(decoded.id);
+
+        if (!student) return res.status(401).json({ message: "Student not found" });
+
+        req.user = student; // Store student info in request
         next();
     } catch (error) {
         res.status(401).json({ message: "Invalid token" });

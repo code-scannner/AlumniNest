@@ -34,13 +34,14 @@ export async function loginUser(req, res) {
 export async function registerStudent(req, res) {
   try {
     const { username, email, password, full_name, passout_year, phone_no, course, branch, college, bio } = req.body;
+    const profile_pic = req.file ? `/uploads/${req.file.filename}` : null; // Save file path
 
     if (await Student.findOne({ email })) return res.status(400).json({ message: "Student already exists" });
 
     const hashedPassword = await hash(password, 10);
 
     const student = new Student({
-      username, email, password: hashedPassword, full_name, passout_year, phone_no, course, branch, college, bio
+      username, email, password: hashedPassword, full_name, passout_year, phone_no, course, branch, college, bio, profile_pic
     });
 
     await student.save();
@@ -55,13 +56,14 @@ export async function registerStudent(req, res) {
 export async function registerAlumni(req, res) {
   try {
     const { username, email, password, full_name, batch, curr_work, position, bio } = req.body;
+    const profile_pic = req.file ? `/uploads/${req.file.filename}` : null; // Save file path
 
     if (await Alumni.findOne({ email })) return res.status(400).json({ message: "Alumni already exists" });
 
     const hashedPassword = await hash(password, 10);
 
     const alumni = new Alumni({
-      username, email, password: hashedPassword, full_name, batch, curr_work, position, bio
+      username, email, password: hashedPassword, full_name, batch, curr_work, position, bio, profile_pic
     });
 
     await alumni.save();

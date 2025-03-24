@@ -1,6 +1,24 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
 
+// @desc    Get all connections of a student
+// @route   GET /api/connect/
+// @access  Private (Only student can access their own connections)
+export async function getStudentConnections(req, res) {
+    try {
+        const student_id = req.user._id;
+
+        // Find all connections of the student & populate alumni details
+        const connections = await Connection.find({ student_id })
+            .populate("alumni_id", "username full_name profile_pic curr_work position") // Select alumni details
+            .exec();
+
+        res.status(200).json({ connections });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 // @desc    Send a connection request
 // @route   POST /api/connection/request
 // @access  Private (Students only)
