@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, useRouter, Stack } from "expo-router";
 import { SimpleLineIcons, Feather } from "@expo/vector-icons";
 import axios from "axios";
 import * as secureStore from "expo-secure-store";
@@ -38,6 +38,7 @@ const LoginScreen = () => {
     return (
         <View className="flex-1 justify-center items-center bg-primary-dark p-5">
             {/* Back Button */}
+            <Stack.Screen options={{ headerShown: false }} />
             <Pressable className="absolute top-10 left-5" onPress={() => router.push("/")}> 
                 <Feather name="arrow-left" size={24} color="white" />
             </Pressable>

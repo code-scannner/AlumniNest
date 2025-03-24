@@ -1,14 +1,23 @@
+// components/Post.jsx
 import React, { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { StyleSheet } from "nativewind";
 
-const PostPage = ({ 
-  profileImage = require("../../assets/images/student_logo.png"),
-  name = "John Doe",
-  bio = "Developer | Designer",
-  postText = "This is an example post. It can contain multiple lines of text, images, and more.",
-  postImageUri = "https://via.placeholder.com/300x200",
-  additionalText = "Here is some additional text to show more of the post content."
+const Post = ({
+  id,
+  profileImage,
+  name,
+  bio,
+  postText,
+  postImageUri,
+  additionalText,
 }) => {
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -16,83 +25,82 @@ const PostPage = ({
   const [commentText, setCommentText] = useState("");
 
   const handleLike = () => {
-    if (isLiked) {
-      setLikeCount(prev => prev - 1);
-    } else {
-      setLikeCount(prev => prev + 1);
-    }
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
     setIsLiked(!isLiked);
   };
 
-  const handleCommentToggle = () => {
-    setShowCommentBox(prev => !prev);
-  };
-
   const submitComment = () => {
-    console.log("Submitted comment:", commentText);
+    console.log(`Comment on post ${id}:`, commentText);
     setCommentText("");
     setShowCommentBox(false);
   };
 
   return (
-    <ScrollView className="flex-1 bg-primary-dark p-5">
-      {/* Header: Profile picture, name and bio */}
-      <View className="flex-row items-center mb-4">
+    <View className="mb-6 border-b border-gray-800 pb-4">
+      <View className="flex-row items-center mb-3">
         <Image
           source={profileImage}
-          style={{ width: 30, height: 30 }}
-          className="rounded-full mr-3"
+          className="w-8 h-8 rounded-full mr-2"
+          style={styles.profilePic}
         />
         <View>
-          <Text className="text-white text-lg font-bold">{name}</Text>
+          <Text className="text-white font-semibold">{name}</Text>
           <Text className="text-gray-400 text-sm">{bio}</Text>
         </View>
       </View>
 
-      {/* Post Content */}
-      <View className="mb-4">
-        <Text className="text-white text-base mb-2">{postText}</Text>
-        {postImageUri ? (
-          <Image
-            source={{ uri: postImageUri }}
-            className="w-full h-48 rounded-lg mb-2"
-          />
-        ) : null}
-        <Text className="text-white text-base">{additionalText}</Text>
-      </View>
+      <Text className="text-white mb-2">{postText}</Text>
+      {postImageUri ? (
+        <Image
+          source={{ uri: postImageUri }}
+          className="w-full h-48 rounded-lg mb-2"
+          style={styles.profilePic}
+        />
+      ) : null}
 
-      {/* Post Actions */}
-      <View className="flex-row justify-around border-t border-gray-700 pt-3">
-        <TouchableOpacity onPress={handleLike} className="flex-row items-center">
-          <Feather name="heart" size={20} color="#ffffff" />
+      <View className="flex-row justify-around mt-3">
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={handleLike}
+        >
+          <Feather name="heart" size={18} color="#fff" />
           <Text className="text-white ml-1">Like ({likeCount})</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleCommentToggle} className="flex-row items-center">
-          <Feather name="message-circle" size={20} color="#ffffff" />
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={() => setShowCommentBox((prev) => !prev)}
+        >
+          <Feather name="message-circle" size={18} color="#fff" />
           <Text className="text-white ml-1">Comment</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Comment Box */}
       {showCommentBox && (
-        <View className="mt-4">
+        <View className="mt-3">
           <TextInput
-            className="bg-gray-800 text-white px-4 py-2 rounded-lg"
             placeholder="Write a comment..."
             placeholderTextColor="#bbb"
             value={commentText}
             onChangeText={setCommentText}
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg"
           />
           <TouchableOpacity
-            onPress={submitComment}
             className="bg-blue-500 py-2 rounded-lg mt-2 items-center"
+            onPress={submitComment}
           >
             <Text className="text-black font-bold">Submit Comment</Text>
           </TouchableOpacity>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
-export default PostPage;
+export default Post;
+const styles = StyleSheet.create({
+  profilePic: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+  },
+});
