@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import  Post  from "../../components/Post"; 
-import { StyleSheet } from "react-native";
+import Post from "../../components/Post";
 import { Stack } from "expo-router";
+
 const posts = [
   {
     id: 1,
@@ -34,45 +34,48 @@ const posts = [
 const FeedPage = ({ username = "John" }) => {
   return (
     <ScrollView className="flex-1 bg-primary-dark px-5 pt-10">
-      {/* Header */}
       <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Header */}
       <View className="flex-row justify-between items-center mb-5">
         <View className="flex-row items-center">
           <Image
             source={require("../../assets/images/student_logo.png")}
-            className="rounded-full mr-3"
             style={styles.profilePic}
+            className="rounded-full mr-3"
           />
           <Text className="text-white text-lg">
-            Hello, <Text className="font-bold text-blue-400">{username}</Text>
+            Hello, <Text className="font-semibold text-primary-400">{username}</Text>
           </Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity className="p-2 bg-primary-999 rounded-full">
           <Feather name="message-square" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
-      {/* Divider before first post */}
-      <View className="border-b border-gray-800 mb-4" />
+      {/* Divider */}
+      {/* <View className="border-b border-gray-800 mb-4" /> */}
 
       {/* Posts */}
       {posts.map((post) => (
-        <Post
-          key={post.id}
-          id={post.id}
-          profileImage={require("../../assets/images/student_logo.png")}
-          name={post.name}
-          bio={post.bio}
-          postText={post.postText}
-          postImageUri={post.postImageUri}
-          additionalText={post.additionalText}
-        />
+        <View key={post.id} className="mb-3 bg-primary-999 p-4 rounded-lg shadow-md">
+          <Post
+            id={post.id}
+            profileImage={require("../../assets/images/student_logo.png")}
+            name={post.name}
+            bio={post.bio}
+            postText={post.postText}
+            postImageUri={post.postImageUri}
+            additionalText={post.additionalText}
+          />
+        </View>
       ))}
     </ScrollView>
   );
 };
 
 export default FeedPage;
+
 const styles = StyleSheet.create({
   profilePic: {
     width: 40,

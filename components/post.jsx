@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { StyleSheet } from "react-native";
+import { StyleSheet ,Pressable} from "react-native";
 
 const Post = ({
   id,
@@ -35,7 +35,7 @@ const Post = ({
   };
 
   return (
-    <View className="mb-6 border-b border-gray-800 pb-4">
+    <View className="mb-6 border-b border-primary-999 pb-4">
       <View className="flex-row items-center mb-3">
         <Image
           source={profileImage}
@@ -43,8 +43,8 @@ const Post = ({
           style={styles.profilePic}
         />
         <View>
-          <Text className="text-white font-semibold">{name}</Text>
-          <Text className="text-gray-400 text-sm">{bio}</Text>
+          <Text className="text-primary-500 font-semibold">{name}</Text>
+          <Text className="text-white text-sm">{bio}</Text>
         </View>
       </View>
 
@@ -57,20 +57,14 @@ const Post = ({
         />
       ) : null}
 
-      <View className="flex-row justify-around mt-3">
-        <TouchableOpacity
-          className="flex-row items-center"
-          onPress={handleLike}
-        >
-          <Feather name="heart" size={18} color="#fff" />
-          <Text className="text-white ml-1">Like ({likeCount})</Text>
+      <View className="flex-row justify-around mt-3" >
+        <TouchableOpacity className="flex-row items-center" onPress={handleLike}>
+          <Feather name="heart" size={15} color="#fff" />
+          <Text style={{ textDecorationLine: "none" }} className="text-white px-2">Like ({likeCount})</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          className="flex-row items-center"
-          onPress={() => setShowCommentBox((prev) => !prev)}
-        >
-          <Feather name="message-circle" size={18} color="#fff" />
-          <Text className="text-white ml-1">Comment</Text>
+        <TouchableOpacity className="flex-row items-center px-3" onPress={() => setShowCommentBox((prev) => !prev)}>
+          <Feather name="message-circle" size={15} color="#fff" />
+          <Text style={{ textDecorationLine: "none" }} className="text-white px-2">Comment</Text>
         </TouchableOpacity>
       </View>
 
@@ -81,14 +75,12 @@ const Post = ({
             placeholderTextColor="#bbb"
             value={commentText}
             onChangeText={setCommentText}
-            className="bg-gray-800 text-white px-4 py-2 rounded-lg"
+            className="bg-primary-700 text-white px-4 py-2 rounded-lg"
+            multiline="true"
           />
-          <TouchableOpacity
-            className="bg-blue-500 py-2 rounded-lg mt-2 items-center"
-            onPress={submitComment}
-          >
-            <Text className="text-black font-bold">Submit Comment</Text>
-          </TouchableOpacity>
+          <Pressable onPress={submitComment} className="bg-primary-400 py-1 px-5 rounded-lg items-center mt-4 w-1/2">
+            <Text style={{ textDecorationLine: "none" }} className="text-black  font-bold">Submit Comment</Text>
+          </Pressable>
         </View>
       )}
     </View>
