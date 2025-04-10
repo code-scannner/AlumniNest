@@ -195,20 +195,34 @@ const UserHeader = ({ user }) => {
 
   console.log({ USER_IMAGE });
 
-  const handleLogout = () => {
-    Alert.alert("Confirm", "Are you sure want to logout!", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Cancel Pressed"),
-        style: "cancel",
+
+
+const handleLogout = () => {
+  Alert.alert("Confirm", "Are you sure you want to logout?", [
+    {
+      text: "Cancel",
+      onPress: () => console.log("Cancel Pressed"),
+      style: "cancel",
+    },
+    {
+      text: "Logout",
+      style: "destructive",
+      onPress: async () => {
+        try {
+          // Remove token from SecureStore
+          await SecureStore.deleteItemAsync("authToken");
+
+          // Optionally, invalidate session on the backend
+          router.push('/login')
+          console.log("User logged out successfully");
+        } catch (error) {
+          console.error("Logout failed:", error);
+        }
       },
-      {
-        text: "Logout",
-        onPress: async () => await supabase.auth.signOut(),
-        style: "destructive",
-      },
-    ]);
-  };
+    },
+  ]);
+};
+
   return (
     <View
       style={{ flex: 1, backgroundColor: "white", paddingHorizontal: wp(4) }}
@@ -222,7 +236,7 @@ const UserHeader = ({ user }) => {
           }}
           style={styles.logoutButton}
         >
-          <Icon name={"logout"} color={theme.colors.rose} />
+          <Icon name={"logout"} color={theme.colors.rose} onPress={handleLogout}/>
         </TouchableOpacity>
       </View>
 
@@ -243,13 +257,15 @@ const UserHeader = ({ user }) => {
           </View>
 
           <View style={{ alignItems: "center", gap: 4 }}>
-            <Text style={styles.userName}>
-              {user?.full_name}{" "}
-              {user?.passout_year ? (
-                <Text>(Student)</Text>
-              ) : (
-                <Text>(Alumni)</Text>
-              )}
+            <Text style={styles.userName}>{user?.full_name} </Text>
+            <Text
+              style={{
+                color: theme.colors.textLight,
+                fontSize: 12,
+                opacity: 0.6,
+              }}
+            >
+              {user?.passout_year ? "(Student)" : "(Alumni)"}
             </Text>
             {user?.bio && <Text style={styles.infoText}>"{user?.bio}"</Text>}
           </View>
