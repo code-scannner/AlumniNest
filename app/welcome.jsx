@@ -40,7 +40,7 @@ import {
               buttonStyle={{
                 marginHorizontal: wp(3)
               }}
-              onPress={() => {}}
+              onPress={() => {router.push("/signUp")}}
               hasShadow
             />
             <View style={styles.bottomTextContainer}>
