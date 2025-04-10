@@ -14,8 +14,8 @@ import { theme } from "@/constants/theme";
 import { router } from "expo-router";
 
 // Adjust the path if needed
-const alumniImg = require("@/assets/images/alumni.png");
-const studentImg = require("@/assets/images/student.png");
+const alumniImg = require("@/assets/images/alumni.jpg");
+const studentImg = require("@/assets/images/student.jpg");
 
 const signUp = () => {
   return (
@@ -39,7 +39,7 @@ const signUp = () => {
             style={styles.optionBox}
             onPress={() => router.push("/alumniSignup")}
           >
-            <View style={[styles.iconBox, { borderColor: theme.colors.primaryDark, borderWidth: 1 }]}>
+            <View style={[styles.iconBox, { borderColor: theme.colors.primaryDark, borderWidth: 2 }]}>
               <Image
                 source={alumniImg}
                 style={styles.iconImage}
@@ -61,7 +61,7 @@ const signUp = () => {
             style={styles.optionBox}
             onPress={() => router.push("/studentSignup")}
           >
-            <View style={[styles.iconBox, { borderColor: theme.colors.primaryDark, borderWidth: 1 }]}>
+            <View style={[styles.iconBox, { borderColor: theme.colors.primaryDark, borderWidth: 2 }]}>
               <Image
                 source={studentImg}
                 style={styles.iconImage}
@@ -129,7 +129,8 @@ const styles = StyleSheet.create({
     width: wp(30),
     height: wp(30),
     borderRadius: 10,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "white",
+    borderWidth: 3,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",

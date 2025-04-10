@@ -19,15 +19,18 @@ import PostCard from "@/components/PostCard";
 import Loading from "@/components/Loading";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 var limit = 0;
 export default function index() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(10);
   const [user, setUser] = useState(null);
+  const [loading, isLoading] = useState(false);
 
   // Function to get user data from the stored token
   const fetchUser = async () => {
+    isLoading(true);
     try {
       const token = await SecureStore.getItemAsync("token");
       console.log("Retrieved Token:", token);
@@ -41,10 +44,12 @@ export default function index() {
         }
       );
 
-      setUser(response.data.info);
       console.log("User data fetched successfully:", response.data.info);
+      setUser(response.data.info);
     } catch (error) {
       console.error("Failed to fetch user:", error.message);
+    } finally {
+      isLoading(false);
     }
   };
   // const { user, setAuth } = useAuth();
@@ -81,6 +86,13 @@ export default function index() {
     fetchUser();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading />
+      </View>
+    );
+  }
   return (
     <ScreenWrapper bg={"white"}>
       <FlatList
@@ -176,10 +188,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textDark,
   },
 });
-let user = null;
-const UserHeader = ({}) => {
+const UserHeader = ({ user }) => {
   const USER_IMAGE =
-    //   user?.image ||
+    user?.image ||
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjDGMp734S91sDuUFqL51_xRTXS15iiRoHew&s";
 
   console.log({ USER_IMAGE });
@@ -232,27 +243,79 @@ const UserHeader = ({}) => {
           </View>
 
           <View style={{ alignItems: "center", gap: 4 }}>
-            <Text style={styles.userName}>{"Ali Hamza"}</Text>
-            <Text style={styles.infoText}>{"New York"}</Text>
+            <Text style={styles.userName}>
+              {user?.full_name}{" "}
+              {user?.passout_year ? (
+                <Text>(Student)</Text>
+              ) : (
+                <Text>(Alumni)</Text>
+              )}
+            </Text>
+            {user?.bio && <Text style={styles.infoText}>"{user?.bio}"</Text>}
           </View>
 
           <View style={{ gap: 10 }}>
-            <View style={styles.info}>
-              <Icon name={"mail"} size={20} color={theme.colors.textLight} />
-              <Text>trivediutkarsh31@gmail.com</Text>
-            </View>
-
-            {user?.phoneNumber && (
+            {user?.email && (
               <View style={styles.info}>
-                <Icon name={"call"} size={20} color={theme.colors.textLight} />
-                <Text>8707536722</Text>
+                <Icon name={"mail"} size={20} color={theme.colors.textLight} />
+                <Text>{user.email}</Text>
               </View>
             )}
-
-            {user && user?.bio && (
-              <>
-                <Text style={styles.infoText}>"Hello, My name is Utkarsh"</Text>
-              </>
+            {user?.phone_no && (
+              <View style={styles.info}>
+                <Icon name={"call"} size={20} color={theme.colors.textLight} />
+                <Text>{user.phone_no}</Text>
+              </View>
+            )}
+            {user?.course && (
+              <View style={styles.info}>
+                <MaterialCommunityIcons
+                  name="book-open"
+                  size={20}
+                  color={theme.colors.textLight}
+                />
+                <Text>{user.course}</Text>
+              </View>
+            )}
+            {user?.college && (
+              <View style={styles.info}>
+                <MaterialCommunityIcons
+                  name="school"
+                  size={20}
+                  color={theme.colors.textLight}
+                />
+                <Text>{user.college}</Text>
+              </View>
+            )}
+            {user?.curr_work && (
+              <View style={styles.info}>
+                <MaterialCommunityIcons
+                  name="office-building"
+                  size={20}
+                  color={theme.colors.textLight}
+                />
+                <Text>{user.curr_work}</Text>
+              </View>
+            )}
+            {user?.position && (
+              <View style={styles.info}>
+                <MaterialCommunityIcons
+                  name="briefcase"
+                  size={20}
+                  color={theme.colors.textLight}
+                />
+                <Text>{user.position}</Text>
+              </View>
+            )}
+            {user?.batch && (
+              <View style={styles.info}>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color={theme.colors.textLight}
+                />
+                <Text>{user.batch}</Text>
+              </View>
             )}
           </View>
         </View>

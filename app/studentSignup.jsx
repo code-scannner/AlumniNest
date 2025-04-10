@@ -22,7 +22,7 @@ import {
   import Button from "@/components/Button";
   import { router } from "expo-router";
   import axios from "axios";
-  import alumniPlaceholder from "@/assets/images/student.png";
+  import alumniPlaceholder from "@/assets/images/student.jpg";
   
   const StudentSignup = () => {
     const usernameRef = useRef("");
@@ -149,26 +149,28 @@ import {
   
           {/* Profile Image Upload */}
           <View style={styles.imagePickerContainer}>
-            <Pressable style={styles.imageCircle} onPress={openImagePickerOptions}>
+            <View style={styles.imageCircle}>
               <Image
                 source={typeof profilePic === "string" ? { uri: profilePic } : profilePic}
                 style={styles.image}
               />
+            </View>
+            <Pressable onPress={openImagePickerOptions}>
               <View style={styles.editIcon}>
                 <Camera width={20} height={20} />
               </View>
             </Pressable>
           </View>
   
-          <Input placeholder="Username *" onChangeText={(v) => (usernameRef.current = v)} />
-          <Input placeholder="Email *" onChangeText={(v) => (emailRef.current = v)} />
-          <Input placeholder="Password *" onChangeText={(v) => (passwordRef.current = v)} secureTextEntry />
-          <Input placeholder="Full Name *" onChangeText={(v) => (fullNameRef.current = v)} />
-          <Input placeholder="Passout Year *" onChangeText={(v) => (passoutYearRef.current = v)} keyboardType="numeric" />
-          <Input placeholder="Phone Number *" onChangeText={(v) => (phoneNoRef.current = v)} keyboardType="numeric" />
+          <Input placeholder="Username " onChangeText={(v) => (usernameRef.current = v)} />
+          <Input placeholder="Email " onChangeText={(v) => (emailRef.current = v)} />
+          <Input placeholder="Password " onChangeText={(v) => (passwordRef.current = v)} secureTextEntry />
+          <Input placeholder="Full Name " onChangeText={(v) => (fullNameRef.current = v)} />
+          <Input placeholder="Passout Year " onChangeText={(v) => (passoutYearRef.current = v)} keyboardType="numeric" />
+          <Input placeholder="Phone Number " onChangeText={(v) => (phoneNoRef.current = v)} keyboardType="numeric" />
           {/* <Input placeholder="Course (Btech/Mtech) *" onChangeText={(v) => (courseRef.current = v)} /> */}
           <Dropdown
-  placeholder="Select Course *"
+  placeholder="Select Course "
   data={courseOptions}
   selected={selectedCourse}
   onSelect={(v) => {
@@ -178,7 +180,7 @@ import {
 />
 
 <Dropdown
-  placeholder="Select Branch *"
+  placeholder="Select Branch "
   data={branchOptions}
   selected={selectedBranch}
   onSelect={(v) => {
@@ -186,7 +188,7 @@ import {
     branchRef.current = v;
   }}
 />
-          <Input placeholder="College *" onChangeText={(v) => (collegeRef.current = v)} />
+          <Input placeholder="College " onChangeText={(v) => (collegeRef.current = v)} />
           <Input placeholder="Short Bio" onChangeText={(v) => (bioRef.current = v)} multiline numberOfLines={3} />
   
           <View style={{ width: "100%", marginTop: 10 }}>
@@ -223,6 +225,8 @@ import {
       alignItems: "center",
       overflow: "hidden",
       position: "relative",
+      borderWidth: 2,
+      borderColor: theme.colors.primary
     },
     image: {
       width: "100%",
