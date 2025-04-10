@@ -4,25 +4,14 @@ import Post from "../models/Post.js";
 
 // @desc    Get all posts from a student's connected alumni
 // @route   GET /api/post/
-// @access  Private (Only student can access their connections' posts)
-export async function getConnectedAlumniPosts(req, res) {
+export async function getPosts(req, res) {
   try {
-    const student_id = req.user._id;
+    const { id } = req.user;
 
-    // Find all accepted connections for the student
-    const connections = await Connection.find({ student_id, status: "accepted" }).select("alumni_id");
-
-    if (!connections.length) {
-      return res.status(200).json({ message: "No connections found", posts: [] });
-    }
-
-    // Extract alumni IDs from connections
-    const alumniIds = connections.map(conn => conn.alumni_id);
-
-    // Find all posts from connected alumni, sorted by timestamp (latest first)
-    const posts = await Post.find({ alumni_id: { $in: alumniIds } })
-      .populate("alumni_id", "username full_name profile_pic curr_work position") // Get alumni details
-      .sort({ timestamp: -1 }) // Latest first
+    const posts = await Post.find({
+      poster_id: id
+    })
+      .sort({ timestamp: -1 }) // latest first
       .exec();
 
     res.status(200).json({ posts });
@@ -41,7 +30,8 @@ export async function createPost(req, res) {
     if (!content) return res.status(400).json({ message: "Content is required" });
 
     const post = new Post({
-      alumni_id: req.user._id, // Get alumni ID from token
+      poster_id: req.user.id,
+      poster_model: req.user.role,
       content,
     });
 
@@ -67,6 +57,7 @@ export async function createPost(req, res) {
 
     res.status(201).json({ message: "Post created successfully", post });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: error.message });
   }
 }
