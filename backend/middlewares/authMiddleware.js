@@ -5,7 +5,7 @@ import Alumni from "../models/Alumni.js";
 
 export const authMiddleware = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const token = req.header("token");
         if (!token) return res.status(401).json({ message: "Access Denied. No Token Provided" });
 
         const decoded = verify(token, "secret");
@@ -19,7 +19,7 @@ export const authMiddleware = async (req, res, next) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        req.user.role = student ? "student" : "alumni"; // Store role
+        req.user.role = student ? "Student" : "Alumni"; // Store role
         req.user.profile = student || alumni; // Store profile
         next();
     } catch (error) {
@@ -29,7 +29,7 @@ export const authMiddleware = async (req, res, next) => {
 
 export const alumniAuthMiddleware = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const token = req.header("token");
         if (!token) return res.status(401).json({ message: "Unauthorized" });
 
         const decoded = verify(token, "secret");
@@ -46,7 +46,7 @@ export const alumniAuthMiddleware = async (req, res, next) => {
 
 export const studentAuthMiddleware = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const token = req.header("token");
         if (!token) return res.status(401).json({ message: "Unauthorized" });
 
         const decoded = jwt.verify(token, "secret"); // Replace "secret" with process.env.JWT_SECRET
