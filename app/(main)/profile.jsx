@@ -52,39 +52,38 @@ export default function index() {
       isLoading(false);
     }
   };
-  // const { user, setAuth } = useAuth();
+  // Function to fetch posts from the server
+  const getPosts = async (limit, userId) => {
+    try {
+      const response = await axios.get("http://192.168.0.140:5000/api/post", {
+        headers: {
+          token: await SecureStore.getItemAsync("token"),
+        },
+      });
+  
+      if (response.data.posts) {
+        setPosts(response.data.posts);
+      } else {
+        console.error("Failed to fetch posts:", response.data.message);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      return [];
+    }
+  };
 
-  // const [posts, setPosts] = useState([]);
-  // const [hasMore, setHasMore] = useState(true);
-
-  // const getPosts = async () => {
-  //   if (!hasMore) return;
-  //   limit += 10;
-
-  //   console.log({ userId: user?.id });
-
-  //   let res = await fetchPosts(limit, user?.id);
-
-  //   if (res.success) {
-  //     if (res.data.length < limit) {
-  //       setHasMore(false); // No more posts available
-  //     }
-
-  //     setPosts(res.data); // Update posts
-  //   }
-
-  //   console.log({ res: res.data[0] });
-  // };
-
-  // // useEffect(() => {
-  // //   if (hasMore) {
-  // //     getPosts();
-  // //   }
-  // // }, []);
-  // console.log({ hasMore });
   useEffect(() => {
     fetchUser();
   }, []);
+  
+  useEffect(() => {
+    if (hasMore) {
+      getPosts();
+      // setHasMore(false)
+    }
+  }, []);
+
 
   if (loading) {
     return (
@@ -96,29 +95,29 @@ export default function index() {
   return (
     <ScreenWrapper bg={"white"}>
       <FlatList
-        //   data={posts}
-        //   showsHorizontalScrollIndicator={false}
-        //   contentContainerStyle={styles.listStyle}
-        //   keyExtractor={(item) => item.id.toString()}
-        //   renderItem={({ item }) => <PostCard item={item} currentUser={user} />}
-        //   ListFooterComponent={
-        //     <>
-        //       {hasMore ? (
-        //         <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
-        //           <Loading />
-        //         </View>
-        //       ) : (
-        //         <View style={{ marginVertical: 30 }}>
-        //           <Text style={styles.noPosts}>No more posts</Text>
-        //         </View>
-        //       )}
-        //     </>
-        //   }
-        //   onEndReached={() => {
-        //     if (hasMore) {
-        //       getPosts();
-        //     }
-        //   }}
+          data={posts}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listStyle}
+          keyExtractor={(item) => item._id.toString()}
+          renderItem={({ item }) => <PostCard item={item} user={user} />}
+          ListFooterComponent={
+            <>
+              {hasMore ? (
+                <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
+                  <Loading />
+                </View>
+              ) : (
+                <View style={{ marginVertical: 30 }}>
+                  <Text style={styles.noPosts}>No more posts</Text>
+                </View>
+              )}
+            </>
+          }
+          onEndReached={() => {
+            if (hasMore) {
+              getPosts();
+            }
+          }}
         ListHeaderComponentStyle={{ marginBottom: 30 }}
         onEndReachedThreshold={0}
         ListHeaderComponent={<UserHeader user={user} />}

@@ -16,7 +16,6 @@ export default function RichTextEditor({ editorRef, onChange }) {
     >
       <RichToolbar
         actions={[
-          actions.insertImage,
           actions.setBold,
           actions.setItalic,
           actions.insertBulletsList,

@@ -25,13 +25,17 @@ export async function getPosts(req, res) {
 // @access  Private (Alumni only)
 export async function createPost(req, res) {
   try {
-    const { content } = req.body;
+    const content = req.body.body;
+    const path = req.file?.file;
+
+    console.log(req.file)
 
     if (!content) return res.status(400).json({ message: "Content is required" });
 
     const post = new Post({
       poster_id: req.user.id,
       poster_model: req.user.role,
+      image: path ? path : null,
       content,
     });
 
@@ -55,7 +59,7 @@ export async function createPost(req, res) {
       await Notification.insertMany(notifications);
     }
 
-    res.status(201).json({ message: "Post created successfully", post });
+    res.status(201).json({ message: "Post created successfully", post , success : true});
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: error.message });
