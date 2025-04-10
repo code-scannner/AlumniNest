@@ -17,8 +17,36 @@ import Avatar from "@/components/Avatar";
 import { router } from "expo-router";
 import PostCard from "@/components/PostCard";
 import Loading from "@/components/Loading";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
 var limit = 0;
 export default function index() {
+  const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [limit, setLimit] = useState(10);
+  const [user, setUser] = useState(null);
+
+  // Function to get user data from the stored token
+  const fetchUser = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      console.log("Retrieved Token:", token);
+
+      if (!token) throw new Error("No token found");
+
+      const response = await axios.get(
+        "http://192.168.0.140:5000/api/profile",
+        {
+          headers: { token: `${token}` },
+        }
+      );
+
+      setUser(response.data.info);
+      console.log("User data fetched successfully:", response.data.info);
+    } catch (error) {
+      console.error("Failed to fetch user:", error.message);
+    }
+  };
   // const { user, setAuth } = useAuth();
 
   // const [posts, setPosts] = useState([]);
@@ -49,6 +77,9 @@ export default function index() {
   // //   }
   // // }, []);
   // console.log({ hasMore });
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <ScreenWrapper bg={"white"}>
