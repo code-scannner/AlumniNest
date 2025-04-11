@@ -95,7 +95,10 @@ const AlumniSignup = () => {
       !emailRef.current ||
       !passwordRef.current ||
       !fullNameRef.current ||
-      !batchRef.current
+      !batchRef.current ||
+      !currWorkRef.current ||
+      !positionRef.current ||
+      !bioRef.current
     ) {
       Alert.alert("Signup Error", "Please fill all required fields.");
       return;
@@ -104,19 +107,23 @@ const AlumniSignup = () => {
     setLoading(true);
 
     try {
+      const requestData = {
+        username: usernameRef.current?.trim() || "",
+        email: emailRef.current?.trim() || "",
+        password: passwordRef.current?.trim() || "",
+        full_name: fullNameRef.current?.trim() || "",
+        profile_pic: typeof profilePic === "string" ? profilePic : alumniPlaceholder,
+        batch: batchRef.current ? Number(batchRef.current) : 0,
+        curr_work: currWorkRef.current?.trim() || "",
+        position: positionRef.current?.trim() || "",
+        bio: bioRef.current?.trim() || "",
+      };
+
+      console.log("🚀 Alumni Signup Request Data:", requestData); // Debugging log
+
       const response = await axios.post(
-        "http://localhost:5000/api/alumni/signup",
-        {
-          username: usernameRef.current.trim(),
-          email: emailRef.current.trim(),
-          password: passwordRef.current.trim(),
-          full_name: fullNameRef.current.trim(),
-          profile_pic: typeof profilePic === "string" ? profilePic : "",
-          batch: Number(batchRef.current),
-          curr_work: currWorkRef.current.trim(),
-          position: positionRef.current.trim(),
-          bio: bioRef.current.trim(),
-        }
+        "http://192.168.0.140:5000/api/signup/alumni",
+        requestData
       );
 
       if (response.status === 201) {
@@ -126,8 +133,12 @@ const AlumniSignup = () => {
         Alert.alert("Error", response.data.message || "Something went wrong");
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Something went wrong");
+      console.error("Signup Error:", error.response?.data || error.message);
+
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -159,10 +170,9 @@ const AlumniSignup = () => {
             />
           </Pressable>
           <View style={styles.editIcon}>
-          <Camera width={20} height={20} />
+            <Camera width={20} height={20} />
+          </View>
         </View>
-        </View>
-        
 
         <Input
           placeholder="Username"
