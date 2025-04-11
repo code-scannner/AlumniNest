@@ -11,22 +11,32 @@ export async function getPosts(req, res) {
   try {
     const { id } = req.user;
 
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = parseInt(req.query.skip) || 0;
+
+    // Fetch one extra post to determine if more posts exist
     const posts = await Post.find({ poster_id: id })
-      .sort({ timestamp: -1 }) // latest first
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit + 1)
       .exec();
 
-    // Get likes count for each post
+    const hasMore = posts.length > limit;
+
+    if (hasMore) posts.pop(); // remove the extra post
+
+    // Add total_likes to each post
     const postsWithLikes = await Promise.all(
       posts.map(async (post) => {
         const likeCount = await Like.countDocuments({ post_id: post._id });
         return {
           ...post.toObject(),
-          totalLikes: likeCount
+          total_likes: likeCount,
         };
       })
     );
 
-    res.status(200).json({ posts: postsWithLikes });
+    res.status(200).json({ posts: postsWithLikes, hasMore });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -80,24 +90,6 @@ export async function createPost(req, res) {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error.message });
-  }
-}
-
-
-export async function isLiked(req, res) {
-  try {
-    const { post_id } = req.body;
-    const { id: user_id } = req.user;
-
-    if (!post_id) {
-      return res.status(400).json({ message: "Post ID is required." });
-    }
-
-    const like = await Like.findOne({ post_id, user_id });
-
-    res.status(200).json({ liked: !!like }); // true if like exists, false otherwise
-  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }
