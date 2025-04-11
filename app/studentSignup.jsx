@@ -113,27 +113,36 @@ const StudentSignup = () => {
     setLoading(true);
 
     try {
-      const requestData = {
-        username: usernameRef.current?.trim() || "",
-        email: emailRef.current?.trim() || "",
-        password: passwordRef.current?.trim() || "",
-        full_name: fullNameRef.current?.trim() || "",
-        profile_pic: typeof profilePic === "string" ? profilePic : studentPlaceholder,
-        passout_year: passoutYearRef.current
-          ? Number(passoutYearRef.current)
-          : 0,
-        phone_no: phoneNoRef.current ? Number(phoneNoRef.current) : 0,
-        course: courseRef.current?.trim() || "",
-        branch: branchRef.current?.trim() || "",
-        college: collegeRef.current?.trim() || "",
-        bio: bioRef.current?.trim() || "",
-      };
+      let formData = new FormData();
 
-      console.log("🚀 Signup Request Data:", requestData); 
+      formData.append("username", usernameRef.current.trim());
+      formData.append("email", emailRef.current.trim());
+      formData.append("password", passwordRef.current.trim());
+      formData.append("full_name", fullNameRef.current.trim());
+      formData.append("passout_year", Number(passoutYearRef.current));
+      formData.append("phone_no", Number(phoneNoRef.current));
+      formData.append("course", courseRef.current.trim());
+      formData.append("branch", branchRef.current.trim());
+      formData.append("college", collegeRef.current.trim());
+      formData.append("bio", bioRef.current.trim());
+
+      if (profilePic && profilePic !== studentPlaceholder) {
+        const fileType = profilePic.split(".").pop();
+        formData.append("profile_pic", {
+          uri: profilePic,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
+        });
+      }
+
+      console.log("Signup Request FormData:", formData);
 
       const response = await axios.post(
         "http://192.168.0.140:5000/api/signup/student",
-        requestData
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
 
       if (response.status === 201) {
@@ -144,7 +153,6 @@ const StudentSignup = () => {
       }
     } catch (error) {
       console.error("Signup Error:", error.response?.data || error.message);
-
       Alert.alert(
         "Error",
         error.response?.data?.message || "Something went wrong"

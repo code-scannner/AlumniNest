@@ -107,23 +107,37 @@ const AlumniSignup = () => {
     setLoading(true);
 
     try {
-      const requestData = {
-        username: usernameRef.current?.trim() || "",
-        email: emailRef.current?.trim() || "",
-        password: passwordRef.current?.trim() || "",
-        full_name: fullNameRef.current?.trim() || "",
-        profile_pic: typeof profilePic === "string" ? profilePic : alumniPlaceholder,
-        batch: batchRef.current ? Number(batchRef.current) : 0,
-        curr_work: currWorkRef.current?.trim() || "",
-        position: positionRef.current?.trim() || "",
-        bio: bioRef.current?.trim() || "",
-      };
+      let formData = new FormData();
 
-      console.log("🚀 Alumni Signup Request Data:", requestData); // Debugging log
+      formData.append("username", usernameRef.current?.trim() || "");
+      formData.append("email", emailRef.current?.trim() || "");
+      formData.append("password", passwordRef.current?.trim() || "");
+      formData.append("full_name", fullNameRef.current?.trim() || "");
+      formData.append("batch", batchRef.current ? Number(batchRef.current) : 0);
+      formData.append("curr_work", currWorkRef.current?.trim() || "");
+      formData.append("position", positionRef.current?.trim() || "");
+      formData.append("bio", bioRef.current?.trim() || "");
+
+      // Handle profile picture
+      if (typeof profilePic === "string" && profilePic.startsWith("file://")) {
+        const fileType = profilePic.split(".").pop();
+        formData.append("profile_pic", {
+          uri: profilePic,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
+        });
+      }
+
+      console.log("🚀 Alumni Signup Request Data:", formData); // Debugging log
 
       const response = await axios.post(
         "http://192.168.0.140:5000/api/signup/alumni",
-        requestData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       if (response.status === 201) {
