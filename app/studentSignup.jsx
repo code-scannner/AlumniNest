@@ -68,7 +68,7 @@ const StudentSignup = () => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0].uri);
+      setProfilePic(result.assets[0]);
     }
   };
 
@@ -127,11 +127,10 @@ const StudentSignup = () => {
       formData.append("bio", bioRef.current.trim());
 
       if (profilePic && profilePic !== studentPlaceholder) {
-        const fileType = profilePic.split(".").pop();
-        formData.append("profile_pic", {
-          uri: profilePic,
-          name: `profile.${fileType}`,
-          type: `image/${fileType}`,
+        formData.append("file", {
+          uri: profilePic.uri,
+          type: profilePic.mimeType || "image/jpeg", // Provide a default type
+          name: profilePic.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
         });
       }
 
