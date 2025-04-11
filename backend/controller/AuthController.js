@@ -2,6 +2,7 @@ import Student from "../models/Student.js";
 import Alumni from "../models/Alumni.js";
 import { compare, hash } from "bcryptjs";
 import pkg from "jsonwebtoken";
+import { upload } from "../utils/uploadtoappwrite.js";
 const { sign } = pkg;
 
 // Helper function to generate JWT token
@@ -34,7 +35,9 @@ export async function loginUser(req, res) {
 export async function registerStudent(req, res) {
   try {
     const { username, email, password, full_name, passout_year, phone_no, course, branch, college, bio } = req.body;
-    const profile_pic = req.file ? `/uploads/${req.file.filename}` : null; // Save file path
+
+    const localPath = req.file?.path;
+    const profile_pic = localPath ? await upload(localPath) : null;
 
     if (await Student.findOne({ email })) return res.status(400).json({ message: "Student already exists" });
 
@@ -56,7 +59,8 @@ export async function registerStudent(req, res) {
 export async function registerAlumni(req, res) {
   try {
     const { username, email, password, full_name, batch, curr_work, position, bio } = req.body;
-    const profile_pic = req.file ? `/uploads/${req.file.filename}` : null; // Save file path
+    const localPath = req.file?.path;
+    const profile_pic = localPath ? await upload(localPath) : null;
 
     if (await Alumni.findOne({ email })) return res.status(400).json({ message: "Alumni already exists" });
 
