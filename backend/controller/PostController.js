@@ -1,5 +1,6 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
+import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import Like from '../models/Like.js'; // adjust the import path if needed
 import { upload } from "../utils/uploadtoappwrite.js";
@@ -28,10 +29,12 @@ export async function getPosts(req, res) {
     // Add total_likes to each post
     const postsWithLikes = await Promise.all(
       posts.map(async (post) => {
-        const likeCount = await Like.countDocuments({ post_id: post._id });
+        const total_likes = await Like.countDocuments({ post_id: post._id });
+        const total_comments = await Comment.countDocuments({ post_id: post._id });
         return {
           ...post.toObject(),
-          total_likes: likeCount,
+          total_likes,
+          total_comments
         };
       })
     );

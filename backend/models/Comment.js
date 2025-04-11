@@ -1,12 +1,16 @@
-import { Schema, model } from "mongoose";
-
+import { Schema, model } from 'mongoose';
 const CommentSchema = new Schema({
-  post_id: { type: Schema.Types.ObjectId, ref: "Post", required: true }, // The post being commented on
-  user_id: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Student or Alumni who commented
-  content: { type: String, required: true }, // The comment text
-  timestamp: { type: Date, default: Date.now }, // When the comment was created
-  parent_id: { type: Schema.Types.ObjectId, ref: "Comment", default: null }, // If null, it's a main comment; otherwise, it's a reply
-  replies: [{ type: Schema.Types.ObjectId, ref: "Comment" }] // Array of replies (nested comments)
+  post_id: { type: Schema.Types.ObjectId, ref: "Post", required: true },
+
+  user_id: { type: Schema.Types.ObjectId, refPath: 'user_type', required: true },
+  user_type: {
+    type: String,
+    required: true,
+    enum: ["Student", "Alumni"]
+  },
+
+  content: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
 });
 
 export default model("Comment", CommentSchema);
