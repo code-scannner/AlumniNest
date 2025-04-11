@@ -14,9 +14,10 @@ import moment from "moment";
 import { Icon } from "@/assets/icons";
 import RenderHtml from "react-native-render-html";
 import { Image } from "expo-image";
-import { Video } from "expo-av";
 import Loading from "./Loading";
 import { router } from "expo-router";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const textStyle = {
   color: theme.colors.dark,
@@ -53,54 +54,62 @@ export default function PostCard({
   };
 
   const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(item?.likesBy || []);
+  const [likeCount, setLikeCount] = useState(item?.total_likes);
   const [loading, setLoading] = useState(false);
 
   const checkIfLiked = async () => {
     try {
-        let res = await fetch(`/api/likes/isLiked?user_id=${currentUser?.id}&post_id=${item?.id}`);
-        let data = await res.json();
-        if (data.success) {
-            setIsLiked(data.isLiked);
+      const res = await axios.get(
+        "http://192.168.0.140:5000/api/post/isLiked",
+        {
+          params: { user_id: user?._id, post_id: item?._id },
         }
-    } catch (error) {
-        console.error("Error checking like status", error);
-    }
-};
+      );
 
-useEffect(() => {
-    checkIfLiked();
-}, [item]); 
-
-const onLike = async () => {
-  try {
-      if (isLiked) {
-          let res = await fetch("/api/likes/unlike", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ user_id: currentUser?.id, post_id: item?.id }),
-          });
-          let data = await res.json();
-          if (data.success) {
-              setIsLiked(false);
-              setLikeCount(likeCount - 1);
-          }
-      } else {
-          let res = await fetch("/api/likes/like", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ user_id: currentUser?.id, post_id: item?.id }),
-          });
-          let data = await res.json();
-          if (data.success) {
-              setIsLiked(true);
-              setLikeCount(likeCount + 1);
-          }
+      if (res.data.success) {
+        setIsLiked(true);
       }
-  } catch (error) {
+    } catch (error) {
+      console.error("Error checking like status", error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfLiked();
+  }, [item]);
+
+  const onLike = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      console.log(token);
+      if (isLiked) {
+        const res = await axios.put(
+          "http://192.168.0.140:5000/api/post/unlike",
+          { post_id: item?._id },
+          { headers: {token} }
+        );
+
+        if (res.data.success) {
+          setIsLiked(false);
+          setLikeCount((prev) => prev - 1);
+        }
+      } else {
+        console.log(item?._id);
+        const res = await axios.post(
+          "http://192.168.0.140:5000/api/post/like",
+          { post_id: item?._id },
+          { headers: {token} }
+        );
+
+        if (res.data.success) {
+          setIsLiked(true);
+          setLikeCount((prev) => prev + 1);
+        }
+      }
+    } catch (error) {
       console.error("Error liking/unliking post", error);
-  }
-};
+    }
+  };
 
   // const onLike = async () => {
   //   //     if (isLikedByMe) {
@@ -251,17 +260,15 @@ const onLike = async () => {
       {
         <View style={styles.footer}>
           <View style={styles.footerButton}>
-            <TouchableOpacity
-            // onPress={onLike}
-            >
+            <TouchableOpacity onPress={onLike}>
               <Icon
                 name={"heart"}
                 size={24}
-                color={false ? theme.colors.text : theme.colors.rose}
-                fill={false ? "white" : theme.colors.rose}
+                color={!isLiked ? theme.colors.text : theme.colors.rose}
+                fill={!isLiked ? "white" : theme.colors.rose}
               />
             </TouchableOpacity>
-            <Text style={styles.count}>{likes?.length}</Text>
+            <Text style={styles.count}>{likeCount}</Text>
           </View>
 
           <View style={styles.footerButton}>

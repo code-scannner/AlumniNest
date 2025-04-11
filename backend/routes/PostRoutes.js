@@ -9,6 +9,6 @@ router.post("/", authMiddleware, upload.single('file'), createPost);
 router.get("/", authMiddleware, getPosts); 
 router.get("/isliked", isLiked); 
 router.post("/like", authMiddleware, likePost);
-router.delete("/unlike", authMiddleware, unlikePost);
+router.put("/unlike", authMiddleware, unlikePost);
 
 export default router;
