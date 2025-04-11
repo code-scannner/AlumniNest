@@ -243,7 +243,7 @@ const handleLogout = () => {
         <View style={{ gap: 15 }}>
           <View style={styles.avatarContainer}>
             <Avatar
-              uri={USER_IMAGE}
+              uri={user?.profile_pic || USER_IMAGE}  
               size={hp(12)}
               rounded={theme.radius.xxl * 1.4}
             />

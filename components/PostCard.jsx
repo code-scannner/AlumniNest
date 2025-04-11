@@ -51,78 +51,124 @@ export default function PostCard({
     shadowRadius: 6,
     elevation: 1,
   };
-  let liked = false;
+
+  const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(item?.likesBy || []);
   const [loading, setLoading] = useState(false);
 
-  const onLike = async () => {
-    //     if (isLikedByMe) {
-    //       let res = await removePostLike(item?.id, currentUser?.id);
-    //       if (res.success) {
-    //         setLikes([...likes.filter((l) => l.userId !== currentUser?.id)]);
-    //       } else {
-    //         Alert.alert("Post", "something went wrong2");
-    //       }
-    //     } else {
-    //       let data = {
-    //         userId: currentUser?.id,
-    //         postId: item?.id
-    //       };
-    //       let res = await createPostLike(data);
-    //       console.log({ res });
-    //       if (!res.success) {
-    //         Alert.alert("Post", "something went wrong");
-    //       } else {
-    //         setLikes([...likes, data]);
-    //       }
-    //     }
-    //   };
-    //   const isLikedByMe = likes.find(
-    //     (likeData) => likeData?.userId === currentUser?.id
-    //   );
-    //   const onShare = async () => {
-    //     console.log("abc");
-    //     let content = { message: item?.body?.replace(/<\/?[^>]+(>|$)/g, "") };
-    //     console.log({ item });
-    //     if (item?.file) {
-    //       setLoading(true);
-    //       console.log("hello...");
-    //       const fileURL = await getSupabaseFileUrl(item?.file);
-    //       console.log({ fileURL });
-    //       let url = await downloadFile(getSupabaseFileUrl(item?.file));
-    //       content.url = url;
-    //       setLoading(false);
-    //     }
-    //     Share.share(content);
-    //   };
-    //   const openDetails = () => {
-    //     if (!showMoreIcon) return;
-    //     router.push({
-    //       pathname: "/postDetails",
-    //       params: {
-    //         postId: item?.id
-    //       }
-    //     });
-    //   };
-    //   const handlePostDelete = async () => {
-    //     Alert.alert("Confirm", "Are you sure want to do this!", [
-    //       {
-    //         text: "Cancel",
-    //         onPress: () => console.log("Cancel Pressed"),
-    //         style: "cancel"
-    //       },
-    //       {
-    //         text: "delete",
-    //         onPress: async () => await onDelete(item),
-    //         style: "destructive"
-    //       }
-    //     ]);
-  };
+  const checkIfLiked = async () => {
+    try {
+        let res = await fetch(`/api/likes/isLiked?user_id=${currentUser?.id}&post_id=${item?.id}`);
+        let data = await res.json();
+        if (data.success) {
+            setIsLiked(data.isLiked);
+        }
+    } catch (error) {
+        console.error("Error checking like status", error);
+    }
+};
+
+useEffect(() => {
+    checkIfLiked();
+}, [item]); 
+
+const onLike = async () => {
+  try {
+      if (isLiked) {
+          let res = await fetch("/api/likes/unlike", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: currentUser?.id, post_id: item?.id }),
+          });
+          let data = await res.json();
+          if (data.success) {
+              setIsLiked(false);
+              setLikeCount(likeCount - 1);
+          }
+      } else {
+          let res = await fetch("/api/likes/like", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: currentUser?.id, post_id: item?.id }),
+          });
+          let data = await res.json();
+          if (data.success) {
+              setIsLiked(true);
+              setLikeCount(likeCount + 1);
+          }
+      }
+  } catch (error) {
+      console.error("Error liking/unliking post", error);
+  }
+};
+
+  // const onLike = async () => {
+  //   //     if (isLikedByMe) {
+  //   //       let res = await removePostLike(item?.id, currentUser?.id);
+  //   //       if (res.success) {
+  //   //         setLikes([...likes.filter((l) => l.userId !== currentUser?.id)]);
+  //   //       } else {
+  //   //         Alert.alert("Post", "something went wrong2");
+  //   //       }
+  //   //     } else {
+  //   //       let data = {
+  //   //         userId: currentUser?.id,
+  //   //         postId: item?.id
+  //   //       };
+  //   //       let res = await createPostLike(data);
+  //   //       console.log({ res });
+  //   //       if (!res.success) {
+  //   //         Alert.alert("Post", "something went wrong");
+  //   //       } else {
+  //   //         setLikes([...likes, data]);
+  //   //       }
+  //   //     }
+  //   //   };
+  //   //   const isLikedByMe = likes.find(
+  //   //     (likeData) => likeData?.userId === currentUser?.id
+  //   //   );
+  //   //   const onShare = async () => {
+  //   //     console.log("abc");
+  //   //     let content = { message: item?.body?.replace(/<\/?[^>]+(>|$)/g, "") };
+  //   //     console.log({ item });
+  //   //     if (item?.file) {
+  //   //       setLoading(true);
+  //   //       console.log("hello...");
+  //   //       const fileURL = await getSupabaseFileUrl(item?.file);
+  //   //       console.log({ fileURL });
+  //   //       let url = await downloadFile(getSupabaseFileUrl(item?.file));
+  //   //       content.url = url;
+  //   //       setLoading(false);
+  //   //     }
+  //   //     Share.share(content);
+  //   //   };
+  //   //   const openDetails = () => {
+  //   //     if (!showMoreIcon) return;
+  //   //     router.push({
+  //   //       pathname: "/postDetails",
+  //   //       params: {
+  //   //         postId: item?.id
+  //   //       }
+  //   //     });
+  //   //   };
+  //   //   const handlePostDelete = async () => {
+  //   //     Alert.alert("Confirm", "Are you sure want to do this!", [
+  //   //       {
+  //   //         text: "Cancel",
+  //   //         onPress: () => console.log("Cancel Pressed"),
+  //   //         style: "cancel"
+  //   //       },
+  //   //       {
+  //   //         text: "delete",
+  //   //         onPress: async () => await onDelete(item),
+  //   //         style: "destructive"
+  //   //       }
+  //   //     ]);
+  // };
   if (!item) return null;
-  console.log(item)
+  console.log(item);
 
   return (
-    
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
@@ -193,55 +239,55 @@ export default function PostCard({
         {item?.image && (
           <>
             <Image
-              source={{ uri: `${(item.image)}` }}
+              source={{ uri: `${item.image}` }}
               transition={100}
               style={styles.postMedia}
               contentFit="cover"
             />
           </>
         )}
-
-        
       </View>
 
-      {/* <View style={styles.footer}>
-        <View style={styles.footerButton}>
-          <TouchableOpacity 
-          // onPress={onLike}
-          >
-            <Icon
-              name={"heart"}
-              size={24}
-              color={false ? theme.colors.text : theme.colors.rose}
-              fill={false ? "white" : theme.colors.rose}
-            />
-          </TouchableOpacity>
-          <Text style={styles.count}>{likes?.length}</Text>
-        </View>
+      {
+        <View style={styles.footer}>
+          <View style={styles.footerButton}>
+            <TouchableOpacity
+            // onPress={onLike}
+            >
+              <Icon
+                name={"heart"}
+                size={24}
+                color={false ? theme.colors.text : theme.colors.rose}
+                fill={false ? "white" : theme.colors.rose}
+              />
+            </TouchableOpacity>
+            <Text style={styles.count}>{likes?.length}</Text>
+          </View>
 
-        <View style={styles.footerButton}>
-          <TouchableOpacity 
-          // onPress={openDetails}
-          >
-            <Icon name={"comment"} size={24} color={theme.colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.count}>{item?.comments[0]?.count || 0}</Text>
-        </View>
+          <View style={styles.footerButton}>
+            <TouchableOpacity
+            // onPress={openDetails}
+            >
+              <Icon name={"comment"} size={24} color={theme.colors.text} />
+            </TouchableOpacity>
+            {/* <Text style={styles.count}>{item?.comments[0]?.count || 0}</Text> */}
+          </View>
 
-        <View style={styles.footerButton}>
-          {loading ? (
-            <>
-              <Loading size="small" />
-            </>
-          ) : (
-            <>
-              <TouchableOpacity>
-                <Icon name={"share"} size={24} color={theme.colors.text} />
-              </TouchableOpacity>
-            </>
-          )}
+          {/* <View style={styles.footerButton}>
+            {loading ? (
+              <>
+                <Loading size="small" />
+              </>
+            ) : (
+              <>
+                <TouchableOpacity>
+                  <Icon name={"share"} size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+              </>
+            )}
+          </View> */}
         </View>
-      </View> */}
+      }
     </View>
   );
 }
