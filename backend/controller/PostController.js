@@ -26,7 +26,7 @@ export async function getPosts(req, res) {
 export async function createPost(req, res) {
   try {
     const content = req.body.body;
-    const path = req.file?.file;
+    const path = req.file?.path;
 
     console.log(req.file)
 
