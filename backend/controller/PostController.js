@@ -1,5 +1,7 @@
 import Connection from "../models/Connection.js";
+import Notification from "../models/Notification.js";
 import Post from "../models/Post.js";
+import { upload } from "../utils/uploadtoappwrite.js";
 
 
 // @desc    Get all posts from a student's connected alumni
@@ -26,42 +28,50 @@ export async function getPosts(req, res) {
 export async function createPost(req, res) {
   try {
     const content = req.body.body;
-    const path = req.file?.path;
+    const localPath = req.file?.path;
 
-    console.log(req.file)
+    if (!content) {
+      return res.status(400).json({ message: "Content is required" });
+    }
 
-    if (!content) return res.status(400).json({ message: "Content is required" });
+    let uploadedFile = null;
+
+    if (localPath) {
+      uploadedFile = upload(localPath);
+    }
 
     const post = new Post({
       poster_id: req.user.id,
       poster_model: req.user.role,
-      image: path ? path : null,
+      image: uploadedFile ? uploadedFile.$id : null,
       content,
     });
 
     await post.save();
 
-    // Find all students connected to the alumni
-    const connections = await Connection.find({ alumni_id: req.user._id, status: "accepted" })
-      .select("student_id")
-      .exec();
+    const connections = await Connection.find({
+      alumni_id: req.user._id,
+      status: "accepted",
+    }).select("student_id");
 
     if (connections.length > 0) {
-      // Create notifications for all connected students
-      const notifications = connections.map(conn => ({
+      const notifications = connections.map((conn) => ({
         receiver_id: conn.student_id,
         receiverModel: "Student",
         content: "A new post has been shared by your connection.",
-        type: "post-message"
+        type: "post-message",
       }));
 
-      // Insert all notifications at once
       await Notification.insertMany(notifications);
     }
 
-    res.status(201).json({ message: "Post created successfully", post , success : true});
+    res.status(201).json({
+      message: "Post created successfully",
+      post,
+      success: true,
+    });
   } catch (error) {
-    console.log(error)
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 }
