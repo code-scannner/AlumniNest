@@ -18,6 +18,7 @@ export async function isLiked(req, res) {
 
 export async function likePost(req, res) {
     try {
+        console.log(req.body);
         const { post_id } = req.body;
         const { id: user_id } = req.user;
 
@@ -32,6 +33,7 @@ export async function likePost(req, res) {
 
         res.status(200).json({ success: true, message: 'Post liked successfully.' });
     } catch (error) {
+        console.error("Error liking post:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -49,6 +51,7 @@ export async function unlikePost(req, res) {
 
         res.status(200).json({ success: true, message: 'Post unliked successfully.' });
     } catch (error) {
+        console.error("Error unliking post:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 }
