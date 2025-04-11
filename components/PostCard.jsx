@@ -193,7 +193,7 @@ export default function PostCard({
         {item?.image && (
           <>
             <Image
-              source={{ uri: `http://192.168.0.140:5000/${(item.image).replace("\\", '/')}` }}
+              source={{ uri: `${(item.image)}` }}
               transition={100}
               style={styles.postMedia}
               contentFit="cover"
