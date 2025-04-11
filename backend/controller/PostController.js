@@ -1,7 +1,6 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
 import Post from "../models/Post.js";
-import { upload } from "../utils/uploadtoappwrite.js";
 
 
 // @desc    Get all posts from a student's connected alumni
@@ -34,16 +33,10 @@ export async function createPost(req, res) {
       return res.status(400).json({ message: "Content is required" });
     }
 
-    let uploadedFile = null;
-
-    if (localPath) {
-      uploadedFile = upload(localPath);
-    }
-
     const post = new Post({
       poster_id: req.user.id,
       poster_model: req.user.role,
-      image: uploadedFile ? uploadedFile.$id : null,
+      image: localPath ? localPath : null,
       content,
     });
 

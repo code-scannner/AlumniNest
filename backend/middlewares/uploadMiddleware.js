@@ -1,26 +1,35 @@
 import multer from "multer";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-// Set up storage for uploaded images
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/"); // Save files in "uploads" folder
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: 'dyktiw2ls',
+  api_key: '799532656117776',
+  api_secret: 'WdUCg_pPQ0RQNFObd7YhUsz99MU'
+});
+
+// Set up Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads', // Your desired Cloudinary folder
+    format: async (req, file) => 'png', // You can change this if needed
+    public_id: (req, file) => {
+      const timestamp = Date.now();
+      const originalName = file.originalname.split('.')[0];
+      return `${originalName}-${timestamp}`;
     },
-    filename: (req, file, cb) => {
-        console.log(file.originalname)
-        const ext = path.extname(file.originalname);
-        cb(null, Date.now() + ext); // Unique filename (timestamp + extension)
-    },
-    limits: { fileSize: 5 * 1024 * 1024, fieldSize: 1 * 1024 * 1024 } // 10MB limit
+  },
 });
 
 // File filter (only allow images)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-        cb(null, true);
-    } else {
-        cb(new Error("Only image files are allowed"), false);
-    }
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed"), false);
+  }
 };
 
 // Configure Multer middleware
