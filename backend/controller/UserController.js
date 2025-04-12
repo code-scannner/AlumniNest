@@ -22,8 +22,8 @@ export async function updateStudent(req, res) {
         const localPath = req.file?.path;
         if (localPath) {
             if (req.user.profile.profile_pic) {
-                console.log("Deleting prev file ", req.profile.profile_pic)
-                await deleteFile(req.profile.profile_pic);
+                console.log("Deleting prev file ", req.user.profile.profile_pic)
+                await deleteFile(req.user.profile.profile_pic);
             }
             updates.profile_pic = await upload(localPath);
             console.log("uploaded new pic ", updates.profile_pic);
@@ -53,7 +53,7 @@ export async function updateAlumni(req, res) {
         const localPath = req.file?.path;
         if (localPath) {
             if (req.user.profile.profile_pic) {
-                await deleteFile(req.profile.profile_pic);
+                await deleteFile(req.user.profile.profile_pic);
             }
             updates.profile_pic = await upload(localPath);
         }
