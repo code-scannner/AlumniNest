@@ -20,6 +20,7 @@ import Button from "@/components/Button";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import Constants from "expo-constants";
 import { Image } from "expo-image";
 //   import { getSupabaseFileUrl } from "@/services/image.service";
 //   import { createOrUpdatePost } from "@/services/post.service";
@@ -35,7 +36,7 @@ export default function index() {
       if (!token) throw new Error("No token found");
 
       const response = await axios.get(
-        "http://192.168.0.140:5000/api/profile",
+        "http://"+Constants.expoConfig.extra.baseurl+"/api/profile",
         {
           headers: { token: `${token}` },
         }
@@ -102,7 +103,7 @@ export default function index() {
     console.log(file.uri, file.mimeType, file.fileName);
 
     setLoading(true);
-    let res = await axios.post("http://192.168.0.140:5000/api/post", formdata, {
+    let res = await axios.post("http://"+Constants.expoConfig.extra.baseurl+"/api/post", formdata, {
       headers: {
         "Content-Type": "multipart/form-data",
         token: `${token}`,

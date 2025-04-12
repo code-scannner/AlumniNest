@@ -8,10 +8,10 @@ const router = Router();
 
 router.post("/", authMiddleware, upload.single('file'), createPost);
 router.get("/", authMiddleware, getPosts);
-router.get("/:post_id", getParticularPost);
 router.get("/isliked", isLiked);
 router.post("/like", authMiddleware, likePost);
 router.put("/unlike", authMiddleware, unlikePost);
+router.get("/:post_id", getParticularPost);
 
 // fetch all comments of post
 router.get("/comment", getAllComments);

@@ -22,6 +22,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
+import Constants from "expo-constants";
 import studentPlaceholder from "@/assets/images/student.jpg";
 
 const StudentSignup = () => {
@@ -137,7 +138,7 @@ const StudentSignup = () => {
       console.log("Signup Request FormData:", formData);
 
       const response = await axios.post(
-        "http://192.168.0.140:5000/api/signup/student",
+        "http://"+Constants.expoConfig.extra.baseurl+"/api/signup/student",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

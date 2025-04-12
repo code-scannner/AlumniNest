@@ -19,12 +19,13 @@ import PostCard from "@/components/PostCard";
 import Loading from "@/components/Loading";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
+import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 var limit = 0;
 export default function index() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(0);
   const [user, setUser] = useState(null);
   const [loading, isLoading] = useState(false);
 
@@ -38,7 +39,7 @@ export default function index() {
       if (!token) throw new Error("No token found");
 
       const response = await axios.get(
-        "http://192.168.0.140:5000/api/profile",
+        "http://"+Constants.expoConfig.extra.baseurl+"/api/profile",
         {
           headers: { token: `${token}` },
         }
@@ -53,16 +54,39 @@ export default function index() {
     }
   };
   // Function to fetch posts from the server
-  const getPosts = async (limit, userId) => {
+  // const getPosts = async () => {
+
+  //   console.log({ userId: user?.id });
+
+  //   let res = await fetchPosts(limit, user?.id);
+
+  //   if (res.success) {
+  //     if (res.data.length < limit) {
+  //       setHasMore(false); // No more posts available
+  //     }
+
+  //     setPosts(res.data); // Update posts
+  //   }
+
+  //   console.log({ res: res.data[0] });
+  // };
+  const getPosts = async () => {
+    if (!hasMore) return;
+    setLimit((prev) => prev + 20); // Increase limit for next fetch
+
     try {
-      const response = await axios.get("http://192.168.0.140:5000/api/post", {
-        headers: {
-          token: await SecureStore.getItemAsync("token"),
-        },
-      });
-  
+      const response = await axios.get(
+        "http://"+Constants.expoConfig.extra.baseurl+`/api/post?limit=${limit}`,
+        {
+          headers: {
+            token: await SecureStore.getItemAsync("token"),
+          },
+        }
+      );
+
       if (response.data.posts) {
         setPosts(response.data.posts);
+        setHasMore(response.data.hasMore); // Check if there are more posts
       } else {
         console.error("Failed to fetch posts:", response.data.message);
         return [];
@@ -76,14 +100,12 @@ export default function index() {
   useEffect(() => {
     fetchUser();
   }, []);
-  
+
   useEffect(() => {
     if (hasMore) {
       getPosts();
-      // setHasMore(false)
     }
   }, []);
-
 
   if (loading) {
     return (
@@ -95,29 +117,29 @@ export default function index() {
   return (
     <ScreenWrapper bg={"white"}>
       <FlatList
-          data={posts}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.listStyle}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={({ item }) => <PostCard item={item} user={user} />}
-          ListFooterComponent={
-            <>
-              {hasMore ? (
-                <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
-                  <Loading />
-                </View>
-              ) : (
-                <View style={{ marginVertical: 30 }}>
-                  <Text style={styles.noPosts}>No more posts</Text>
-                </View>
-              )}
-            </>
+        data={posts}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listStyle}
+        keyExtractor={(item) => item._id.toString()}
+        renderItem={({ item }) => <PostCard item={item} user={user} />}
+        ListFooterComponent={
+          <>
+            {hasMore ? (
+              <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
+                <Loading />
+              </View>
+            ) : (
+              <View style={{ marginVertical: 30 }}>
+                <Text style={styles.noPosts}>No more posts</Text>
+              </View>
+            )}
+          </>
+        }
+        onEndReached={() => {
+          if (hasMore) {
+            getPosts();
           }
-          onEndReached={() => {
-            if (hasMore) {
-              getPosts();
-            }
-          }}
+        }}
         ListHeaderComponentStyle={{ marginBottom: 30 }}
         onEndReachedThreshold={0}
         ListHeaderComponent={<UserHeader user={user} />}
@@ -194,33 +216,31 @@ const UserHeader = ({ user }) => {
 
   console.log({ USER_IMAGE });
 
-
-
-const handleLogout = () => {
-  Alert.alert("Confirm", "Are you sure you want to logout?", [
-    {
-      text: "Cancel",
-      onPress: () => console.log("Cancel Pressed"),
-      style: "cancel",
-    },
-    {
-      text: "Logout",
-      style: "destructive",
-      onPress: async () => {
-        try {
-          // Remove token from SecureStore
-          await SecureStore.deleteItemAsync("authToken");
-
-          // Optionally, invalidate session on the backend
-          router.push('/login')
-          console.log("User logged out successfully");
-        } catch (error) {
-          console.error("Logout failed:", error);
-        }
+  const handleLogout = () => {
+    Alert.alert("Confirm", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
       },
-    },
-  ]);
-};
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            // Remove token from SecureStore
+            await SecureStore.deleteItemAsync("authToken");
+
+            // Optionally, invalidate session on the backend
+            router.push("/login");
+            console.log("User logged out successfully");
+          } catch (error) {
+            console.error("Logout failed:", error);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <View
@@ -235,7 +255,11 @@ const handleLogout = () => {
           }}
           style={styles.logoutButton}
         >
-          <Icon name={"logout"} color={theme.colors.rose} onPress={handleLogout}/>
+          <Icon
+            name={"logout"}
+            color={theme.colors.rose}
+            onPress={handleLogout}
+          />
         </TouchableOpacity>
       </View>
 
@@ -243,7 +267,7 @@ const handleLogout = () => {
         <View style={{ gap: 15 }}>
           <View style={styles.avatarContainer}>
             <Avatar
-              uri={user?.profile_pic || USER_IMAGE}  
+              uri={user?.profile_pic || USER_IMAGE}
               size={hp(12)}
               rounded={theme.radius.xxl * 1.4}
             />

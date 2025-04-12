@@ -17,6 +17,7 @@ import { Icon } from "@/assets/icons";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
+import Constants from "expo-constants";
 import { getValueFor, save } from "../helpers/SecureStore";
 
 const login = () => {
@@ -36,7 +37,7 @@ const login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://192.168.0.140:5000/api/login", {
+      const response = await axios.post("http://"+Constants.expoConfig.extra.baseurl+"/api/login", {
         email,
         password,
       });
