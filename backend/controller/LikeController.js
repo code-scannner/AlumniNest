@@ -47,6 +47,14 @@ export async function unlikePost(req, res) {
         const { post_id } = req.body;
         const { id: user_id } = req.user;
 
+        if(!post_id){
+            console.log("No post_id");
+        }
+
+        if(!id){
+            console.log("No user_id");
+        }
+
         const deleted = await Like.findOneAndDelete({ post_id, user_id });
 
         if (!deleted) {
