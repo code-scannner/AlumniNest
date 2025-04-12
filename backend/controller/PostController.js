@@ -109,16 +109,18 @@ export async function getParticularPost(req, res) {
 
     // Get total likes
     const total_likes = await Like.countDocuments({ post_id });
-
+    
     // Get all comments (optional: add .populate('user_id') to get commenter info)
     const comments = await Comment.find({ post_id })
-      .populate("user_id") // will work correctly if your Comment model uses refPath
-      .sort({ timestamp: -1 });
-
+    .populate("user_id", "username profile_pic full_name") // will work correctly if your Comment model uses refPath
+    .sort({ timestamp: -1 });
+    
+    const postObj = post.toObject();
+    postObj.total_likes = total_likes;
+    postObj.total_comments = comments.length;
+    
     res.status(200).json({
-      post,
-      total_likes,
-      total_comments: comments.length,
+      post : postObj,
       comments,
     });
 
