@@ -2,6 +2,8 @@ import Like from '../models/Like.js'; // adjust the import path if needed
 
 export async function isLiked(req, res) {
     try {
+        console.log("is Liked Api Called");
+        console.log(req.query);
         const { user_id, post_id } = req.query;
 
         if (!post_id) {
@@ -12,13 +14,14 @@ export async function isLiked(req, res) {
 
         res.status(200).json({ success: !!like }); // true if like exists, false otherwise
     } catch (error) {
+        console.log(error)
         res.status(500).json({ success: false, message: error.message });
     }
 }
 
 export async function likePost(req, res) {
     try {
-        console.log(req.body);
+        console.log("like Post Api Called");
         const { post_id } = req.body;
         const { id: user_id } = req.user;
 
@@ -40,6 +43,7 @@ export async function likePost(req, res) {
 
 export async function unlikePost(req, res) {
     try {
+        console.log("unlike Post Api Called");
         const { post_id } = req.body;
         const { id: user_id } = req.user;
 

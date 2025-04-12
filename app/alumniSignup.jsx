@@ -22,6 +22,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
+import Constants from "expo-constants";
 
 // Import default image
 import alumniPlaceholder from "@/assets/images/alumni.jpg";
@@ -131,7 +132,7 @@ const AlumniSignup = () => {
       console.log("🚀 Alumni Signup Request Data:", formData); // Debugging log
 
       const response = await axios.post(
-        "http://192.168.0.140:5000/api/signup/alumni",
+        "http://"+Constants.expoConfig.extra.baseurl+"/api/signup/alumni",
         formData,
         {
           headers: {

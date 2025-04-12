@@ -13,6 +13,7 @@ import Avatar from "./Avatar";
 import moment from "moment";
 import { Icon } from "@/assets/icons";
 import RenderHtml from "react-native-render-html";
+import Constants from "expo-constants";
 import { Image } from "expo-image";
 import Loading from "./Loading";
 import { router } from "expo-router";
@@ -59,8 +60,12 @@ export default function PostCard({
 
   const checkIfLiked = async () => {
     try {
+      console.log("Checking if liked status....")
+      console.log({
+        params: { user_id: user?._id, post_id: item?._id },
+      })
       const res = await axios.get(
-        "http://192.168.0.140:5000/api/post/isLiked",
+        "http://"+Constants.expoConfig.extra.baseurl+"/api/post/isliked",
         {
           params: { user_id: user?._id, post_id: item?._id },
         }
@@ -76,17 +81,17 @@ export default function PostCard({
 
   useEffect(() => {
     checkIfLiked();
-  }, [item]);
+  }, []);
 
   const onLike = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
-      console.log(token);
+
       if (isLiked) {
         const res = await axios.put(
-          "http://192.168.0.140:5000/api/post/unlike",
+          "http://"+Constants.expoConfig.extra.baseurl+"/api/post/unlike",
           { post_id: item?._id },
-          { headers: {token} }
+          { headers: { token } }
         );
 
         if (res.data.success) {
@@ -94,11 +99,10 @@ export default function PostCard({
           setLikeCount((prev) => prev - 1);
         }
       } else {
-        console.log(item?._id);
         const res = await axios.post(
-          "http://192.168.0.140:5000/api/post/like",
+          "http://"+Constants.expoConfig.extra.baseurl+"/api/post/like",
           { post_id: item?._id },
-          { headers: {token} }
+          { headers: { token } }
         );
 
         if (res.data.success) {
@@ -107,59 +111,21 @@ export default function PostCard({
         }
       }
     } catch (error) {
+      console.log(error);
       console.error("Error liking/unliking post", error);
     }
   };
 
-  // const onLike = async () => {
-  //   //     if (isLikedByMe) {
-  //   //       let res = await removePostLike(item?.id, currentUser?.id);
-  //   //       if (res.success) {
-  //   //         setLikes([...likes.filter((l) => l.userId !== currentUser?.id)]);
-  //   //       } else {
-  //   //         Alert.alert("Post", "something went wrong2");
-  //   //       }
-  //   //     } else {
-  //   //       let data = {
-  //   //         userId: currentUser?.id,
-  //   //         postId: item?.id
-  //   //       };
-  //   //       let res = await createPostLike(data);
-  //   //       console.log({ res });
-  //   //       if (!res.success) {
-  //   //         Alert.alert("Post", "something went wrong");
-  //   //       } else {
-  //   //         setLikes([...likes, data]);
-  //   //       }
-  //   //     }
-  //   //   };
-  //   //   const isLikedByMe = likes.find(
-  //   //     (likeData) => likeData?.userId === currentUser?.id
-  //   //   );
-  //   //   const onShare = async () => {
-  //   //     console.log("abc");
-  //   //     let content = { message: item?.body?.replace(/<\/?[^>]+(>|$)/g, "") };
-  //   //     console.log({ item });
-  //   //     if (item?.file) {
-  //   //       setLoading(true);
-  //   //       console.log("hello...");
-  //   //       const fileURL = await getSupabaseFileUrl(item?.file);
-  //   //       console.log({ fileURL });
-  //   //       let url = await downloadFile(getSupabaseFileUrl(item?.file));
-  //   //       content.url = url;
-  //   //       setLoading(false);
-  //   //     }
-  //   //     Share.share(content);
-  //   //   };
-  //   //   const openDetails = () => {
-  //   //     if (!showMoreIcon) return;
-  //   //     router.push({
-  //   //       pathname: "/postDetails",
-  //   //       params: {
-  //   //         postId: item?.id
-  //   //       }
-  //   //     });
-  //   //   };
+  const openDetails = () => {
+    if (!showMoreIcon) return;
+    router.push({
+      pathname: "/postDetails",
+      params: {
+        post_id: item?._id,
+        user_id: user?._id,
+      },
+    });
+  };
   //   //   const handlePostDelete = async () => {
   //   //     Alert.alert("Confirm", "Are you sure want to do this!", [
   //   //       {
@@ -174,8 +140,6 @@ export default function PostCard({
   //   //       }
   //   //     ]);
   // };
-  if (!item) return null;
-  console.log(item);
 
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
@@ -184,8 +148,8 @@ export default function PostCard({
           <Avatar
             size={hp(4.5)}
             uri={
-              user?.image
-                ? user.image
+              user?.profile_pic
+                ? user.profile_pic
                 : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjDGMp734S91sDuUFqL51_xRTXS15iiRoHew&s"
             }
             rounded={theme.radius.md}
@@ -209,18 +173,20 @@ export default function PostCard({
           </TouchableOpacity>
         )}
 
-        {showDelete && user?.id === item?.poster_id && (
+        {showDelete && user?._id === item?.poster_id && (
           <>
             <View style={styles.actins}>
               <TouchableOpacity
-                onPress={() => {
-                  onEdit(item);
-                }}
+              // onPress={() => {
+              //   onEdit(item);
+              // }}
               >
                 <Icon name={"edit"} size={hp(2.5)} color={theme.colors.text} />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={handlePostDelete}>
+              <TouchableOpacity
+              // onPress={handlePostDelete}
+              >
                 <Icon
                   name={"delete"}
                   size={hp(2.5)}
@@ -272,9 +238,7 @@ export default function PostCard({
           </View>
 
           <View style={styles.footerButton}>
-            <TouchableOpacity
-            // onPress={openDetails}
-            >
+            <TouchableOpacity onPress={openDetails}>
               <Icon name={"comment"} size={24} color={theme.colors.text} />
             </TouchableOpacity>
             {/* <Text style={styles.count}>{item?.comments[0]?.count || 0}</Text> */}

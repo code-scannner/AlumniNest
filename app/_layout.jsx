@@ -1,6 +1,6 @@
-import { View, Text } from 'react-native';
-import React from 'react';
-import { Stack } from 'expo-router';
+import { View, Text } from "react-native";
+import React from "react";
+import { Stack } from "expo-router";
 
 const _layout = () => {
   return (
@@ -8,7 +8,14 @@ const _layout = () => {
       screenOptions={{
         headerShown: false,
       }}
-    />
+    >
+      <Stack.Screen
+        name="(main)/postDetails"
+        options={{
+          presentation: "modal",
+        }}
+      />
+    </Stack>
   );
 };
 
