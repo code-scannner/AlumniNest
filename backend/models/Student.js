@@ -6,7 +6,6 @@ const StudentSchema = new Schema({
     password: { type: String, required: true },
     full_name: { type: String, required: true },
     profile_pic: { type: String },
-    resume: { type: String },
     passout_year: { type: Number, required: true },
     phone_no: { type: Number, required: true },
     course: { type: String, enum: ["B.Tech", "M.Tech","PhD"], required: true },

@@ -6,7 +6,7 @@ import Notification from "../models/Notification.js";
 // @access  Private (Only student can access their own connections)
 export async function getStudentConnections(req, res) {
     try {
-        const student_id = req.user._id;
+        const student_id = req.user.id;
 
         // Find all connections of the student & populate alumni details
         const connections = await Connection.find({ student_id })

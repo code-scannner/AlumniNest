@@ -20,7 +20,7 @@ export async function upload(localPath) {
 }
 
 export async function deleteFile(filepath) {
-  const fileId = str.substr(73).split('/')[0]
+  const fileId = filepath.substr(73).split('/')[0]
   try {
     await storage.deleteFile("67f8e53c0001a80cdbde", fileId);
   } catch (err) {

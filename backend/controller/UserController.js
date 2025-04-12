@@ -1,5 +1,6 @@
 import Student from "../models/Student.js";
 import Alumni from "../models/Alumni.js";
+import { upload, deleteFile } from "../utils/uploadtoappwrite.js";
 
 // Get Profile
 export const getProfile = async (req, res) => {
@@ -10,30 +11,63 @@ export const getProfile = async (req, res) => {
     }
 };
 
-// Update Profile
-export const updateProfile = async (req, res) => {
+// @desc    Update student profile
+// @route   PUT /api/profile/student/
+export async function updateStudent(req, res) {
     try {
-        const { role, profile } = req.user;
-        const { full_name, profile_pic, bio, phone_no, resume, curr_work, position } = req.body;
+        const { id } = req.user;
 
-        let updatedFields = { full_name, profile_pic, bio };
+        const updates = req.body;
 
-        if (role === "student") {
-            updatedFields.phone_no = phone_no;
-            updatedFields.resume = resume;
-        } else if (role === "alumni") {
-            updatedFields.curr_work = curr_work;
-            updatedFields.position = position;
+        const localPath = req.file?.path;
+        if (localPath) {
+            if (req.profile.profile_pic) {
+                console.log("Deleting prev file ", req.profile.profile_pic)
+                await deleteFile(req.profile.profile_pic);
+            }
+            updates.profile_pic = await upload(localPath);
+            console.log("uploaded new pic ", updates.profile_pic);
         }
 
-        // Update in the correct collection
-        const updatedProfile = role === "student"
-            ? await Student.findByIdAndUpdate(profile._id, updatedFields, { new: true })
-            : await Alumni.findByIdAndUpdate(profile._id, updatedFields, { new: true });
+        if (updates.password) {
+            updates.password = await hash(updates.password, 10);
+        }
 
-        res.status(200).json({ message: "Profile updated successfully", info: updatedProfile, type: role });
+        const student = await Student.findByIdAndUpdate(id, updates, { new: true });
+        if (!student) return res.status(404).json({ message: "Student not found" });
+
+        res.status(200).json({ message: "Student updated successfully", student });
     } catch (error) {
-        res.status(500).json({ message: "Server error", error });
+        res.status(500).json({ message: error.message });
     }
-};
+}
 
+
+// @desc    Update alumni profile
+// @route   PUT /api/profile/alumni/
+export async function updateAlumni(req, res) {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        const localPath = req.file?.path;
+        if (localPath) {
+            if (req.profile.profile_pic) {
+                await deleteFile(req.profile.profile_pic);
+            }
+            updates.profile_pic = await upload(localPath);
+        }
+
+        if (updates.password) {
+            updates.password = await hash(updates.password, 10);
+        }
+
+        const alumni = await Alumni.findByIdAndUpdate(id, updates, { new: true });
+
+        if (!alumni) return res.status(404).json({ message: "Alumni not found" });
+
+        res.status(200).json({ message: "Alumni updated successfully", alumni });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
