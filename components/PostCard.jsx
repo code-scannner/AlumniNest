@@ -122,7 +122,7 @@ export default function PostCard({
       pathname: "/postDetails",
       params: {
         post_id: item?._id,
-        user_id: user?._id,
+        user_id: user?._id
       },
     });
   };
