@@ -51,7 +51,7 @@ export async function unlikePost(req, res) {
             console.log("No post_id");
         }
 
-        if(!id){
+        if(!user_id){
             console.log("No user_id");
         }
 

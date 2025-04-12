@@ -16,15 +16,15 @@ import Input from "@/components/Input";
 import { Icon } from "@/assets/icons";
 import CommentItem from "@/components/CommentItem";
 import Constants from "expo-constants";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 export default function index() {
   const { post_id, user_id } = useLocalSearchParams();
-  console.log(post_id, user_id);
   const inputRef = useRef(null);
-
+  const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState(null);
-  const [user, setUser] = useState({});
   const [comments, setComments] = useState([]);
   const [commentValue, setCommentValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,35 +46,36 @@ export default function index() {
     const fetchPost = async () => {
       try {
         const response = await axios.get(
-            "http://"+Constants.expoConfig.extra.baseurl+`/api/post/${post_id}` );
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            `/api/post/${post_id}`
+        );
 
         setPost(response.data.post);
         setComments(response.data.comments);
-        
+        console.log("Post data fetched successfully:", response.data.post);
+        console.log(user);
       } catch (error) {
         console.error("Error fetching post:", error);
       }
     };
-    // }
-    // let commentChannel = supabase
-    //   .channel("comments")
-    //   .on(
-    //     "postgres_changes",
-    //     {
-    //       event: "INSERT",
-    //       schema: "public",
-    //       table: "comments",
-    //       filter: "postId=eq." + postId
-    //     },
-    //     handleNewComment
-    //   )
-    //   .subscribe();
-    // // getPosts();
-    // getPostDetails();
-
-    // return () => {
-    //   supabase.removeChannel(commentChannel);
-    // };
+    fetchPost();
+    const fetchUser = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
+          {
+            headers: { token: `${token}` },
+          }
+        );
+        console.log("User data fetched successfully:", response.data.info);
+        setUser(response.data.info);
+      } catch (error) {
+        console.error("Failed to fetch user:", error.message);
+      }
+    };
+    fetchUser();
   }, []);
 
   // const getPostDetails = async () => {
@@ -182,7 +183,7 @@ export default function index() {
       >
         <PostCard
           item={post}
-          user={{_id : user_id}}
+          user={user}
           hasShadow={false}
           showMoreIcon={false}
           showDelete={true}
@@ -229,7 +230,8 @@ export default function index() {
                 item={comment}
                 key={comment._id}
                 canDelete={
-                  user_id === comment?.user_id?._id || user_id === post?.poster_id
+                  user?._id === comment?.user?._id ||
+                  user?._id === post?.poster_id
                 }
                 // highlight={comment.id === commentId}
                 // onDelete={onDeleteComment}
