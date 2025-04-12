@@ -96,3 +96,33 @@ export async function createPost(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+export async function getParticularPost(req, res) {
+  try {
+    const { post_id } = req.params;
+
+    const post = await Post.findById(post_id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Get total likes
+    const total_likes = await Like.countDocuments({ post_id });
+
+    // Get all comments (optional: add .populate('user_id') to get commenter info)
+    const comments = await Comment.find({ post_id })
+      .populate("user_id") // will work correctly if your Comment model uses refPath
+      .sort({ timestamp: -1 });
+
+    res.status(200).json({
+      post,
+      total_likes,
+      total_comments: comments.length,
+      comments,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
