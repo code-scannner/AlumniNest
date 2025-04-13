@@ -1,6 +1,7 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
 import Alumni from "../models/Alumni.js";
+import Student from "../models/Student.js";
 
 // @route GET /api/connect/requests
 export async function getRequests(req, res) {
@@ -60,24 +61,24 @@ export async function getConnections(req, res) {
         const userId = req.user.id;
         const userModel = req.user.role;
 
-        let { search, limit } = req.body;
-        if (!limit) limit = 10;
+        let { search } = req.body;
 
 
         const query = search
             ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
             : { _id: { $ne: userId } };
 
-        const alumniList = await Alumni.find(query)
-            .select('-password -email')
-            .limit(limit);
+        const alumniList = await Alumni.find(query);
+        const studentsList = await Student.find(query);
 
         const alumniIds = alumniList.map(alumni => alumni._id);
+        const studentsIds = studentsList.map(student => student._id);
+        const allUserIds = [...alumniIds, ...studentsIds];
 
         const connections = await Connection.find({
             $or: [
-                { from_user: userId, to_user: { $in: alumniIds } },
-                { to_user: userId, from_user: { $in: alumniIds } }
+                { from_user: userId, to_user: { $in: allUserIds } },
+                { to_user: userId, from_user: { $in: allUserIds } }
             ]
         });
 
@@ -94,16 +95,39 @@ export async function getConnections(req, res) {
 
             return {
                 ...alumni._doc,
+                userType: 'alumni',
                 status
             };
         });
 
-        res.status(200).json({ connections: alumniWithStatus });
+        const studentsWithStatus = studentsList.map(student => {
+            const conn = connections.find(c =>
+                (c.from_user.toString() === userId && c.to_user.toString() === student._id.toString()) ||
+                (c.to_user.toString() === userId && c.from_user.toString() === student._id.toString())
+            );
+
+            let status = 'not_connected';
+            if (conn) {
+                status = conn.status;
+            }
+
+            return {
+                ...student._doc,
+                userType: 'student',
+                status
+            };
+        });
+
+        const allConnections = shuffleArray([...alumniWithStatus, ...studentsWithStatus]);
+
+
+        res.status(200).json({ connections: allConnections });
     } catch (error) {
         console.error("Error in getConnections:", error);
         res.status(500).json({ message: error.message });
     }
 }
+
 
 // @desc    Send a connection request
 // @route   POST /api/connect/request/:to_user
@@ -217,4 +241,14 @@ export async function acceptRequest(req, res) {
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
+}
+
+
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
