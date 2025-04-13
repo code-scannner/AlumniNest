@@ -22,7 +22,7 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
 var limit = 0;
 export default function index() {
   const [posts, setPosts] = useState([]);
