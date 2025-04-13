@@ -23,6 +23,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 
 // Import default image
@@ -133,7 +134,7 @@ const AlumniSignup = () => {
       console.log("🚀 Alumni Signup Request Data:", formData); // Debugging log
 
       const response = await axios.post(
-        "http://"+Constants.expoConfig.extra.baseurl+"/api/signup/alumni",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/signup/alumni",
         formData,
         {
           headers: {
@@ -144,7 +145,8 @@ const AlumniSignup = () => {
 
       if (response.status === 201) {
         Alert.alert("Success", "Account created successfully");
-        router.push("/login");
+        await SecureStore.setItemAsync("token", response.data.token);
+        router.push("/(main)/home");
       } else {
         Alert.alert("Error", response.data.message || "Something went wrong");
       }
@@ -290,7 +292,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowOffset: {
       width: 0,
-      height: 4
+      height: 4,
     },
     position: "absolute",
     bottom: 0,
@@ -298,19 +300,19 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 50,
     backgroundColor: "white",
-    shadowColor: theme.colors.textLight
+    shadowColor: theme.colors.textLight,
   },
   avatarContainer: {
     height: hp(14),
     width: hp(14),
-    alignSelf: "center"
+    alignSelf: "center",
   },
   avatar: {
     width: "100%",
     height: "100%",
     borderRadius: theme.radius.xxl * 1.8,
     borderCurve: "continuous",
-    borderWidth:2,
-    borderColor: theme.colors.primary
-  }
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  },
 });

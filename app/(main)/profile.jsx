@@ -241,7 +241,7 @@ const UserHeader = ({ user }) => {
             await SecureStore.deleteItemAsync("authToken");
 
             // Optionally, invalidate session on the backend
-            router.push("/login");
+            router.replace("/login");
             console.log("User logged out successfully");
           } catch (error) {
             console.error("Logout failed:", error);

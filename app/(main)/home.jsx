@@ -11,165 +11,165 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 import Avatar from "../../components/Avatar";
 
 let limit = 0;
 const home = () => {
-//   const { user } = useAuth();
+  //   const { user } = useAuth();
 
-//   const [posts, setPosts] = useState([]);
-//   const [hasMore, setHasMore] = useState(true);
-//   const [notoficationCount, setNotificationCount] = useState(0);
+  //   const [posts, setPosts] = useState([]);
+  //   const [hasMore, setHasMore] = useState(true);
+  //   const [notoficationCount, setNotificationCount] = useState(0);
 
-//   const handlePostEvent = async (payload) => {
-//     try {
-//       console.log("Received Post Event:", payload);
+  //   const handlePostEvent = async (payload) => {
+  //     try {
+  //       console.log("Received Post Event:", payload);
 
-//       if (!payload?.eventType) {
-//         console.warn("Invalid payload: Missing eventType");
-//         return;
-//       }
+  //       if (!payload?.eventType) {
+  //         console.warn("Invalid payload: Missing eventType");
+  //         return;
+  //       }
 
-//       switch (payload.eventType) {
-//         case "INSERT":
-//           if (!payload.new?.id) {
-//             console.warn("Invalid INSERT payload: Missing new post ID");
-//             return;
-//           }
+  //       switch (payload.eventType) {
+  //         case "INSERT":
+  //           if (!payload.new?.id) {
+  //             console.warn("Invalid INSERT payload: Missing new post ID");
+  //             return;
+  //           }
 
-//           try {
-//             const newPost = { ...payload.new };
-//             const res = await getUserData(newPost.userId);
+  //           try {
+  //             const newPost = { ...payload.new };
+  //             const res = await getUserData(newPost.userId);
 
-//             if (res.success) {
-//               newPost.user = res.data;
-//               newPost.postLikes = [];
-//               newPost.comments = [{ count: 0 }];
+  //             if (res.success) {
+  //               newPost.user = res.data;
+  //               newPost.postLikes = [];
+  //               newPost.comments = [{ count: 0 }];
 
-//               // Update state only after getting user data
-//               setPosts((prevPosts) => [newPost, ...prevPosts]);
-//             } else {
-//               console.warn("User data fetch failed, post not added");
-//             }
-//           } catch (error) {
-//             console.error("Error fetching user data for new post:", error);
-//           }
-//           break;
-//         case "UPDATE":
-//           if (!payload.new?.id) {
-//             console.warn("Invalid INSERT payload: Missing new post ID");
-//             return;
-//           }
+  //               // Update state only after getting user data
+  //               setPosts((prevPosts) => [newPost, ...prevPosts]);
+  //             } else {
+  //               console.warn("User data fetch failed, post not added");
+  //             }
+  //           } catch (error) {
+  //             console.error("Error fetching user data for new post:", error);
+  //           }
+  //           break;
+  //         case "UPDATE":
+  //           if (!payload.new?.id) {
+  //             console.warn("Invalid INSERT payload: Missing new post ID");
+  //             return;
+  //           }
 
-//           try {
-//             const newPost = { ...payload.new };
-//             const res = await getUserData(newPost.userId);
+  //           try {
+  //             const newPost = { ...payload.new };
+  //             const res = await getUserData(newPost.userId);
 
-//             if (res.success) {
-//               newPost.user = res.data;
-//               newPost.postLikes = [];
-//               newPost.comments = [{ count: 0 }];
+  //             if (res.success) {
+  //               newPost.user = res.data;
+  //               newPost.postLikes = [];
+  //               newPost.comments = [{ count: 0 }];
 
-//               // update the new body and file!
-//               setPosts((prevPosts) => {
-//                 const index = prevPosts.findIndex(
-//                   (post) => post.id === newPost.id
-//                 );
-//                 if (index !== -1) {
-//                   return [
-//                     ...prevPosts.slice(0, index),
-//                     newPost,
-//                     ...prevPosts.slice(index + 1)
-//                   ];
-//                 } else {
-//                   return [...prevPosts, newPost];
-//                 }
-//               });
-//             } else {
-//               console.warn("User data fetch failed, post not added");
-//             }
-//           } catch (error) {
-//             console.error("Error fetching user data for new post:", error);
-//           }
-//           break;
+  //               // update the new body and file!
+  //               setPosts((prevPosts) => {
+  //                 const index = prevPosts.findIndex(
+  //                   (post) => post.id === newPost.id
+  //                 );
+  //                 if (index !== -1) {
+  //                   return [
+  //                     ...prevPosts.slice(0, index),
+  //                     newPost,
+  //                     ...prevPosts.slice(index + 1)
+  //                   ];
+  //                 } else {
+  //                   return [...prevPosts, newPost];
+  //                 }
+  //               });
+  //             } else {
+  //               console.warn("User data fetch failed, post not added");
+  //             }
+  //           } catch (error) {
+  //             console.error("Error fetching user data for new post:", error);
+  //           }
+  //           break;
 
-//         case "DELETE":
-//           if (!payload.old?.id) {
-//             console.warn("Invalid DELETE payload: Missing old post ID");
-//             return;
-//           }
+  //         case "DELETE":
+  //           if (!payload.old?.id) {
+  //             console.warn("Invalid DELETE payload: Missing old post ID");
+  //             return;
+  //           }
 
-//           setPosts((prevPosts) =>
-//             prevPosts.filter((post) => post.id !== payload.old.id)
-//           );
-//           break;
+  //           setPosts((prevPosts) =>
+  //             prevPosts.filter((post) => post.id !== payload.old.id)
+  //           );
+  //           break;
 
-//         default:
-//           console.warn("Unhandled event type:", payload.eventType);
-//       }
-//     } catch (error) {
-//       console.error("Error handling post event:", error);
-//     }
-//   };
+  //         default:
+  //           console.warn("Unhandled event type:", payload.eventType);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error handling post event:", error);
+  //     }
+  //   };
 
-//   useEffect(() => {
-//     let postChannel = supabase
-//       .channel("posts")
-//       .on(
-//         "postgres_changes",
-//         { event: "*", schema: "public", table: "posts" },
-//         handlePostEvent
-//       )
-//       .subscribe();
-//     console.log({ postChannel });
-//     // getPosts();
+  //   useEffect(() => {
+  //     let postChannel = supabase
+  //       .channel("posts")
+  //       .on(
+  //         "postgres_changes",
+  //         { event: "*", schema: "public", table: "posts" },
+  //         handlePostEvent
+  //       )
+  //       .subscribe();
+  //     console.log({ postChannel });
+  //     // getPosts();
 
-//     return () => {
-//       supabase.removeChannel(postChannel);
-//     };
-//   }, []);
+  //     return () => {
+  //       supabase.removeChannel(postChannel);
+  //     };
+  //   }, []);
 
-//   const handleNotfication = async (payload) => {
-//     if (payload.eventType === "INSERT" && payload.new.id) {
-//       setNotificationCount((prev) => prev + 1);
-//     }
+  //   const handleNotfication = async (payload) => {
+  //     if (payload.eventType === "INSERT" && payload.new.id) {
+  //       setNotificationCount((prev) => prev + 1);
+  //     }
 
-//     console.log("Notification payload:", payload);
-//   };
-//   useEffect(() => {
-//     let notificationChannel = supabase
-//       .channel("posts")
-//       .on(
-//         "postgres_changes",
-//         {
-//           event: "*",
-//           schema: "public",
-//           table: "notifications",
-//           filter: `receiverId=eq.${user.id}`
-//         },
-//         handleNotfication
-//       )
-//       .subscribe();
-//     console.log({ notificationChannel });
-//     // getPosts();
+  //     console.log("Notification payload:", payload);
+  //   };
+  //   useEffect(() => {
+  //     let notificationChannel = supabase
+  //       .channel("posts")
+  //       .on(
+  //         "postgres_changes",
+  //         {
+  //           event: "*",
+  //           schema: "public",
+  //           table: "notifications",
+  //           filter: `receiverId=eq.${user.id}`
+  //         },
+  //         handleNotfication
+  //       )
+  //       .subscribe();
+  //     console.log({ notificationChannel });
+  //     // getPosts();
 
-//     return () => {
-//       supabase.removeChannel(notificationChannel);
-//     };
-// //   }, []);
-//   const getPosts = async () => {
-//     limit = limit + 5;
-//     let res = await fetchPosts(limit);
-//     if (res.success) {
-//       if (posts.length == res.data?.length) setHasMore(false);
-//       setPosts(res.data);
-//     }
-//     console.log({ res: res.data[0] });
+  //     return () => {
+  //       supabase.removeChannel(notificationChannel);
+  //     };
+  // //   }, []);
+  //   const getPosts = async () => {
+  //     limit = limit + 5;
+  //     let res = await fetchPosts(limit);
+  //     if (res.success) {
+  //       if (posts.length == res.data?.length) setHasMore(false);
+  //       setPosts(res.data);
+  //     }
+  //     console.log({ res: res.data[0] });
 
-//   };
-let notoficationCount=0;
+  //   };
+  let notoficationCount = 0;
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
@@ -177,6 +177,14 @@ let notoficationCount=0;
         <View style={styles.header}>
           <Text style={styles.title}>AlumniNest</Text>
           <View style={styles.icons}>
+            <Pressable onPress={() => router.push("(main)/connections")}>
+              <Icon
+                name={"user"}
+                size={hp(3.2)}
+                strokeWidth={2}
+                color={theme.colors.text}
+              />
+            </Pressable>
             <Pressable
               onPress={() => {
                 setNotificationCount(0);
@@ -255,19 +263,19 @@ export default home;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 10,
-    marginHorizontal: wp(4)
+    marginHorizontal: wp(4),
   },
   title: {
     color: theme.colors.text,
     fontSize: hp(3.2),
-    fontWeight: "700"
+    fontWeight: "700",
   },
   avatarImage: {
     height: hp(4.3),
@@ -275,18 +283,18 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     borderCurve: "continuous",
     borderWidth: 3,
-    borderColor: theme.colors.gray
+    borderColor: theme.colors.gray,
   },
   icons: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 18
+    gap: 18,
   },
   noPosts: {
     fontSize: hp(2),
     textAlign: "center",
-    color: theme.colors.text
+    color: theme.colors.text,
   },
   pill: {
     position: "absolute",
@@ -297,15 +305,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: hp(2.2),
-    height: hp(2.2)
+    height: hp(2.2),
   },
   listStyle: {
     paddingTop: 20,
-    paddingHorizontal: wp(4)
+    paddingHorizontal: wp(4),
   },
   pillText: {
     color: "white",
     fontSize: hp(1.2),
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 });
