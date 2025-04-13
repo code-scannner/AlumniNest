@@ -51,7 +51,7 @@ export default function ConnectionsScreen() {
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
         <View style={{ paddingHorizontal: wp(4) }}>
-          <Header title={"Connections"} showBackButton mb={10} />
+          <Header title={"Requests"} showBackButton mb={10} />
         </View>
         <FlatList
           data={filteredUsers}
@@ -61,7 +61,7 @@ export default function ConnectionsScreen() {
               user={item}
               status={item.status}
               onPress={() => console.log(`${item.full_name} pressed`)}
-              ShowButton={false}
+              ShowRequestButton={true}
             />
           )}
           contentContainerStyle={{

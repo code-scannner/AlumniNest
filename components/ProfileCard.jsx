@@ -2,8 +2,13 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { wp, hp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
-
-export default function ProfileCard({ user, status = "connect", onPress }) {
+import { Feather } from "@expo/vector-icons";
+export default function ProfileCard({
+  user,
+  status = "connect",
+  onPress,
+  ShowRequestButton = false,
+}) {
   const getButtonLabel = () => {
     if (status === "pending") return "Pending";
     if (status === "remove") return "Remove";
@@ -28,12 +33,30 @@ export default function ProfileCard({ user, status = "connect", onPress }) {
         <Text style={styles.name}>{user.full_name}</Text>
         <Text style={styles.username}>@{user.username}</Text>
       </View>
-      <TouchableOpacity
-        style={[styles.button, getButtonStyle()]}
-        onPress={onPress}
-      >
-        <Text style={styles.buttonText}>{getButtonLabel()}</Text>
-      </TouchableOpacity>
+      {!ShowRequestButton && (
+        <TouchableOpacity
+          style={[styles.button, getButtonStyle()]}
+          onPress={onPress}
+        >
+          <Text style={styles.buttonText}>{getButtonLabel()}</Text>
+        </TouchableOpacity>
+      )}
+      {ShowRequestButton && (
+        <View style={styles.iconButtons}>
+          <TouchableOpacity
+            onPress={() => onPress("accept")}
+            style={styles.greeniconBtn}
+          >
+            <Feather name="check" size={hp(2.2)} color="green" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => onPress("reject")}
+            style={styles.rediconBtn}
+          >
+            <Feather name="x" size={hp(2.2)} color="red" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -88,5 +111,21 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
     fontSize: hp(1.6),
+  },
+  iconButtons: {
+    flexDirection: "row",
+    gap: wp(4),
+  },
+  rediconBtn: {
+    padding: wp(1),
+    borderWidth: 1,
+    borderColor: "hsl(0, 88.70%, 72.40%)",
+    borderRadius: theme.radius.sm,
+  },
+  greeniconBtn: {
+    padding: wp(1),
+    borderWidth: 1,
+    borderColor: "hsl(120, 46.60%, 45.50%)",
+    borderRadius: theme.radius.sm,
   },
 });

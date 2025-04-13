@@ -177,7 +177,7 @@ const home = () => {
         <View style={styles.header}>
           <Text style={styles.title}>AlumniNest</Text>
           <View style={styles.icons}>
-            <Pressable onPress={() => router.push("(main)/connections")}>
+            <Pressable onPress={() => router.push("network")}>
               <Icon
                 name={"user"}
                 size={hp(3.2)}

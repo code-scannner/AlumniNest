@@ -14,6 +14,7 @@ import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
 import ScreenWrapper from "../../components/ScreenWrapper";
+import { router } from "expo-router";
 const mockUsers = [
   {
     id: 1,
@@ -51,7 +52,40 @@ export default function ConnectionsScreen() {
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
         <View style={{ paddingHorizontal: wp(4) }}>
-          <Header title={"Connections"} showBackButton mb={10} />
+          <Header title={"Network"} showBackButton mb={10} />
+          <TouchableOpacity onPress={() => router.push("/(main)/connections")}>
+            <Feather
+              name="users"
+              size={hp(3)}
+              color={theme.colors.text}
+              style={styles.user}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/(main)/requestPage")}>
+            <Feather
+              name="user-plus"
+              size={hp(3)}
+              color={theme.colors.text}
+              style={styles.userplus}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.searchContainer}>
+          <Icon
+            name="search"
+            size={20}
+            color="#999"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            placeholder="Search by name or username"
+            value={search}
+            onChangeText={setSearch}
+            style={styles.searchInput}
+            placeholderTextColor="#999"
+          />
         </View>
         <FlatList
           data={filteredUsers}
@@ -60,8 +94,8 @@ export default function ConnectionsScreen() {
             <ProfileCard
               user={item}
               status={item.status}
+              button={true}
               onPress={() => console.log(`${item.full_name} pressed`)}
-              ShowButton={false}
             />
           )}
           contentContainerStyle={{
