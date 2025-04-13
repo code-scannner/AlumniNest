@@ -23,6 +23,7 @@ import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
 import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 import studentPlaceholder from "@/assets/images/student.jpg";
 
 const StudentSignup = () => {
@@ -147,6 +148,7 @@ const StudentSignup = () => {
 
       if (response.status === 201) {
         Alert.alert("Success", "Account created successfully");
+        await SecureStore.setItemAsync("token", response.data.token);
         router.push("/(main)/home");
       } else {
         Alert.alert("Error", response.data.message || "Something went wrong");

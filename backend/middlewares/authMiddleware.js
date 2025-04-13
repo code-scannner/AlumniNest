@@ -21,6 +21,7 @@ export const authMiddleware = async (req, res, next) => {
     const alumni = await Alumni.findById(decoded.id);
 
     if (!student && !alumni) {
+      console.log("User not found in both collections");
       return res.status(404).json({ message: "User not found" });
     }
 

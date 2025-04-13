@@ -10,26 +10,13 @@ import { Icon } from "@/assets/icons";
 const CommentItem = ({
   item,
   canDelete = false,
-  onDelete = () => {},
+  handleDelete,
   highlight = false
 }) => {
-//   const handleDelete = async () => {
-//     Alert.alert("Confirm", "Are you sure want to do this!", [
-//       {
-//         text: "Cancel",
-//         onPress: () => console.log("Cancel Pressed"),
-//         style: "cancel"
-//       },
-//       {
-//         text: "delete",
-//         onPress: async () => onDelete(item),
-//         style: "destructive"
-//       }
-//     ]);
-//   };
+
   return (
     <View style={styles.container}>
-      <Avatar uri={assests/images/alumni.jpg} />
+      <Avatar uri={item?.user_id?.profile_pic} />
 
       <View style={[styles.content, highlight && styles.highlight]}>
         <View
@@ -40,14 +27,16 @@ const CommentItem = ({
           }}
         >
           <View style={styles.nameContainer}>
-            <Text style={styles.text}>Utkarsh Trivedi</Text>
+            <Text style={styles.text}>{item?.user_id?.full_name}</Text>
             <Text style={[styles.text, { color: theme.colors.textLight }]}>
               <Text>•</Text>
-              {moment(new Date(item?.created_at)).format("MMM d")}
+              {moment(item?.timestamp).format("MMM D")}
             </Text>
           </View>
           {canDelete && (
-            <TouchableOpacity onPress={handleDelete}>
+            <TouchableOpacity 
+            onPress={handleDelete}
+            >
               <Icon name={"delete"} size={20} color={theme.colors.rose} />
             </TouchableOpacity>
           )}

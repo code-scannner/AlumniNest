@@ -134,7 +134,7 @@ export default function index() {
         >
           {/* avatar! */}
           <View style={styles.header}>
-            <Avatar uri={null} size={hp(6.5)} rounded={theme.radius.xl} />
+            <Avatar uri={user.profile_pic} size={hp(6.5)} rounded={theme.radius.xl} />
             <View style={{ gap: 2 }}>
               <Text style={styles.username}>{user.full_name}</Text>
               <Text style={styles.publicText}>@{user.username}</Text>

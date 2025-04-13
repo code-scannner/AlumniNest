@@ -36,7 +36,6 @@ export default function index() {
     isLoading(true);
     try {
       const token = await SecureStore.getItemAsync("token");
-      console.log("Retrieved Token:", token);
 
       if (!token) throw new Error("No token found");
 
@@ -47,7 +46,6 @@ export default function index() {
         }
       );
 
-      console.log("User data fetched successfully:", response.data.info);
       setUser(response.data.info);
     } catch (error) {
       console.error("Failed to fetch user:", error.message);
@@ -89,7 +87,7 @@ export default function index() {
       );
 
       if (response.data.posts) {
-        setPosts(response.data.posts);
+        setPosts([...response.data.posts]);
         setHasMore(response.data.hasMore); // Check if there are more posts
       } else {
         console.error("Failed to fetch posts:", response.data.message);
@@ -226,8 +224,6 @@ const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjDGMp734S91sDuUFqL51_xRTXS15iiRoHew&s";
-
-  console.log({ USER_IMAGE });
 
   const handleLogout = () => {
     Alert.alert("Confirm", "Are you sure you want to logout?", [

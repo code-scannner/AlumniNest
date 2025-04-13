@@ -2,9 +2,8 @@ import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
 import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
-import Like from '../models/Like.js'; // adjust the import path if needed
+import Like from "../models/Like.js"; // adjust the import path if needed
 import { upload } from "../utils/uploadtoappwrite.js";
-
 
 // @desc    Get all posts from a student's connected alumni
 // @route   GET /api/post/
@@ -30,11 +29,13 @@ export async function getPosts(req, res) {
     const postsWithLikes = await Promise.all(
       posts.map(async (post) => {
         const total_likes = await Like.countDocuments({ post_id: post._id });
-        const total_comments = await Comment.countDocuments({ post_id: post._id });
+        const total_comments = await Comment.countDocuments({
+          post_id: post._id,
+        });
         return {
           ...post.toObject(),
           total_likes,
-          total_comments
+          total_comments,
         };
       })
     );
@@ -55,7 +56,7 @@ export async function createPost(req, res) {
 
     const link = await upload(localPath);
 
-    console.log("uploaded file link ", link)
+    console.log("uploaded file link ", link);
 
     if (!content) {
       return res.status(400).json({ message: "Content is required" });
@@ -100,6 +101,7 @@ export async function createPost(req, res) {
 export async function getParticularPost(req, res) {
   try {
     const { post_id } = req.params;
+    console.log("Fetching post details... for ", post_id);
 
     const post = await Post.findById(post_id);
 
@@ -109,22 +111,53 @@ export async function getParticularPost(req, res) {
 
     // Get total likes
     const total_likes = await Like.countDocuments({ post_id });
-    
+
     // Get all comments (optional: add .populate('user_id') to get commenter info)
     const comments = await Comment.find({ post_id })
-    .populate("user_id", "username profile_pic full_name") // will work correctly if your Comment model uses refPath
-    .sort({ timestamp: -1 });
-    
+      .populate("user_id", "username profile_pic full_name") // will work correctly if your Comment model uses refPath
+      .sort({ timestamp: -1 });
+
     const postObj = post.toObject();
     postObj.total_likes = total_likes;
     postObj.total_comments = comments.length;
-    
+
     res.status(200).json({
-      post : postObj,
+      post: postObj,
       comments,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+}
+
+export async function deletePost(req, res) {
+  try {
+    const { post_id } = req.params;
+    const { id: user_id } = req.user;
+
+    if (!post_id) {
+      return res.status(400).json({ message: "Post ID is required" });
+    }
+
+    const post = await Post.findById(post_id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (post.poster_id.toString() !== user_id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this post" });
+    }
+
+    await Post.findByIdAndDelete(post_id);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Post deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 }

@@ -1,9 +1,9 @@
 import Like from '../models/Like.js'; // adjust the import path if needed
+import Comment from '../models/Comment.js'; // adjust the import path if needed
 
 export async function isLiked(req, res) {
     try {
         console.log("is Liked Api Called");
-        console.log(req.query);
         const { user_id, post_id } = req.query;
 
         if (!post_id) {
@@ -11,8 +11,10 @@ export async function isLiked(req, res) {
         }
 
         const like = await Like.findOne({ post_id, user_id });
+        const total_likes = await Like.countDocuments({ post_id });
+        const total_comments = await Comment.countDocuments({ post_id });
 
-        res.status(200).json({ success: !!like }); // true if like exists, false otherwise
+        res.status(200).json({ success : true,isLiked: !!like, total_likes, total_comments  }); // true if like exists, false otherwise
     } catch (error) {
         console.log(error)
         res.status(500).json({ success: false, message: error.message });

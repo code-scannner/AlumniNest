@@ -39,6 +39,7 @@ export default function PostCard({
   item,
   user,
   hasShadow = true,
+  commentCount,
   showMoreIcon = true,
   showDelete = false,
   onDelete = () => {},
@@ -55,21 +56,13 @@ export default function PostCard({
   };
 
   const [isLiked, setIsLiked] = useState(false);
-  const [post, setPost] = useState({});
-  const [likeCount, setLikeCount] = useSta
-  te(item?.total_likes);
-  const [commentCount, setCommentCount] = useState(item?.total_comments);
+  const [likeCount, setLikeCount] = useState(item?.total_likes);
   const [loading, setLoading] = useState(false);
 
 
   const checkIfLiked = async () => {
     try {
       console.log("Checking if liked status....")
-      console.log(user);
-      console.log(item);
-      console.log({
-        params: { user_id: user?._id, post_id: item?._id },
-      })
       const res = await axios.get(
         "http://"+Constants.expoConfig.extra.baseurl+"/api/post/isliked",
         {
@@ -78,7 +71,8 @@ export default function PostCard({
       );
 
       if (res.data.success) {
-        setIsLiked(true);
+        setIsLiked(res.data.isLiked);
+        setLikeCount(res.data.total_likes);
       }
     } catch (error) {
       console.error("Error checking like status", error);
@@ -148,7 +142,6 @@ export default function PostCard({
   //   //       }
   //   //     ]);
   // };
-
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
@@ -193,7 +186,7 @@ export default function PostCard({
               </TouchableOpacity>
 
               <TouchableOpacity
-              // onPress={handlePostDelete}
+              onPress={onDelete}
               >
                 <Icon
                   name={"delete"}
@@ -242,14 +235,14 @@ export default function PostCard({
                 fill={!isLiked ? "white" : theme.colors.rose}
               />
             </TouchableOpacity>
-            <Text style={styles.count}>{post.total_likes}</Text>
+            <Text style={styles.count}>{likeCount}</Text>
           </View>
 
           <View style={styles.footerButton}>
             <TouchableOpacity onPress={openDetails}>
               <Icon name={"comment"} size={24} color={theme.colors.text} />
             </TouchableOpacity>
-            <Text style={styles.count}>0</Text>
+            <Text style={styles.count}>{commentCount?commentCount:item?.total_comments}</Text>
           </View>
 
           {/* <View style={styles.footerButton}>

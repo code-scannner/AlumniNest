@@ -24,6 +24,8 @@ export async function getAllComments(req, res) {
 // add new comment
 // router.post("/comment", authMiddleware, addNewComment);
 export async function addNewComment(req, res) {
+
+    console.log("/api/post/comment API Called");
     try {
         const { post_id, content } = req.body;
         const { id: user_id, role } = req.user;
@@ -41,6 +43,8 @@ export async function addNewComment(req, res) {
 
         await newComment.save();
 
+        await newComment.populate("user_id", "full_name profile_pic")
+
         res.status(201).json({ success: true, message: "Comment added successfully.", comment: newComment });
     } catch (error) {
         console.log(error);
@@ -52,7 +56,8 @@ export async function addNewComment(req, res) {
 // router.delete("/comment", authMiddleware, deleteComment);
 export async function deleteComment(req, res) {
     try {
-        const { comment_id } = req.body;
+        console.log("/api/post/comment API Called");
+        const { comment_id } = req.params;
         const { id: user_id } = req.user;
 
         if (!comment_id) {
@@ -60,8 +65,8 @@ export async function deleteComment(req, res) {
         }
 
         const comment = await Comment.findById(comment_id);
-
         if (!comment) {
+            console.log("Comment not found.");
             return res.status(404).json({ success: false, message: "Comment not found." });
         }
 

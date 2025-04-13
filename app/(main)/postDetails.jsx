@@ -21,30 +21,20 @@ import * as SecureStore from "expo-secure-store";
 
 export default function index() {
   const { post_id, user_id } = useLocalSearchParams();
-  const inputRef = useRef(null);
+  const inputRef = useRef("");
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
-  const [commentValue, setCommentValue] = useState("");
+  const [commentCount, setCommentCount] = useState(0);
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // const handleNewComment = async (payload) => {
-  //   if (payload.new) {
-  //     let newComment = { ...payload.new };
-  //     let res = await getUserData(newComment.userId);
-  //     newComment.user = res.success ? res.data : {};
-  //     setPost((prevPost) => {
-  //       const newComments = [...prevPost.comments];
-  //       newComments.push(newComment);
-  //       return { ...prevPost, comments: newComments };
-  //     });
-  //   }
-  // };
 
   useEffect(() => {
     const fetchPost = async () => {
+      setLoading(true);
       try {
+        setLoading(true);
         const response = await axios.get(
           "http://" +
             Constants.expoConfig.extra.baseurl +
@@ -53,14 +43,16 @@ export default function index() {
 
         setPost(response.data.post);
         setComments(response.data.comments);
-        console.log("Post data fetched successfully:", response.data.post);
-        console.log(user);
+        setCommentCount(response.data.post.total_comments);
       } catch (error) {
         console.error("Error fetching post:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPost();
     const fetchUser = async () => {
+      setLoading(true);
       try {
         const token = await SecureStore.getItemAsync("token");
         const response = await axios.get(
@@ -69,97 +61,135 @@ export default function index() {
             headers: { token: `${token}` },
           }
         );
-        console.log("User data fetched successfully:", response.data.info);
         setUser(response.data.info);
       } catch (error) {
         console.error("Failed to fetch user:", error.message);
       }
     };
     fetchUser();
+    setLoading(false);
   }, []);
 
-  // const getPostDetails = async () => {
-  //   let res = await fetchPostDeatils(postId);
-  //   if (res.success) {
-  //     setLoading(false);
-  //     setPost(res.data);
-  //   }
-  // };
+  const onNewComment = async () => {
+    try {
+      console.log("New Comment getting added ...");
+      if (!inputValue) return null;
 
-  // const onNewComment = async () => {
-  //   if (!inputRef.current) return null;
+      console.log(inputRef);
 
-  //   let data = {
-  //     userId: user?.id,
-  //     postId: postId,
-  //     text: commentValue
-  //   };
+      let data = {
+        post_id,
+        content: String(inputValue),
+      };
 
-  //   setIsLoading(true);
+      setIsLoading(true);
 
-  //   let res = await createComment(data);
-  //   if (res.success) {
-  //     inputRef.current = "";
-  //     setCommentValue("");
+      const token = await SecureStore.getItemAsync("token");
 
-  //     if (user.id != post.userId) {
-  //       let notify = {
-  //         senderId: user.id,
-  //         receiverId: post.userId,
-  //         title: "commented on your post",
-  //         data: JSON.stringify({ postId: post.id, commentId: res.data.id })
-  //       };
-  //       setIsLoading(false);
+      let res = await axios.post(
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/post/comment",
+        data,
+        { headers: { token } }
+      );
 
-  //       await createNotifications(notify);
-  //     }
-  //   } else {
-  //     Alert.alert("comment", res.msg);
-  //   }
-  // };
+      if (res.data.success) {
+        setComments([res.data.comment, ...comments]);
+        setCommentCount((prev) => prev + 1);
+        setInputValue("");
+        Alert.alert("Success", res.data.message);
+      } else {
+        Alert.alert("Error", res.data.message);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const onDeleteComment = async (id) => {
+    Alert.alert("Confirm", "Are you sure to delete the comment?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          const token = await SecureStore.getItemAsync("token");
+          try {
+            let res = await axios.delete(
+              "http://" +
+                Constants.expoConfig.extra.baseurl +
+                `/api/post/comment/${id}`,
+              {
+                headers: { token: `${token}` },
+              }
+            );
+            console.log("Delete Comment Response", res.data);
+            if (res.data.success) {
+              setComments((prevComments) =>
+                prevComments.filter((comment) => comment._id !== id)
+              );
+              setCommentCount((prev) => prev - 1);
+            } else {
+              Alert.alert(
+                "comment",
+                res.data.message || "Failed to delete comment"
+              );
+            }
+          } catch (error) {
+            console.log("Error deleting comment:", error);
+          }
+        },
+      },
+    ]);
+  };
+  const onDeletePost = async () => {
+    Alert.alert("Confirm", "Are you sure to delete the post?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          const token = await SecureStore.getItemAsync("token");
+          try {
+            let res = await axios.delete(
+              "http://" +
+                Constants.expoConfig.extra.baseurl +
+                `/api/post/${post_id}`,
+              {
+                headers: { token: `${token}` },
+              }
+            );
+            console.log("Delete Comment Response", res.data);
+            if (res.data.success) {
+              router.back();
+            } else {
+              Alert.alert(
+                "comment",
+                res.data.message || "Failed to delete comment"
+              );
+            }
+          } catch (error) {
+            console.log("Error deleting comment:", error);
+          }
+        },
+      },
+    ]);
+  };
 
-  // const onDeleteComment = async (comment) => {
-  //   let res = await deleteComment(comment.id);
-
-  //   if (res.success) {
-  //     setPost((prevPost) => {
-  //       let updatedPost = { ...prevPost };
-  //       updatedPost.comments = updatedPost.comments.filter(
-  //         (c) => c.id !== comment.id
-  //       );
-  //       return updatedPost;
-  //     });
-  //   } else {
-  //     Alert.alert("comment", res.msg);
-  //   }
-  // };
-
-  // const onDeletePost = async (item) => {
-  //   let res = await removePost(item?.id);
-
-  //   if (res.success) {
-  //     router.back();
-  //   } else {
-  //     Alert.alert("Post", res.msg);
-  //   }
-  // };
-  // const onEditPost = async (item) => {
-  //   router.back();
-  //   router.push({
-  //     pathname: "/newPost",
-  //     params: {
-  //       ...item
-  //     }
-  //   });
-  // };
-
-  // if (loading) {
-  //   return (
-  //     <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
-  //       <Loading />
-  //     </View>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+        <Loading />
+      </View>
+    );
+  }
 
   // if (!post) {
   //   return (
@@ -181,15 +211,18 @@ export default function index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
       >
-        {user && post && <PostCard
-          item={post}
-          user={user}
-          hasShadow={false}
-          showMoreIcon={false}
-          showDelete={true}
-          // onDelete={onDeletePost}
-          // onEdit={onEditPost}
-        />}
+        {user && post && (
+          <PostCard
+            item={post}
+            user={user}
+            hasShadow={false}
+            showMoreIcon={false}
+            showDelete={true}
+            commentCount={commentCount}
+            onDelete={onDeletePost}
+            // onEdit={onEditPost}
+          />
+        )}
 
         <View style={styles.inputContainer}>
           <Input
@@ -200,19 +233,15 @@ export default function index() {
               borderRadius: theme.radius.xl,
             }}
             placeholder="Type comment..."
-            ref={inputRef}
-            value={commentValue}
-            //    onChangeText={setCommentValue}
+            value={inputValue}
+            onChangeText={(v) => setInputValue(v)}
           />
           {isLoading ? (
             <>
               <Loading size="small" />
             </>
           ) : (
-            <TouchableOpacity
-              style={styles.sendIcon}
-              //    onPress={onNewComment}
-            >
+            <TouchableOpacity style={styles.sendIcon} onPress={onNewComment}>
               <Icon name={"send"} color={theme.colors.primaryDark} />
             </TouchableOpacity>
           )}
@@ -229,6 +258,7 @@ export default function index() {
               <CommentItem
                 item={comment}
                 key={comment._id}
+                handleDelete={() => onDeleteComment(comment._id)}
                 canDelete={
                   user?._id === comment?.user?._id ||
                   user?._id === post?.poster_id
