@@ -1,7 +1,6 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
 import Alumni from "../models/Alumni.js";
-import Student from "../models/Student.js";
 
 // @route GET /api/connect/requests
 export async function getRequests(req, res) {
@@ -15,10 +14,7 @@ export async function getRequests(req, res) {
             status: "pending"
         }).populate("from_user");
 
-        const requests = pendingRequests.map(req => ({
-            _id: req._id,
-            user: req.from_user
-        }));
+        const requests = pendingRequests.map(req => (req.from_user));
 
         res.status(200).json({ success: true, requests });
     } catch (error) {
@@ -47,8 +43,7 @@ export async function getConnected(req, res) {
                 : conn.from_user;
         });
 
-        const connectedUsers = await Alumni.find({ _id: { $in: connectedUserIds } })
-            .select("-password -email");
+        const connectedUsers = await Alumni.find({ _id: { $in: connectedUserIds } });
 
         res.status(200).json({ connected: connectedUsers });
     } catch (error) {
@@ -65,7 +60,9 @@ export async function getConnections(req, res) {
         const userId = req.user.id;
         const userModel = req.user.role;
 
-        const { search } = req.body;
+        let { search, limit } = req.body;
+        if (!limit) limit = 10;
+
 
         const query = search
             ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
@@ -73,7 +70,7 @@ export async function getConnections(req, res) {
 
         const alumniList = await Alumni.find(query)
             .select('-password -email')
-            .limit(10);
+            .limit(limit);
 
         const alumniIds = alumniList.map(alumni => alumni._id);
 
