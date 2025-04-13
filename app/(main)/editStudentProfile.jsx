@@ -259,7 +259,7 @@ const index = (props) => {
               defaultValue={user.bio || ""}
               onChangeText={(v) => (bioRef.current = v)}
               multiline
-              numberOfLines={3}
+              containerStyles={styles.bio}
             />
             <Button title="Update" loading={loading} onPress={onSubmit} />
           </View>
