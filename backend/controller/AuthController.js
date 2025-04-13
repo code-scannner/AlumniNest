@@ -39,7 +39,8 @@ export async function registerStudent(req, res) {
     const localPath = req.file?.path;
     const profile_pic = localPath ? await upload(localPath) : null;
 
-    if (await Student.findOne({ email })) return res.status(400).json({ message: "Student already exists" });
+    if (await Student.findOne({ email })) return res.status(400).json({ message: "Email already exists" });
+    if (await Student.findOne({ username })) return res.status(400).json({ message: "Username already exists" });
 
     const hashedPassword = await hash(password, 10);
 
@@ -62,7 +63,8 @@ export async function registerAlumni(req, res) {
     const localPath = req.file?.path;
     const profile_pic = localPath ? await upload(localPath) : null;
 
-    if (await Alumni.findOne({ email })) return res.status(400).json({ message: "Alumni already exists" });
+    if (await Alumni.findOne({ email })) return res.status(400).json({ message: "Email already exists" });
+    if (await Alumni.findOne({ username })) return res.status(400).json({ message: "Username already exists" });
 
     const hashedPassword = await hash(password, 10);
 

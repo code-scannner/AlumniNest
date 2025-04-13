@@ -1,109 +1,223 @@
 import Connection from "../models/Connection.js";
 import Notification from "../models/Notification.js";
+import Alumni from "../models/Alumni.js";
+import Student from "../models/Student.js";
 
-// @desc    Get all connections of a student
-// @route   GET /api/connect/
-// @access  Private (Only student can access their own connections)
-export async function getStudentConnections(req, res) {
+// @route GET /api/connect/requests
+export async function getRequests(req, res) {
     try {
-        const student_id = req.user.id;
+        const userId = req.user.id;
+        const userModel = req.user.role;
 
-        // Find all connections of the student & populate alumni details
-        const connections = await Connection.find({ student_id })
-            .populate("alumni_id", "username full_name profile_pic curr_work position") // Select alumni details
-            .exec();
+        const pendingRequests = await Connection.find({
+            to_user: userId,
+            to_model: userModel,
+            status: "pending"
+        }).populate("from_user");
 
-        res.status(200).json({ connections });
+        const requests = pendingRequests.map(req => ({
+            _id: req._id,
+            user: req.from_user
+        }));
+
+        res.status(200).json({ success: true, requests });
     } catch (error) {
+        console.error("Error in getRequests:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+// @route GET /api/connect/myconnections
+export async function getConnected(req, res) {
+    try {
+        const userId = req.user.id;
+        const userModel = req.user.role;
+
+        const connections = await Connection.find({
+            status: 'accepted',
+            $or: [
+                { from_user: userId, from_model: userModel },
+                { to_user: userId, to_model: userModel }
+            ]
+        });
+
+        const connectedUserIds = connections.map(conn => {
+            return conn.from_user.toString() === userId
+                ? conn.to_user
+                : conn.from_user;
+        });
+
+        const connectedUsers = await Alumni.find({ _id: { $in: connectedUserIds } })
+            .select("-password -email");
+
+        res.status(200).json({ connected: connectedUsers });
+    } catch (error) {
+        console.error("Error in getConnected:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
+// @route   GET /api/connect/
+// @access  Private 
+export async function getConnections(req, res) {
+    try {
+        const userId = req.user.id;
+        const userModel = req.user.role;
+
+        const { search } = req.body;
+
+        const query = search
+            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
+            : { _id: { $ne: userId } };
+
+        const alumniList = await Alumni.find(query)
+            .select('-password -email')
+            .limit(10);
+
+        const alumniIds = alumniList.map(alumni => alumni._id);
+
+        const connections = await Connection.find({
+            $or: [
+                { from_user: userId, to_user: { $in: alumniIds } },
+                { to_user: userId, from_user: { $in: alumniIds } }
+            ]
+        });
+
+        const alumniWithStatus = alumniList.map(alumni => {
+            const conn = connections.find(c =>
+                (c.from_user.toString() === userId && c.to_user.toString() === alumni._id.toString()) ||
+                (c.to_user.toString() === userId && c.from_user.toString() === alumni._id.toString())
+            );
+
+            let status = 'not_connected';
+            if (conn) {
+                status = conn.status;
+            }
+
+            return {
+                ...alumni._doc,
+                status
+            };
+        });
+
+        res.status(200).json({ connections: alumniWithStatus });
+    } catch (error) {
+        console.error("Error in getConnections:", error);
         res.status(500).json({ message: error.message });
     }
 }
 
 // @desc    Send a connection request
-// @route   POST /api/connection/request
-// @access  Private (Students only)
+// @route   POST /api/connect/request/:to_user
 export async function connectRequest(req, res) {
     try {
-        const { alumni_id } = req.params;
 
-        // Check if request already exists
-        const existingRequest = await Connection.findOne({ student_id: req.user._id, alumni_id });
+        const { from_user, from_model, to_user, to_model } = req.user;
+
+        // Check if connection already exists
+        let existingRequest = await Connection.findOne({
+            from_user,
+            from_model,
+            to_user,
+            to_model
+        });
+
         if (existingRequest) {
-            return res.status(400).json({ message: "Connection request already sent" });
+            return res.status(409).json({ success: false, message: `Connection request already ${existingRequest.status}.` });
         }
 
-        // Create new connection request
-        const connection = new Connection({
-            student_id: req.user.profile._id,
-            alumni_id,
-            status: "pending"
+        existingRequest = await Connection.findOne({
+            from_user: to_user,
+            from_model: to_model,
+            to_user: from_user,
+            to_model: from_model
         });
+
+        if (existingRequest) {
+            return res.status(409).json({
+                success: false,
+                message: `Connection request already ${existingRequest.status} from other user`
+            });
+        }
+
+        // Create connection request
+        const connection = new Connection({
+            from_user,
+            from_model,
+            to_user,
+            to_model
+        });
+        console.log(connection);
         await connection.save();
 
-        // Send notification to alumni
+        // Notify the receiver
         const notification = new Notification({
-            receiver_id: alumni_id,
-            receiverModel: "Alumni",
-            content: "You have a new connection request.",
+            receiver_id: to_user,
+            receiverModel: to_model,
+            content: `You have a new connection request from ${req.user.profile.username}`,
             type: "connection-request"
         });
         await notification.save();
 
-        res.status(201).json({ message: "Connection request sent", connection });
+        res.status(201).json({ success: true, message: "Connection request sent." });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 }
 
 // @desc    Accept a connection request
-// @route   PUT /api/connect/accept/:student_id
-// @access  Private (Alumni only)
+// @route   PUT /api/connect/accept/:to_user
 export async function acceptRequest(req, res) {
     try {
-        const { student_id } = req.params;
+
+        const { from_user, from_model, to_user, to_model } = req.user;
+
         const { accept } = req.body;
-        const alumni_id = req.user.profile._id; // Alumni ID from auth middleware
 
         // Find the connection request
-        const connection = await Connection.findOne({ student_id, alumni_id });
+        const connection = await Connection.findOne({ to_user: from_user, from_user: to_user });
 
         if (!connection) {
-            return res.status(404).json({ message: "Connection request not found" });
+            return res.status(404).json({ success: false, message: "Connection request not found" });
         }
 
-        // Ensure that only the alumni receiving the request can accept it
-        if (connection.alumni_id.toString() !== alumni_id) {
-            return res.status(403).json({ message: "Unauthorized to accept this request" });
+        if (connection.status != 'pending') {
+            return res.status(404).json({ success: false, message: `Connection is already ${connection.status}` });
         }
 
         if (accept) {
+            if (connection.status == 'accept') {
+                return res.status(404).json({ success: false, message: 'Connection already accepted.' })
+            }
+
             connection.status = "accepted";
             await connection.save();
 
-            // Notify student that their request was accepted
+            // Notify that their request was accepted
             const notification = new Notification({
-                receiver_id: connection.student_id,
-                receiverModel: "Student",
-                content: "Your connection request was accepted!",
+                receiver_id: to_user,
+                receiverModel: to_model,
+                content: `Your connection request was accepted by ${req.user.profile.username}`,
                 type: "request-accepted"
             });
             await notification.save();
 
-            return res.status(200).json({ message: "Connection request accepted", connection });
+            return res.status(200).json({ success: true, message: "Connection request accepted" });
         } else {
             // Delete connection request if rejected
             await connection.deleteOne();
             const notification = new Notification({
-                receiver_id: connection.student_id,
-                receiverModel: "Student",
-                content: "Your connection request was Rejected!",
+                receiver_id: to_user,
+                receiverModel: to_model,
+                content: `Your connection request was rejected by ${req.user.profile.username}`,
                 type: "request-rejected"
             });
             await notification.save();
 
-            return res.status(200).json({ message: "Connection request rejected" });
+            return res.status(200).json({ success: true, message: "Connection request rejected" });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 }

@@ -23,7 +23,7 @@ const ConnectionSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'rejected'],
+        enum: ['pending', 'accepted'],
         default: 'pending',
         required: true
     },
