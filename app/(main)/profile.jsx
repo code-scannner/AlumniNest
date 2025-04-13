@@ -283,10 +283,10 @@ const UserHeader = ({ user }) => {
             <Pressable
               style={styles.editIcon}
               onPress={() => {
-                if (user?.batch) {
-                  router.push("/(main)/editAlumniProfile");
-                } else {
+                if (user?.course) {
                   router.push("/(main)/editStudentProfile");
+                } else {
+                  router.push("/(main)/editAlumniProfile");
                 }
               }}
             >

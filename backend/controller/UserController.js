@@ -47,7 +47,7 @@ export async function updateStudent(req, res) {
 // @route   PUT /api/profile/alumni/
 export async function updateAlumni(req, res) {
     try {
-        const { id } = req.params;
+        const { id } = req.user;
         const updates = req.body;
 
         const localPath = req.file?.path;

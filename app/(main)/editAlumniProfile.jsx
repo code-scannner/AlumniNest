@@ -141,13 +141,10 @@ const AlumniEdit = () => {
 
       const token = await SecureStore.getItemAsync("token");
       const response = await axios.put(
-        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/alumni/",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/alumni",
         formData,
         {
-        //   headers: { "Content-Type": "multipart/form-data", token },
-            headers:{
-                token,
-            }
+          headers: { "Content-Type": "multipart/form-data", token },
         }
       );
       console.log(response);
