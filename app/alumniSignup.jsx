@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 
+import { Icon } from "@/assets/icons";
 import Camera from "@/assets/icons/Camera";
 import React, { useState, useRef } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -171,22 +172,21 @@ const AlumniSignup = () => {
 
         {/* Profile Image Upload */}
         <View style={styles.imagePickerContainer}>
-          <Pressable
-            style={styles.imageCircle}
-            onPress={openImagePickerOptions}
-          >
+          <View style={styles.avatarContainer}>
             <Image
               source={
                 typeof profilePic === "string"
                   ? { uri: profilePic }
                   : profilePic
               }
-              style={styles.image}
+              style={styles.avatar}
             />
-          </Pressable>
-          <View style={styles.editIcon}>
-            <Camera width={20} height={20} />
           </View>
+          <Pressable onPress={openImagePickerOptions}>
+            <View style={styles.cameraIcon}>
+              <Icon name={"camera"} size={20} strokeWidth={2.5} />
+            </View>
+          </Pressable>
         </View>
 
         <Input
@@ -223,7 +223,8 @@ const AlumniSignup = () => {
           placeholder="Short Bio"
           onChangeText={(v) => (bioRef.current = v)}
           multiline
-          numberOfLines={3}
+          // numberOfLines={3}
+          containerStyles={styles.bio}
         />
 
         <View style={{ width: "100%", marginTop: 10 }}>
@@ -237,6 +238,11 @@ const AlumniSignup = () => {
 export default AlumniSignup;
 
 const styles = StyleSheet.create({
+  bio: {
+    flexDirection: "row",
+    height: hp(15),
+    alignItems: "flex-start",
+  },
   container: {
     padding: wp(5),
     gap: 20,
@@ -278,7 +284,33 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 10,
   },
-  editIconText: {
-    fontSize: 14,
+  cameraIcon: {
+    elevation: 7,
+    shadowRadius: 5,
+    shadowOpacity: 0.4,
+    shadowOffset: {
+      width: 0,
+      height: 4
+    },
+    position: "absolute",
+    bottom: 0,
+    right: -10,
+    padding: 8,
+    borderRadius: 50,
+    backgroundColor: "white",
+    shadowColor: theme.colors.textLight
   },
+  avatarContainer: {
+    height: hp(14),
+    width: hp(14),
+    alignSelf: "center"
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    borderRadius: theme.radius.xxl * 1.8,
+    borderCurve: "continuous",
+    borderWidth:2,
+    borderColor: theme.colors.primary
+  }
 });
