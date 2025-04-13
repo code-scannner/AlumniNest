@@ -55,12 +55,18 @@ export default function PostCard({
   };
 
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(item?.total_likes);
+  const [post, setPost] = useState({});
+  const [likeCount, setLikeCount] = useSta
+  te(item?.total_likes);
+  const [commentCount, setCommentCount] = useState(item?.total_comments);
   const [loading, setLoading] = useState(false);
+
 
   const checkIfLiked = async () => {
     try {
       console.log("Checking if liked status....")
+      console.log(user);
+      console.log(item);
       console.log({
         params: { user_id: user?._id, post_id: item?._id },
       })
@@ -80,8 +86,10 @@ export default function PostCard({
   };
 
   useEffect(() => {
+    if(!item) return;
+    if (!user) return;
     checkIfLiked();
-  }, []);
+  }, [item,user]);
 
   const onLike = async () => {
     try {
@@ -234,14 +242,14 @@ export default function PostCard({
                 fill={!isLiked ? "white" : theme.colors.rose}
               />
             </TouchableOpacity>
-            <Text style={styles.count}>{likeCount}</Text>
+            <Text style={styles.count}>{post.total_likes}</Text>
           </View>
 
           <View style={styles.footerButton}>
             <TouchableOpacity onPress={openDetails}>
               <Icon name={"comment"} size={24} color={theme.colors.text} />
             </TouchableOpacity>
-            {/* <Text style={styles.count}>{item?.comments[0]?.count || 0}</Text> */}
+            <Text style={styles.count}>0</Text>
           </View>
 
           {/* <View style={styles.footerButton}>

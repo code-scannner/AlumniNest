@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Header from "@/components/Header";
 import { hp, wp } from "@/helpers/common";
@@ -21,6 +22,7 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 var limit = 0;
 export default function index() {
   const [posts, setPosts] = useState([]);
@@ -39,7 +41,7 @@ export default function index() {
       if (!token) throw new Error("No token found");
 
       const response = await axios.get(
-        "http://"+Constants.expoConfig.extra.baseurl+"/api/profile",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
         {
           headers: { token: `${token}` },
         }
@@ -76,7 +78,9 @@ export default function index() {
 
     try {
       const response = await axios.get(
-        "http://"+Constants.expoConfig.extra.baseurl+`/api/post?limit=${limit}`,
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          `/api/post?limit=${limit}`,
         {
           headers: {
             token: await SecureStore.getItemAsync("token"),
@@ -107,6 +111,15 @@ export default function index() {
     }
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMore) {
+        getPosts();
+        console.log("Fetching posts...");
+      }
+    }, [])
+  );
+  
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -273,7 +286,13 @@ const UserHeader = ({ user }) => {
             />
             <Pressable
               style={styles.editIcon}
-              onPress={() => router.push("/(main)/editProfile")}
+              onPress={() => {
+                if (user?.batch) {
+                  router.push("/(main)/editAlumniProfile");
+                } else {
+                  router.push("/(main)/editStudentProfile");
+                }
+              }}
             >
               <Icon name={"edit"} strokeWidth={2.5} size={20} />
             </Pressable>

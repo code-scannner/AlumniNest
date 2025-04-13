@@ -181,7 +181,7 @@ export default function index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
       >
-        <PostCard
+        {user && post && <PostCard
           item={post}
           user={user}
           hasShadow={false}
@@ -189,7 +189,7 @@ export default function index() {
           showDelete={true}
           // onDelete={onDeletePost}
           // onEdit={onEditPost}
-        />
+        />}
 
         <View style={styles.inputContainer}>
           <Input
