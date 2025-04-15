@@ -56,7 +56,7 @@ export async function getConnected(req, res) {
                 if (user) {
                     return {
                         ...user.toObject(),
-                        role: connectedUserModel
+                        userType: connectedUserModel
                     };
                 } else {
                     return null;
