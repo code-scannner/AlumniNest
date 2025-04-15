@@ -2,17 +2,23 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { wp, hp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 export default function ProfileCard({
   user,
   status = "connect",
   onPress,
   ShowRequestButton = false,
 }) {
-  const getButtonLabel = () => {
-    if (status === "pending") return "Pending";
-    if (status === "remove") return "Remove";
-    return "Connect";
+  const getButtonIcon = () => {
+    switch (status) {
+      case "pending":
+        return { name: "clock", color: "#555" };
+      case "remove":
+        return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
+      case "connect":
+      default:
+        return { name: "user-plus", color: "hsl(126, 58.70%, 43.70%)" };
+    }
   };
 
   const getButtonStyle = () => {
@@ -30,7 +36,7 @@ export default function ProfileCard({
     <View style={styles.card}>
       <Image source={{ uri: user.profile_pic }} style={styles.avatar} />
       <View style={styles.info}>
-        <Text style={styles.name}>{user.full_name}</Text>
+        <Text style={styles.name}>{user.full_name}(<Text>{user.userType}</Text>)</Text>
         <Text style={styles.username}>@{user.username}</Text>
       </View>
       {!ShowRequestButton && (
@@ -38,7 +44,11 @@ export default function ProfileCard({
           style={[styles.button, getButtonStyle()]}
           onPress={onPress}
         >
-          <Text style={styles.buttonText}>{getButtonLabel()}</Text>
+          <Feather
+            name={getButtonIcon().name}
+            size={hp(2)}
+            color={getButtonIcon().color}
+          />
         </TouchableOpacity>
       )}
       {ShowRequestButton && (
@@ -98,14 +108,17 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
   },
   connectBtn: {
-    backgroundColor: theme.colors.primary,
-    color: theme.colors.primary,
+    borderWidth: 1,
+    borderColor: "hsl(126, 58.70%, 43.70%)",
   },
   pendingBtn: {
-    backgroundColor: "#ddd",
+    borderWidth: 1,
+    borderColor: "hsl(0, 0.80%, 49.40%)",
   },
   removeBtn: {
-    backgroundColor: "#f44336",
+    borderWidth: 1,
+    borderColor: "hsl(0, 97.50%, 68.20%)",
+
   },
   buttonText: {
     color: "white",

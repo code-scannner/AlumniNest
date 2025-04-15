@@ -1,12 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import ProfileCard from "../../components/ProfileCard";
@@ -14,35 +7,35 @@ import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
 import ScreenWrapper from "../../components/ScreenWrapper";
+import Constants from "expo-constants";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
-const mockUsers = [
-  {
-    id: 1,
-    full_name: "Utkarsh Trivedi",
-    username: "utkarsh_t",
-    profile_pic: "https://i.pravatar.cc/300?img=1",
-    status: "connect",
-  },
-  {
-    id: 2,
-    full_name: "Aadhya Gaur",
-    username: "aadhya_123",
-    profile_pic: "https://i.pravatar.cc/300?img=2",
-    status: "pending",
-  },
-  {
-    id: 3,
-    full_name: "Dev Mehta",
-    username: "devmehta",
-    profile_pic: "https://i.pravatar.cc/300?img=3",
-    status: "remove",
-  },
-];
 
 export default function ConnectionsScreen() {
   const [search, setSearch] = useState("");
+  const [network, setNetwork] = useState([]);
 
-  const filteredUsers = mockUsers.filter(
+  useEffect(() => {
+    const fetchConnections = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://" + Constants.expoConfig.extra.baseurl + "/api/connect/",
+          {
+            headers: { token },
+          }
+        );
+        setNetwork(response.data.connections);
+      } catch (error) {
+        console.error("Error fetching network:", error);
+      }
+    };
+
+    fetchConnections();
+  }, []);
+
+  const filteredUsers = network.filter(
     (user) =>
       user.full_name.toLowerCase().includes(search.toLowerCase()) ||
       user.username.toLowerCase().includes(search.toLowerCase())
@@ -73,12 +66,7 @@ export default function ConnectionsScreen() {
         </View>
 
         <View style={styles.searchContainer}>
-          <Icon
-            name="search"
-            size={20}
-            color="#999"
-            style={styles.searchIcon}
-          />
+          <Icon name="search" size={20} color="#999" style={styles.searchIcon} />
           <TextInput
             placeholder="Search by name or username"
             value={search}
@@ -87,9 +75,10 @@ export default function ConnectionsScreen() {
             placeholderTextColor="#999"
           />
         </View>
+
         <FlatList
           data={filteredUsers}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item?._id}
           renderItem={({ item }) => (
             <ProfileCard
               user={item}
@@ -108,7 +97,6 @@ export default function ConnectionsScreen() {
     </ScreenWrapper>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -126,8 +114,7 @@ const styles = StyleSheet.create({
     right: 40,
     top: -35,
   },
-  userplus:
-  {
+  userplus: {
     position: "absolute",
     right: 0,
     top: -35,
