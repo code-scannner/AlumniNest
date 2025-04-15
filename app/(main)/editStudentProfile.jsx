@@ -24,7 +24,7 @@ import Constants from "expo-constants";
 import Dropdown from "@/components/Dropdown";
 import * as ImagePicker from "expo-image-picker";
 
-const index = (props) => {
+const index = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
   const usernameRef = useRef("");
@@ -38,10 +38,10 @@ const index = (props) => {
   const bioRef = useRef("");
   const courseOptions = ["B.Tech", "M.Tech", "PhD"];
   const branchOptions = ["CSE", "ECE", "EE", "ME", "CE", "Other"];
-  const [profilePic, setProfilePic] = useState(); 
+  const [profilePic, setProfilePic] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
-  
+
   const fetchUser = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
@@ -51,14 +51,20 @@ const index = (props) => {
           headers: { token: `${token}` },
         }
       );
-      console.log("User data fetched successfully:", response.data.info);
       const fetchedUser = response.data.info;
       setUser(fetchedUser);
-      
-      // Set dropdown values
+
       setSelectedCourse(fetchedUser.course || "");
       setSelectedBranch(fetchedUser.branch || "");
-      setProfilePic(fetchedUser.profile_pic || "");
+
+      // Handle profile pic from backend (make sure it's a full URL)
+      if (fetchedUser.profile_pic?.startsWith("http")) {
+        setProfilePic({ uri: fetchedUser.profile_pic });
+      } else if (fetchedUser.profile_pic) {
+        setProfilePic({
+          uri: "http://" + Constants.expoConfig.extra.baseurl + fetchedUser.profile_pic,
+        });
+      }
 
       usernameRef.current = fetchedUser.username || "";
       emailRef.current = fetchedUser.email || "";
@@ -86,7 +92,12 @@ const index = (props) => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0].uri);
+      const asset = result.assets[0];
+      setProfilePic({
+        uri: asset.uri,
+        mimeType: asset.type || "image/jpeg",
+        fileName: asset.fileName || `image_${Date.now()}.jpg`,
+      });
     }
   };
 
@@ -103,7 +114,12 @@ const index = (props) => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0]);
+      const asset = result.assets[0];
+      setProfilePic({
+        uri: asset.uri,
+        mimeType: asset.type || "image/jpeg",
+        fileName: asset.fileName || `image_${Date.now()}.jpg`,
+      });
     }
   };
 
@@ -143,13 +159,14 @@ const index = (props) => {
       formData.append("college", collegeRef.current.trim());
       formData.append("bio", bioRef.current.trim());
 
-      if (profilePic) {
+      if (profilePic?.uri) {
         formData.append("file", {
           uri: profilePic.uri,
-          type: profilePic.mimeType || "image/jpeg", // Provide a default type
-          name: profilePic.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
+          type: profilePic.mimeType || "image/jpeg",
+          name: profilePic.fileName || `image_${Date.now()}.jpg`,
         });
       }
+
       const token = await SecureStore.getItemAsync("token");
       const response = await axios.put(
         "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/student",
@@ -184,7 +201,10 @@ const index = (props) => {
 
           <View style={styles.form}>
             <View style={styles.avatarContainer}>
-              <Image source={profilePic} style={styles.avatar} />
+              <Image
+                source={{ uri: profilePic?.uri || profilePic }}
+                style={styles.avatar}
+              />
               <Pressable
                 style={styles.cameraIcon}
                 onPress={openImagePickerOptions}
@@ -210,18 +230,18 @@ const index = (props) => {
               editable={true}
             />
             <Input
-              placeholder="Full Name "
+              placeholder="Full Name"
               defaultValue={user.full_name || ""}
               onChangeText={(v) => (fullNameRef.current = v)}
             />
             <Input
-              placeholder="Passout Year "
+              placeholder="Passout Year"
               defaultValue={user.passout_year?.toString() || ""}
               onChangeText={(v) => (passoutYearRef.current = v)}
               keyboardType="numeric"
             />
             <Input
-              placeholder="Phone Number "
+              placeholder="Phone Number"
               defaultValue={user.phone_no?.toString() || ""}
               onChangeText={(v) => (phoneNoRef.current = v)}
               keyboardType="numeric"
@@ -250,7 +270,7 @@ const index = (props) => {
             />
 
             <Input
-              placeholder="College "
+              placeholder="College"
               defaultValue={user.college || ""}
               onChangeText={(v) => (collegeRef.current = v)}
             />

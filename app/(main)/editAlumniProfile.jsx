@@ -7,13 +7,13 @@ import {
   View,
   Platform,
   ActionSheetIOS,
+  Image,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Header from "@/components/Header";
-import { Image } from "react-native";
 import { Icon } from "@/assets/icons";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
@@ -26,7 +26,11 @@ import * as ImagePicker from "expo-image-picker";
 const AlumniEdit = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
-  const [profilePic, setProfilePic] = useState();
+  const [profilePic, setProfilePic] = useState({
+    uri: null,
+    type: null,
+    name: null,
+  });
 
   const usernameRef = useRef("");
   const emailRef = useRef("");
@@ -47,11 +51,20 @@ const AlumniEdit = () => {
       );
       const fetchedUser = response.data.info;
       setUser(fetchedUser);
-      setProfilePic(
-        fetchedUser.profile_pic
-          ? { uri: fetchedUser.profile_pic }
-          : require("@/assets/images/alumni.jpg")
-      );
+
+      if (fetchedUser.profile_pic) {
+        setProfilePic({
+          uri: fetchedUser.profile_pic,
+          type: "image/jpeg",
+          name: "profile.jpg",
+        });
+      } else {
+        setProfilePic({
+          uri: Image.resolveAssetSource(require("@/assets/images/alumni.jpg")).uri,
+          type: "image/jpeg",
+          name: "default.jpg",
+        });
+      }
 
       usernameRef.current = fetchedUser.username || "";
       emailRef.current = fetchedUser.email || "";
@@ -77,7 +90,12 @@ const AlumniEdit = () => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0].uri);
+      const image = result.assets[0];
+      setProfilePic({
+        uri: image.uri,
+        type: image.type || "image/jpeg",
+        name: image.fileName || `gallery_${Date.now()}.jpg`,
+      });
     }
   };
 
@@ -94,7 +112,12 @@ const AlumniEdit = () => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0]);
+      const image = result.assets[0];
+      setProfilePic({
+        uri: image.uri,
+        type: image.type || "image/jpeg",
+        name: image.fileName || `photo_${Date.now()}.jpg`,
+      });
     }
   };
 
@@ -126,16 +149,16 @@ const AlumniEdit = () => {
       formData.append("username", usernameRef.current?.trim?.());
       formData.append("email", emailRef.current?.trim?.());
       formData.append("full_name", fullNameRef.current?.trim?.());
-      formData.append("batch",( batchRef.current?.trim?.()||''));
+      formData.append("batch", batchRef.current?.trim?.() || "");
       formData.append("curr_work", currWorkRef.current?.trim?.());
       formData.append("position", positionRef.current?.trim?.());
       formData.append("bio", bioRef.current?.trim?.());
 
-      if (profilePic?.uri) {
+      if (profilePic?.uri && !profilePic.uri.includes("alumni.jpg")) {
         formData.append("file", {
           uri: profilePic.uri,
-          type: profilePic.mimeType || "image/jpeg",
-          name: profilePic.fileName || `image_${Date.now()}.jpg`,
+          type: profilePic.type || "image/jpeg",
+          name: profilePic.name || `image_${Date.now()}.jpg`,
         });
       }
 
@@ -144,11 +167,12 @@ const AlumniEdit = () => {
         "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/alumni",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data", token },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            token,
+          },
         }
       );
-      console.log(response);
-      
 
       if (response.status === 200) {
         Alert.alert("Success", "Profile updated successfully");
@@ -175,7 +199,9 @@ const AlumniEdit = () => {
 
           <View style={styles.form}>
             <View style={styles.avatarContainer}>
-              <Image source={profilePic} style={styles.avatar} />
+              {profilePic?.uri && (
+                <Image source={{ uri: profilePic.uri }} style={styles.avatar} />
+              )}
               <Pressable
                 style={styles.cameraIcon}
                 onPress={openImagePickerOptions}
@@ -226,7 +252,6 @@ const AlumniEdit = () => {
               defaultValue={user.bio || ""}
               onChangeText={(v) => (bioRef.current = v)}
               multiline
-              // numberOfLines={3}
               containerStyles={styles.bio}
             />
             <Button title="Update" loading={loading} onPress={onSubmit} />
@@ -270,7 +295,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: theme.radius.xxl * 1.8,
-    borderCurve: "continuous",
     borderWidth: 1,
     borderColor: theme.colors.darkLight,
   },

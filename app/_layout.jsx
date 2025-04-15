@@ -1,6 +1,9 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { Stack } from "expo-router";
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs();
 
 const _layout = () => {
   return (

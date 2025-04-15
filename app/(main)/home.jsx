@@ -1,10 +1,16 @@
 import { hp, wp } from "@/helpers/common";
-
+import { useFocusEffect } from '@react-navigation/native';
 import { Icon } from "@/assets/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { router } from "expo-router";
 import { theme } from "@/constants/theme";
+import PostCard from "@/components/PostCard";
+import Loading from "@/components/Loading";
+import * as SecureStore from "expo-secure-store";
+import axios from "axios";
+import Constants from "expo-constants";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
   Button,
   FlatList,
@@ -169,7 +175,91 @@ const home = () => {
   //     console.log({ res: res.data[0] });
 
   //   };
-  let notoficationCount = 0;
+  const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [limit, setLimit] = useState(0);
+  const [user, setUser] = useState(null);
+  const [loading, isLoading] = useState(false);
+  const [notificationCount,setNotificationCount]=useState(0);
+  const fetchUser = async () => {
+    isLoading(true);
+    try {
+      const token = await SecureStore.getItemAsync("token");
+
+      if (!token) throw new Error("No token found");
+
+      const response = await axios.get(
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
+        {
+          headers: { token: `${token}` },
+        }
+      );
+
+      setUser(response.data.info);
+      console.log(response)
+      console.log(user)
+    } catch (error) {
+      console.error("Failed to fetch user:", error.message);
+    } finally {
+      isLoading(false);
+    }
+  };
+ 
+  const getPosts = async () => {
+    if (!hasMore) return;
+    setLimit((prev) => prev + 20); // Increase limit for next fetch
+
+    try {
+      const response = await axios.get(
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          `/api/feed?limit=${limit}`,
+        {
+          headers: {
+            token: await SecureStore.getItemAsync("token"),
+          },
+        }
+      );
+
+      if (response.data.posts) {
+        setPosts([...response.data.posts]);
+        setHasMore(response.data.hasMore); 
+      } else {
+        console.error("Failed to fetch posts:", response.data.message);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (hasMore) {
+      getPosts();
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMore) {
+        getPosts();
+        console.log("Fetching posts...");
+      }
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading />
+      </View>
+    );
+  }
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
@@ -197,10 +287,10 @@ const home = () => {
                 strokeWidth={2}
                 color={theme.colors.text}
               />
-              {notoficationCount > 0 && (
+              {notificationCount > 0 && (
                 <>
                   <View style={styles.pill}>
-                    <Text style={styles.pillText}>{0}</Text>
+                    <Text style={styles.pillText}>{notificationCount}</Text>
                   </View>
                 </>
               )}
@@ -219,7 +309,7 @@ const home = () => {
               <Text>
                 <Avatar
                   uri={
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjDGMp734S91sDuUFqL51_xRTXS15iiRoHew&s"
+                    user?.profile_pic
                   }
                   size={hp(4.3)}
                   rounded={theme.radius.sm}
@@ -230,16 +320,16 @@ const home = () => {
           </View>
         </View>
 
-        {/* <FlatList
+        <FlatList
           data={posts}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <PostCard item={item} currentUser={user} />}
+          keyExtractor={(item) => item._id.toString()}
+          renderItem={({ item }) => <PostCard item={item} user={item.poster_id} />}
           ListFooterComponent={
             <>
               {hasMore ? (
-                <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
+                <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
                   <Loading />
                 </View>
               ) : (
@@ -250,10 +340,12 @@ const home = () => {
             </>
           }
           onEndReached={() => {
-            getPosts();
+            if (hasMore) {
+              getPosts();
+            }
           }}
           onEndReachedThreshold={0}
-        /> */}
+        />
       </View>
     </ScreenWrapper>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,49 +13,57 @@ import ProfileCard from "../../components/ProfileCard";
 import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
+import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
+import axios from "axios";
+import Constants from "expo-constants";
 import ScreenWrapper from "../../components/ScreenWrapper";
-const mockUsers = [
-  {
-    id: 1,
-    full_name: "Utkarsh Trivedi",
-    username: "utkarsh_t",
-    profile_pic: "https://i.pravatar.cc/300?img=1",
-    status: "connect",
-  },
-  {
-    id: 2,
-    full_name: "Aadhya Gaur",
-    username: "aadhya_123",
-    profile_pic: "https://i.pravatar.cc/300?img=2",
-    status: "pending",
-  },
-  {
-    id: 3,
-    full_name: "Dev Mehta",
-    username: "devmehta",
-    profile_pic: "https://i.pravatar.cc/300?img=3",
-    status: "remove",
-  },
-];
+import Loading from "@/components/Loading";
 
 export default function ConnectionsScreen() {
-  const [search, setSearch] = useState("");
+  const [connections, setConnections] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const fetchConnections = async () => {
+      try {
+        setLoading(true);
+        const token = await SecureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            "/api/connect/myconnections",
+          {
+            headers: { token },
+          }
+        );
+        setConnections(response.data.connected);
+      } catch (error) {
+        console.error("Error fetching network:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredUsers = mockUsers.filter(
-    (user) =>
-      user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.username.toLowerCase().includes(search.toLowerCase())
-  );
+    fetchConnections();
+  }, []);
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading />
+      </View>
+    );
+  }
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
         <View style={{ paddingHorizontal: wp(4) }}>
           <Header title={"Connections"} showBackButton mb={10} />
         </View>
+
         <FlatList
-          data={filteredUsers}
-          keyExtractor={(item) => item.id.toString()}
+          data={connections}
+          keyExtractor={(item) => item?._id}
           renderItem={({ item }) => (
             <ProfileCard
               user={item}
@@ -92,8 +100,7 @@ const styles = StyleSheet.create({
     right: 40,
     top: -35,
   },
-  userplus:
-  {
+  userplus: {
     position: "absolute",
     right: 0,
     top: -35,

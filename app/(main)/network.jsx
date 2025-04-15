@@ -11,14 +11,16 @@ import Constants from "expo-constants";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import Loading from "@/components/Loading";
 
 export default function ConnectionsScreen() {
   const [search, setSearch] = useState("");
   const [network, setNetwork] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchConnections = async () => {
       try {
+        setLoading(true)
         const token = await SecureStore.getItemAsync("token");
         const response = await axios.get(
           "http://" + Constants.expoConfig.extra.baseurl + "/api/connect/",
@@ -29,6 +31,9 @@ export default function ConnectionsScreen() {
         setNetwork(response.data.connections);
       } catch (error) {
         console.error("Error fetching network:", error);
+      }
+      finally{
+        setLoading(false)
       }
     };
 
@@ -41,6 +46,13 @@ export default function ConnectionsScreen() {
       user.username.toLowerCase().includes(search.toLowerCase())
   );
 
+  if (loading) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Loading />
+        </View>
+      );
+    }
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>

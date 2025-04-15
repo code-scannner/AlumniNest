@@ -124,7 +124,7 @@ const AlumniSignup = () => {
       // Handle profile picture
       if (typeof profilePic === "string" && profilePic.startsWith("file://")) {
         const fileType = profilePic.split(".").pop();
-        formData.append("profile_pic", {
+        formData.append("file", {
           uri: profilePic,
           name: `profile.${fileType}`,
           type: `image/${fileType}`,

@@ -1,8 +1,18 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Alert,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { wp, hp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Feather from "@expo/vector-icons/Feather";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import Constants from "expo-constants";
 export default function ProfileCard({
   user,
   status = "connect",
@@ -13,11 +23,12 @@ export default function ProfileCard({
     switch (status) {
       case "pending":
         return { name: "clock", color: "#555" };
-      case "remove":
+      case "accepted":
         return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
-      case "connect":
-      default:
+      case "not_connected":
         return { name: "user-plus", color: "hsl(126, 58.70%, 43.70%)" };
+      default:
+        return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
     }
   };
 
@@ -25,10 +36,46 @@ export default function ProfileCard({
     switch (status) {
       case "pending":
         return styles.pendingBtn;
-      case "remove":
+      case "accepted":
         return styles.removeBtn;
-      default:
+      case "not_connected":
         return styles.connectBtn;
+      default:
+        return styles.removeBtn;
+    }
+  };
+
+  const onConnect = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      if (status === "not_connected") {
+        // Send connect request
+        const response = await axios.post(
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            `/api/connect/request/${user._id}`,
+          {},
+          {
+            headers: { token },
+          }
+        );
+        console.log("Connect response:", response.data);
+      } else if (status === "accepted") {
+        // Send remove connection request
+        const response = await axios.delete(
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            `/api/connect/remove/${user._id}`,
+          {
+            headers: { token },
+          }
+        );
+        console.log("Remove response:", response.data);
+      }
+
+      if (onPress) onPress(); // Optional: notify parent to refresh list/UI
+    } catch (error) {
+      console.error("Error handling connection:", error.message);
     }
   };
 
@@ -36,13 +83,28 @@ export default function ProfileCard({
     <View style={styles.card}>
       <Image source={{ uri: user.profile_pic }} style={styles.avatar} />
       <View style={styles.info}>
-        <Text style={styles.name}>{user.full_name}(<Text>{user.userType}</Text>)</Text>
+        <Text style={styles.name}>
+          {user.full_name + " "}
+          <Text
+            style={{
+              color: theme.colors.textLight,
+              fontSize: 12,
+              opacity: 0.6,
+              fontWeight: "500",
+            }}
+          >
+            (
+            {user?.userType?.charAt(0).toUpperCase() + user?.userType?.slice(1)}
+            )
+          </Text>
+        </Text>
+
         <Text style={styles.username}>@{user.username}</Text>
       </View>
       {!ShowRequestButton && (
         <TouchableOpacity
           style={[styles.button, getButtonStyle()]}
-          onPress={onPress}
+          onPress={onConnect}
         >
           <Feather
             name={getButtonIcon().name}
@@ -118,7 +180,6 @@ const styles = StyleSheet.create({
   removeBtn: {
     borderWidth: 1,
     borderColor: "hsl(0, 97.50%, 68.20%)",
-
   },
   buttonText: {
     color: "white",
