@@ -3,6 +3,31 @@ import Notification from "../models/Notification.js";
 import Alumni from "../models/Alumni.js";
 import Student from "../models/Student.js";
 
+// @route delete /api/connect/remove/:to_user
+export async function removeConnection(req, res) {
+    try {
+        const { from_user, from_model, to_user, to_model } = req.user;
+        const forward_connect = await Connection.findOneAndDelete({
+            status: 'accepted',
+            from_user, from_model, to_user, to_model
+        });
+
+        const reverse_connect = await Connection.findOneAndDelete({
+            status: 'accepted',
+            from_user: to_user, from_model: to_model, to_user: from_user, to_model: from_model
+        });
+
+        if (forward_connect || reverse_connect) {
+            return res.status(200).json({ success: true, message: 'Connection removed successfully.' });
+        }
+        
+        return res.status(404).json({ success: false, message: 'Connection not found.' });
+    } catch (error) {
+        console.error("Error in getRequests:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 // @route GET /api/connect/requests
 export async function getRequests(req, res) {
     try {

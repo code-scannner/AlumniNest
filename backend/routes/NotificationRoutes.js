@@ -1,6 +1,6 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/authMiddleware";
-import { getNotifications, getNotificationsCount, setAllNotificationsRead } from "../controller/NotificationController";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { getNotifications, getNotificationsCount, setAllNotificationsRead } from "../controller/NotificationController.js";
 const router = express.Router();
 
 // GET all notifications with pagination

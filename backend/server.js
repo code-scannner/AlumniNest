@@ -6,6 +6,7 @@ import Authrouter from "./routes/AuthRoutes.js";
 import UserRoutes from "./routes/UserRoutes.js";
 import PostRoutes from "./routes/PostRoutes.js";
 import ConnectionRoutes from "./routes/ConnectionRoutes.js";
+import NotificationRoutes from "./routes/NotificationRoutes.js";
 import connectDB from "./db/db.js";
 import { authMiddleware } from "./middlewares/authMiddleware.js";
 import { getfeed } from "./controller/FeedController.js";
@@ -28,6 +29,7 @@ app.use("/api/profile", UserRoutes);
 app.use("/api/post", PostRoutes);
 app.use("/api/connect", ConnectionRoutes);
 app.use("/api/feed", authMiddleware, getfeed);
+app.use("/api/notification/", NotificationRoutes);
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
