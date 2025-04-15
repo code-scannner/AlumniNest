@@ -103,7 +103,7 @@ export async function getParticularPost(req, res) {
     const { post_id } = req.params;
     console.log("Fetching post details... for ", post_id);
 
-    const post = await Post.findById(post_id);
+    const post = await Post.findById(post_id).populate("poster_id", "full_name profile_pic ");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found." });
