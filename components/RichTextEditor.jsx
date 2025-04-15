@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.gray
   },
   contentStyle: {
-    color: theme.colors.textDark
-    // placeholderColor: "gray"
+    color: theme.colors.textDark,
+    placeholderColor: "gray"
   }
 });

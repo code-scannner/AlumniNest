@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,39 +14,44 @@ import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
 import ScreenWrapper from "../../components/ScreenWrapper";
-const mockUsers = [
-  {
-    id: 1,
-    full_name: "Utkarsh Trivedi",
-    username: "utkarsh_t",
-    profile_pic: "https://i.pravatar.cc/300?img=1",
-    status: "connect",
-  },
-  {
-    id: 2,
-    full_name: "Aadhya Gaur",
-    username: "aadhya_123",
-    profile_pic: "https://i.pravatar.cc/300?img=2",
-    status: "pending",
-  },
-  {
-    id: 3,
-    full_name: "Dev Mehta",
-    username: "devmehta",
-    profile_pic: "https://i.pravatar.cc/300?img=3",
-    status: "remove",
-  },
-];
-
+import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
+import axios from "axios";
+import Loading from "@/components/Loading";
+import Constants from "expo-constants";
 export default function ConnectionsScreen() {
-  const [search, setSearch] = useState("");
+  const [requests, setRequests] = useState("");
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        setLoading(true);
+        const token = await SecureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            "/api/connect/requests",
+          {
+            headers: { token },
+          }
+        );
+        setRequests(response.data.requests);
+      } catch (error) {
+        console.error("Error fetching network:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
 
-  const filteredUsers = mockUsers.filter(
-    (user) =>
-      user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.username.toLowerCase().includes(search.toLowerCase())
-  );
-
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading />
+      </View>
+    );
+  }
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
@@ -54,8 +59,8 @@ export default function ConnectionsScreen() {
           <Header title={"Requests"} showBackButton mb={10} />
         </View>
         <FlatList
-          data={filteredUsers}
-          keyExtractor={(item) => item.id.toString()}
+          data={requests}
+          keyExtractor={(item) => item?._id}
           renderItem={({ item }) => (
             <ProfileCard
               user={item}
@@ -92,30 +97,9 @@ const styles = StyleSheet.create({
     right: 40,
     top: -35,
   },
-  userplus:
-  {
+  userplus: {
     position: "absolute",
     right: 0,
     top: -35,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0fff",
-    borderRadius: 10,
-    paddingHorizontal: wp(3),
-    marginHorizontal: wp(4),
-    height: hp(5.5),
-    borderWidth: 1,
-    marginTop: hp(2),
-    borderColor: "#ccc",
-  },
-  searchIcon: {
-    marginRight: wp(2),
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: hp(1.8),
-    color: theme.colors.text,
   },
 });

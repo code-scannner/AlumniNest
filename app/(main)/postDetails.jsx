@@ -214,7 +214,7 @@ export default function index() {
         {user && post && (
           <PostCard
             item={post}
-            user={user}
+            user={post.poster_id}
             hasShadow={false}
             showMoreIcon={false}
             showDelete={true}

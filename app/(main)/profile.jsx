@@ -23,7 +23,6 @@ import axios from "axios";
 import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-var limit = 0;
 export default function index() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
@@ -223,8 +222,7 @@ const styles = StyleSheet.create({
 const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjDGMp734S91sDuUFqL51_xRTXS15iiRoHew&s";
-
+    "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin";
   const handleLogout = () => {
     Alert.alert("Confirm", "Are you sure you want to logout?", [
       {
