@@ -20,7 +20,7 @@ export async function removeConnection(req, res) {
         if (forward_connect || reverse_connect) {
             return res.status(200).json({ success: true, message: 'Connection removed successfully.' });
         }
-        
+
         return res.status(404).json({ success: false, message: 'Connection not found.' });
     } catch (error) {
         console.error("Error in getRequests:", error);
@@ -40,7 +40,12 @@ export async function getRequests(req, res) {
             status: "pending"
         }).populate("from_user");
 
-        const requests = pendingRequests.map(req => (req.from_user));
+        const requests = pendingRequests.map(req => ({
+            ...req.from_user._doc,
+            userType: req.from_model
+        }));
+
+
 
         res.status(200).json({ success: true, requests });
     } catch (error) {
@@ -102,75 +107,68 @@ export async function getConnected(req, res) {
 // @access  Private 
 export async function getConnections(req, res) {
     try {
-        const userId = req.user.id;
-        const userModel = req.user.role;
-
-        let { search } = req.body;
-
-
-        const query = search
-            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
-            : { _id: { $ne: userId } };
-
-        const alumniList = await Alumni.find(query);
-        const studentsList = await Student.find(query);
-
-        const alumniIds = alumniList.map(alumni => alumni._id);
-        const studentsIds = studentsList.map(student => student._id);
-        const allUserIds = [...alumniIds, ...studentsIds];
-
-        const connections = await Connection.find({
-            $or: [
-                { from_user: userId, to_user: { $in: allUserIds } },
-                { to_user: userId, from_user: { $in: allUserIds } }
-            ]
-        });
-
-        const alumniWithStatus = alumniList.map(alumni => {
-            const conn = connections.find(c =>
-                (c.from_user.toString() === userId && c.to_user.toString() === alumni._id.toString()) ||
-                (c.to_user.toString() === userId && c.from_user.toString() === alumni._id.toString())
-            );
-
-            let status = 'not_connected';
-            if (conn) {
-                status = conn.status;
-            }
-
-            return {
-                ...alumni._doc,
-                userType: 'alumni',
-                status
-            };
-        });
-
-        const studentsWithStatus = studentsList.map(student => {
-            const conn = connections.find(c =>
-                (c.from_user.toString() === userId && c.to_user.toString() === student._id.toString()) ||
-                (c.to_user.toString() === userId && c.from_user.toString() === student._id.toString())
-            );
-
-            let status = 'not_connected';
-            if (conn) {
-                status = conn.status;
-            }
-
-            return {
-                ...student._doc,
-                userType: 'student',
-                status
-            };
-        });
-
-        const allConnections = shuffleArray([...alumniWithStatus, ...studentsWithStatus]);
-
-
-        res.status(200).json({ connections: allConnections });
+      const userId = req.user.id;
+      const userModel = req.user.role;
+      const { search } = req.query;
+  
+      const query = search
+        ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
+        : { _id: { $ne: userId } };
+  
+      // Get all alumni and students
+      const [alumniList, studentsList] = await Promise.all([
+        Alumni.find(query),
+        Student.find(query)
+      ]);
+  
+      const alumniIds = alumniList.map(a => a._id);
+      const studentIds = studentsList.map(s => s._id);
+      const allUserIds = [...alumniIds, ...studentIds];
+  
+      // Fetch relevant connections
+      const connections = await Connection.find({
+        $or: [
+          { from_user: userId, to_user: { $in: allUserIds } },
+          { to_user: userId, from_user: { $in: allUserIds } }
+        ]
+      });
+  
+      const getConnectionStatus = (targetUserId) => {
+        const conn = connections.find(conn =>
+          (conn.from_user.toString() === userId && conn.to_user.toString() === targetUserId.toString()) ||
+          (conn.to_user.toString() === userId && conn.from_user.toString() === targetUserId.toString())
+        );
+  
+        if (!conn) return 'not_connected';
+        if (conn.status === 'accepted') return 'accepted';
+  
+        if (conn.status === 'pending') {
+          // If current user sent the request, mark as 'pending'; else exclude
+          return conn.from_user.toString() === userId ? 'pending' : 'received';
+        }
+  
+        return 'not_connected';
+      };
+  
+      const filterAndFormat = (list, userType) =>
+        list
+          .map(user => {
+            const status = getConnectionStatus(user._id);
+            return { ...user.toObject(), userType, status };
+          })
+          .filter(user => user.status !== 'received'); // Exclude 'received' ones
+  
+      const alumniWithStatus = filterAndFormat(alumniList, 'alumni');
+      const studentsWithStatus = filterAndFormat(studentsList, 'student');
+  
+      const allConnections = shuffleArray([...alumniWithStatus, ...studentsWithStatus]);
+  
+      res.status(200).json({ connections: allConnections });
     } catch (error) {
-        console.error("Error in getConnections:", error);
-        res.status(500).json({ message: error.message });
+      console.error("Error in getConnections:", error);
+      res.status(500).json({ message: error.message });
     }
-}
+  }
 
 
 // @desc    Send a connection request
