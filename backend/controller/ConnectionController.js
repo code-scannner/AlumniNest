@@ -38,21 +38,40 @@ export async function getConnected(req, res) {
             ]
         });
 
-        const connectedUserIds = connections.map(conn => {
-            return conn.from_user.toString() === userId
-                ? conn.to_user
-                : conn.from_user;
-        });
+        const connectedUsers = await Promise.all(
+            connections.map(async (conn) => {
+                const isSender = conn.from_user.toString() === userId;
 
-        const connectedUsers = await Alumni.find({ _id: { $in: connectedUserIds } });
+                const connectedUserId = isSender ? conn.to_user : conn.from_user;
+                const connectedUserModel = isSender ? conn.to_model : conn.from_model;
 
-        res.status(200).json({ connected: connectedUsers });
+                let user = null;
+
+                if (connectedUserModel === 'Alumni') {
+                    user = await Alumni.findById(connectedUserId);
+                } else if (connectedUserModel === 'Student') {
+                    user = await Student.findById(connectedUserId);
+                }
+
+                if (user) {
+                    return {
+                        ...user.toObject(),
+                        role: connectedUserModel
+                    };
+                } else {
+                    return null;
+                }
+            })
+        );
+
+        const filteredUsers = connectedUsers.filter(u => u !== null);
+
+        res.status(200).json({ connected: filteredUsers });
     } catch (error) {
         console.error("Error in getConnected:", error);
         res.status(500).json({ message: error.message });
     }
 }
-
 
 // @route   GET /api/connect/
 // @access  Private 
