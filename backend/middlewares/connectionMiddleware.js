@@ -28,7 +28,6 @@ const connectionMiddleware = async (req, res, next) => {
         if (to_user.toString() === from_user.toString() && to_model === from_model) {
             return res.status(400).json({ success: false, message: "You cannot connect with yourself." });
         }
-
         
         next();
     } catch (error) {

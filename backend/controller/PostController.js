@@ -5,7 +5,7 @@ import Post from "../models/Post.js";
 import Like from "../models/Like.js"; // adjust the import path if needed
 import { upload } from "../utils/uploadtoappwrite.js";
 
-// @desc    Get all posts from a student's connected alumni
+// @desc    Get all posts of a student given the id
 // @route   GET /api/post/
 export async function getPosts(req, res) {
   try {
@@ -71,21 +71,21 @@ export async function createPost(req, res) {
 
     await post.save();
 
-    const connections = await Connection.find({
-      alumni_id: req.user._id,
-      status: "accepted",
-    }).select("student_id");
+    // const connections = await Connection.find({
+    //   alumni_id: req.user._id,
+    //   status: "accepted",
+    // }).select("student_id");
 
-    if (connections.length > 0) {
-      const notifications = connections.map((conn) => ({
-        receiver_id: conn.student_id,
-        receiverModel: "Student",
-        content: "A new post has been shared by your connection.",
-        type: "post-message",
-      }));
+    // if (connections.length > 0) {
+    //   const notifications = connections.map((conn) => ({
+    //     receiver_id: conn.student_id,
+    //     receiverModel: "Student",
+    //     content: "A new post has been shared by your connection.",
+    //     type: "post-message",
+    //   }));
 
-      await Notification.insertMany(notifications);
-    }
+    //   await Notification.insertMany(notifications);
+    // }
 
     res.status(201).json({
       message: "Post created successfully",
