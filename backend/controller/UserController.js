@@ -1,6 +1,26 @@
 import Student from "../models/Student.js";
 import Alumni from "../models/Alumni.js";
+import Post from "../models/Post.js"
 import { upload, deleteFile } from "../utils/uploadtoappwrite.js";
+
+// getting user profile
+export const getUserProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const student = await Student.findById(id);
+        const alumni = await Alumni.findById(id);
+        if (!student && !alumni) res.status(404).json({ success: false, message: 'User not found' });
+        const role = student ? "Student" : "Alumni"
+        const posts = await Post.find({ poster_id: id, poster_model: role });
+
+        res.status(200).json({ success: true, info: { ...(student || alumni)._doc, role }, posts });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error", error });
+    }
+}
+
 
 // Get Profile
 export const getProfile = async (req, res) => {
