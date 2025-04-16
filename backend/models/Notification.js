@@ -5,7 +5,18 @@ const NotificationSchema = new Schema({
     receiverModel: { type: String, enum: ['Student', 'Alumni'], required: true },
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
-    type: { type: String, enum: ["connection-request", "post-message", "request-accepted", "request-rejected"], required: true },
+    type: {
+        type: String,
+        enum: [
+            "connection_request",
+            "connection_accepted",
+            "connection_rejected",
+            "post_created",
+            "post_liked",
+            "post_commented"
+        ],
+        required: true
+    },
     read: { type: Boolean, default: false }
 });
 
