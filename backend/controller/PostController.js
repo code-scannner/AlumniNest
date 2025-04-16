@@ -9,7 +9,13 @@ import { upload } from "../utils/uploadtoappwrite.js";
 // @route   GET /api/post/
 export async function getPosts(req, res) {
   try {
-    const { id } = req.user;
+    let id;
+    if (req.user) {
+      id = req.user.id;
+    }
+    else {
+      id = req.params.id;
+    }
 
     const limit = parseInt(req.query.limit) || 10;
     const skip = parseInt(req.query.skip) || 0;

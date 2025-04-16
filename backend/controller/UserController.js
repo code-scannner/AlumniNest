@@ -11,9 +11,8 @@ export const getUserProfile = async (req, res) => {
         const alumni = await Alumni.findById(id);
         if (!student && !alumni) res.status(404).json({ success: false, message: 'User not found' });
         const role = student ? "Student" : "Alumni"
-        const posts = await Post.find({ poster_id: id, poster_model: role });
 
-        res.status(200).json({ success: true, info: { ...(student || alumni)._doc, role }, posts });
+        res.status(200).json({ success: true, info: { ...(student || alumni)._doc, role } });
     }
     catch (error) {
         console.log(error);
