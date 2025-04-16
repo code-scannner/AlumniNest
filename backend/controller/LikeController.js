@@ -27,24 +27,24 @@ export async function likePost(req, res) {
     try {
         console.log("like Post Api Called");
         const { post_id } = req.body;
-        const { id: user_id } = req.user;
+        const { id } = req.user;
 
-        const post = await Post({ post_id });
+        const post = await Post.findById( post_id );
 
         if (!post) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
 
         // Check if already liked
-        const existingLike = await Like.findOne({ post_id, user_id });
+        const existingLike = await Like.findOne({ post_id, user_id:id });
         if (existingLike) {
             return res.status(400).json({ success: true, message: 'Post already liked.' });
         }
 
-        const like = new Like({ post_id, user_id });
+        const like = new Like({ post_id, user_id:id });
         await like.save();
 
-        if (post.poster_id.toString() !== id.toString()) {
+        if (post.poster_id !== id) {
             await Notification.create({
                 receiver_id: post.poster_id,
                 receiverModel: post.poster_model,

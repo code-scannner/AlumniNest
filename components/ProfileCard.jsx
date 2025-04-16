@@ -7,20 +7,30 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import { useState, useEffect } from "react";
 import { wp, hp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Feather from "@expo/vector-icons/Feather";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import { router } from "expo-router";
 export default function ProfileCard({
   user,
-  status = "connect",
+  status = "accepted",
   onPress,
   ShowRequestButton = false,
+  onAccept = () => {},
+  onReject = () => {},
 }) {
+  const [localStatus, setLocalStatus] = useState(status);
+
+  useEffect(() => {
+    setLocalStatus(status); // Keep localStatus in sync with prop if it changes
+  }, [status]);
+
   const getButtonIcon = () => {
-    switch (status) {
+    switch (localStatus) {
       case "pending":
         return { name: "clock", color: "#555" };
       case "accepted":
@@ -33,7 +43,7 @@ export default function ProfileCard({
   };
 
   const getButtonStyle = () => {
-    switch (status) {
+    switch (localStatus) {
       case "pending":
         return styles.pendingBtn;
       case "accepted":
@@ -48,40 +58,70 @@ export default function ProfileCard({
   const onConnect = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
-      if (status === "not_connected") {
-        // Send connect request
+  
+      if (localStatus === "not_connected") {
+        setLocalStatus("pending");
         const response = await axios.post(
-          "http://" +
-            Constants.expoConfig.extra.baseurl +
-            `/api/connect/request/${user._id}`,
+          `http://${Constants.expoConfig.extra.baseurl}/api/connect/request/${user._id}`,
           {},
-          {
-            headers: { token },
-          }
+          { headers: { token } }
         );
         console.log("Connect response:", response.data);
-      } else if (status === "accepted") {
-        // Send remove connection request
-        const response = await axios.delete(
-          "http://" +
-            Constants.expoConfig.extra.baseurl +
-            `/api/connect/remove/${user._id}`,
-          {
-            headers: { token },
-          }
-        );
-        console.log("Remove response:", response.data);
-      }
 
-      if (onPress) onPress(); // Optional: notify parent to refresh list/UI
+      } else if (localStatus === "accepted") {
+        Alert.alert(
+          "Remove Connection",
+          "Are you sure you want to remove this connection?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Yes",
+              onPress: async () => {
+                setLocalStatus("not_connected");
+                const response = await axios.delete(
+                  `http://${Constants.expoConfig.extra.baseurl}/api/connect/remove/${user._id}`,
+                  { headers: { token } }
+                );
+                console.log("Remove response:", response.data);
+                if (onPress) onPress();
+              },
+              style: "destructive",
+            },
+          ]
+        );
+        return; // prevent onPress call here
+      }
+  
+      if (onPress && localStatus !== "accepted") onPress();
     } catch (error) {
       console.error("Error handling connection:", error.message);
     }
   };
+  
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: user.profile_pic }} style={styles.avatar} />
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/(main)/userProfile",
+            params: { user_id: user?._id },
+          })
+        }
+      >
+        <Image
+          source={{
+            uri:
+              user?.profile_pic ||
+              "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+          }}
+          style={styles.avatar}
+        />
+      </TouchableOpacity>
+
       <View style={styles.info}>
         <Text style={styles.name}>
           {user.full_name + " "}
@@ -116,13 +156,13 @@ export default function ProfileCard({
       {ShowRequestButton && (
         <View style={styles.iconButtons}>
           <TouchableOpacity
-            onPress={() => onPress("accept")}
+            onPress={() => onAccept(user._id)}
             style={styles.greeniconBtn}
           >
             <Feather name="check" size={hp(2.2)} color="green" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => onPress("reject")}
+            onPress={() => onReject(user._id)}
             style={styles.rediconBtn}
           >
             <Feather name="x" size={hp(2.2)} color="red" />

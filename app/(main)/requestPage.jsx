@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  Alert,
   View,
   Text,
   TextInput,
@@ -45,6 +46,58 @@ export default function ConnectionsScreen() {
     fetchRequests();
   }, []);
 
+  const onAccept = async (id) => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      const response = await axios.put(
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          `/api/connect/accept/${id}`,
+        { accept: true },
+        { headers: { token } }
+      );
+      // Remove user from request state
+      if (response.data.success) {
+        setRequests((prev) => prev.filter((user) => user._id !== id));
+      }
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error accepting request:", error);
+    }
+  };
+
+  const onReject = (id) => {
+    Alert.alert(
+      "Reject Request",
+      "Are you sure you want to reject this connection request?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reject",
+          onPress: async () => {
+            try {
+              const token = await SecureStore.getItemAsync("token");
+              await axios.put(
+                "http://" +
+                  Constants.expoConfig.extra.baseurl +
+                  `/api/connect/accept/${id}`,
+                {},
+                { headers: { token } }
+              );
+              setRequests((prev) => prev.filter((user) => user._id !== id));
+            } catch (error) {
+              console.error("Error rejecting request:", error);
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -67,6 +120,8 @@ export default function ConnectionsScreen() {
               status={item.status}
               onPress={() => console.log(`${item.full_name} pressed`)}
               ShowRequestButton={true}
+              onAccept={onAccept}
+              onReject={onReject}
             />
           )}
           contentContainerStyle={{

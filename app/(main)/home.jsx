@@ -1,5 +1,5 @@
 import { hp, wp } from "@/helpers/common";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import { Icon } from "@/assets/icons";
 import React, { useEffect, useState, useCallback } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
@@ -180,7 +180,7 @@ const home = () => {
   const [limit, setLimit] = useState(0);
   const [user, setUser] = useState(null);
   const [loading, isLoading] = useState(false);
-  const [notificationCount,setNotificationCount]=useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
   const fetchUser = async () => {
     isLoading(true);
     try {
@@ -196,16 +196,17 @@ const home = () => {
       );
 
       setUser(response.data.info);
-      console.log(response)
-      console.log(user)
+      console.log(response);
+      console.log(user);
     } catch (error) {
       console.error("Failed to fetch user:", error.message);
     } finally {
       isLoading(false);
     }
   };
- 
+
   const getPosts = async () => {
+    const token = await SecureStore.getItemAsync("token");
     if (!hasMore) return;
     setLimit((prev) => prev + 20); // Increase limit for next fetch
 
@@ -216,14 +217,14 @@ const home = () => {
           `/api/feed?limit=${limit}`,
         {
           headers: {
-            token: await SecureStore.getItemAsync("token"),
+            token,
           },
         }
       );
 
       if (response.data.posts) {
         setPosts([...response.data.posts]);
-        setHasMore(response.data.hasMore); 
+        setHasMore(response.data.hasMore);
       } else {
         console.error("Failed to fetch posts:", response.data.message);
         return [];
@@ -233,6 +234,30 @@ const home = () => {
       return [];
     }
   };
+
+  useEffect(() => {
+    const getNotificationCount = async () => {
+      try {
+        const token = await SecureStore.getItemAsync("token");
+        const response = await axios.get(
+          "http://" +
+            Constants.expoConfig.extra.baseurl +
+            "/api/notification/count",
+          {
+            headers: {
+              token,
+            },
+          }
+        );
+        setNotificationCount(response.data.unreadCount);
+        console.log(notificationCount);
+      } catch (error) {
+        console.error("Failed to fetch notification count:", error.message);
+      }
+    };
+
+    getNotificationCount();
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -277,7 +302,7 @@ const home = () => {
             </Pressable>
             <Pressable
               onPress={() => {
-                setNotificationCount(0);
+
                 router.push("notifications");
               }}
             >
@@ -308,9 +333,7 @@ const home = () => {
             <Pressable onPress={() => router.push("profile")}>
               <Text>
                 <Avatar
-                  uri={
-                    user?.profile_pic
-                  }
+                  uri={user?.profile_pic}
                   size={hp(4.3)}
                   rounded={theme.radius.sm}
                   style={{ borderWidth: 1 }}
@@ -325,7 +348,9 @@ const home = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
           keyExtractor={(item) => item._id.toString()}
-          renderItem={({ item }) => <PostCard item={item} user={item.poster_id} />}
+          renderItem={({ item }) => (
+            <PostCard item={item} user={user} postuser={item?.poster_id} />
+          )}
           ListFooterComponent={
             <>
               {hasMore ? (

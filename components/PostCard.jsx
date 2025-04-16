@@ -21,7 +21,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const textStyle = {
-  color: theme.colors.dark,
+  color: theme.colors.text,
   fontSize: hp(1.75),
 };
 const tagStyles = {
@@ -38,6 +38,7 @@ const tagStyles = {
 export default function PostCard({
   item,
   user,
+  postuser,
   hasShadow = true,
   commentCount,
   showMoreIcon = true,
@@ -149,14 +150,14 @@ export default function PostCard({
           <Avatar
             size={hp(4.5)}
             uri={
-              user?.profile_pic
-                ? user.profile_pic
-                : "https://e7.pngegg.com/pngimages/731/264/png-clipart-computer-icons-user-profile-accounting-rectangle-black.png"
+              postuser?.profile_pic
+                ? postuser.profile_pic
+                : "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin"
             }
             rounded={theme.radius.md}
           />
           <View style={{ gap: 2 }}>
-            <Text style={styles.username}>{user?.full_name}</Text>
+            <Text style={styles.username}>{postuser?.full_name}</Text>
             <Text style={styles.postTime}>
               {moment(item?.timestamp).format("MMM D")}
             </Text>
@@ -174,7 +175,7 @@ export default function PostCard({
           </TouchableOpacity>
         )}
 
-        {showDelete && user?._id === item?.poster_id && (
+        {showDelete && user?._id === postuser?._id && (
           <>
             <View style={styles.actins}>
               <TouchableOpacity
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 10,
+    color: theme.colors.text,
   },
   postTime: {
     fontSize: hp(1.4),

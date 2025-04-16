@@ -68,7 +68,11 @@ export default function ConnectionsScreen() {
             <ProfileCard
               user={item}
               status={item.status}
-              onPress={() => console.log(`${item.full_name} pressed`)}
+              onPress={() => {
+                setConnections((prev) =>
+                  prev.filter((conn) => conn._id !== item._id)
+                );
+              }}
               ShowButton={false}
             />
           )}

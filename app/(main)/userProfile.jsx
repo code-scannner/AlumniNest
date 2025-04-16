@@ -15,7 +15,7 @@ import { hp, wp } from "@/helpers/common";
 import { Icon } from "@/assets/icons";
 import { theme } from "@/constants/theme";
 import Avatar from "@/components/Avatar";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import PostCard from "@/components/PostCard";
 import Loading from "@/components/Loading";
 import * as SecureStore from "expo-secure-store";
@@ -24,6 +24,7 @@ import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function index() {
+  const {user_id}=useLocalSearchParams()
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(0);
@@ -34,15 +35,8 @@ export default function index() {
   const fetchUser = async () => {
     isLoading(true);
     try {
-      const token = await SecureStore.getItemAsync("token");
-
-      if (!token) throw new Error("No token found");
-
       const response = await axios.get(
-        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
-        {
-          headers: { token: `${token}` },
-        }
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/getuser/"+user_id,
       );
 
       setUser(response.data.info);
@@ -77,17 +71,12 @@ export default function index() {
       const response = await axios.get(
         "http://" +
           Constants.expoConfig.extra.baseurl +
-          `/api/post?limit=${limit}`,
-        {
-          headers: {
-            token: await SecureStore.getItemAsync("token"),
-          },
-        }
+          `/api/post/getposts/${user_id}?limit=${limit}`
       );
 
       if (response.data.posts) {
         setPosts([...response.data.posts]);
-        setHasMore(response.data.hasMore); // Check if there are more posts
+        setHasMore(response.data.hasMore);
       } else {
         console.error("Failed to fetch posts:", response.data.message);
         return [];
@@ -131,7 +120,7 @@ export default function index() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listStyle}
         keyExtractor={(item) => item._id.toString()}
-        renderItem={({ item }) => <PostCard item={item} user={user} postuser={user} />}
+        renderItem={({ item }) => <PostCard item={item} user={user} />}
         ListFooterComponent={
           <>
             {hasMore ? (
@@ -223,51 +212,13 @@ const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
     "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin";
-  const handleLogout = () => {
-    Alert.alert("Confirm", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Cancel Pressed"),
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            // Remove token from SecureStore
-            await SecureStore.deleteItemAsync("authToken");
-
-            // Optionally, invalidate session on the backend
-            router.replace("/login");
-            console.log("User logged out successfully");
-          } catch (error) {
-            console.error("Logout failed:", error);
-          }
-        },
-      },
-    ]);
-  };
-
+ 
   return (
     <View
       style={{ flex: 1, backgroundColor: "white", paddingHorizontal: wp(4) }}
     >
       <View>
         <Header title={"Profile"} showBackButton mb={30} />
-
-        <TouchableOpacity
-          onPress={() => {
-            handleLogout();
-          }}
-          style={styles.logoutButton}
-        >
-          <Icon
-            name={"logout"}
-            color={theme.colors.rose}
-            onPress={handleLogout}
-          />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.container}>
@@ -278,18 +229,6 @@ const UserHeader = ({ user }) => {
               size={hp(12)}
               rounded={theme.radius.xxl * 1.4}
             />
-            <Pressable
-              style={styles.editIcon}
-              onPress={() => {
-                if (user?.course) {
-                  router.push("/(main)/editStudentProfile");
-                } else {
-                  router.push("/(main)/editAlumniProfile");
-                }
-              }}
-            >
-              <Icon name={"edit"} strokeWidth={2.5} size={20} />
-            </Pressable>
           </View>
 
           <View style={{ alignItems: "center", gap: 4 }}>

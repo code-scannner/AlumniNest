@@ -20,7 +20,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 export default function index() {
-  const { post_id, user_id } = useLocalSearchParams();
+  const { post_id} = useLocalSearchParams();
   const inputRef = useRef("");
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
@@ -214,7 +214,8 @@ export default function index() {
         {user && post && (
           <PostCard
             item={post}
-            user={post.poster_id}
+            user={user}
+            postuser={post.poster_id}
             hasShadow={false}
             showMoreIcon={false}
             showDelete={true}
