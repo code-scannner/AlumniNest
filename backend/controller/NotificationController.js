@@ -17,12 +17,25 @@ export const getNotifications = async (req, res) => {
             .sort({ timestamp: -1 })
             .skip(skip)
             .limit(limit + 1)
+            .populate("receiver_id", "full_name profile_pic")
             .exec();
 
         const hasMore = notifications.length > limit;
         if (hasMore) notifications.pop();
 
-        res.status(200).json({ success: true, notifications, hasMore });
+        const cleaned_notifications = notifications.map(item => {
+            return {
+                full_name: item.receiver_id.full_name,
+                profile_pic: item.profile_pic,
+                _id: item._id,
+                content: item.content,
+                type: item.type,
+                read: item.read,
+                timestamp: item.timestamp
+            }
+        })
+
+        res.status(200).json({ success: true, notifications: cleaned_notifications, hasMore });
     } catch (error) {
         console.error("Error fetching notifications:", error);
         res.status(500).json({ success: false, message: "Error fetching notifications" });

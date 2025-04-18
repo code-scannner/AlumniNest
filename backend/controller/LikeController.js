@@ -1,11 +1,10 @@
-import Like from '../models/Like.js'; // adjust the import path if needed
-import Comment from '../models/Comment.js'; // adjust the import path if needed
+import Like from '../models/Like.js'; 
+import Comment from '../models/Comment.js';
 import Post from '../models/Post.js'
 import Notification from '../models/Notification.js';
 
 export async function isLiked(req, res) {
     try {
-        console.log("is Liked Api Called");
         const { user_id, post_id } = req.query;
 
         if (!post_id) {
@@ -25,7 +24,6 @@ export async function isLiked(req, res) {
 
 export async function likePost(req, res) {
     try {
-        console.log("like Post Api Called");
         const { post_id } = req.body;
         const { id } = req.user;
 
@@ -62,7 +60,6 @@ export async function likePost(req, res) {
 
 export async function unlikePost(req, res) {
     try {
-        console.log("unlike Post Api Called");
         const { post_id } = req.body;
         const { id: user_id } = req.user;
 
