@@ -15,107 +15,9 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import { router } from "expo-router";
-export default function ProfileCard({
-  user,
-  status = "accepted",
-  onPress,
-  showMessageButton = false,
-  ShowRequestButton = false,
-  onAccept = () => {},
-  onReject = () => {},
+export default function MessageCard({
+  chat,
 }) {
-  const [localStatus, setLocalStatus] = useState(status);
-
-  useEffect(() => {
-    setLocalStatus(status); // Keep localStatus in sync with prop if it changes
-  }, [status]);
-
-  const getButtonIcon = () => {
-    switch (localStatus) {
-      case "pending":
-        return { name: "clock", color: "#555" };
-      case "accepted":
-        return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
-      case "not_connected":
-        return { name: "user-plus", color: "hsl(126, 58.70%, 43.70%)" };
-      default:
-        return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
-    }
-  };
-
-  const getButtonStyle = () => {
-    switch (localStatus) {
-      case "pending":
-        return styles.pendingBtn;
-      case "accepted":
-        return styles.removeBtn;
-      case "not_connected":
-        return styles.connectBtn;
-      default:
-        return styles.removeBtn;
-    }
-  };
-
-  const onConnect = async () => {
-    try {
-      const token = await SecureStore.getItemAsync("token");
-
-      if (localStatus === "not_connected") {
-        setLocalStatus("pending");
-        const response = await axios.post(
-          `http://${Constants.expoConfig.extra.baseurl}/api/connect/request/${user._id}`,
-          {},
-          { headers: { token } }
-        );
-        console.log("Connect response:", response.data);
-      } else if (localStatus === "accepted") {
-        Alert.alert(
-          "Remove Connection",
-          "Are you sure you want to remove this connection?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-            {
-              text: "Yes",
-              onPress: async () => {
-                setLocalStatus("not_connected");
-                const response = await axios.delete(
-                  `http://${Constants.expoConfig.extra.baseurl}/api/connect/remove/${user._id}`,
-                  { headers: { token } }
-                );
-                console.log("Remove response:", response.data);
-                if (onPress) onPress();
-              },
-              style: "destructive",
-            },
-          ]
-        );
-        return;
-      }
-
-      if (onPress && localStatus !== "accepted") onPress();
-    } catch (error) {
-      console.error("Error handling connection:", error.message);
-    }
-  };
-
-  const onChatClick = async () => {
-    try {
-      const token = await SecureStore.getItemAsync("token");
-      const response = await axios.put(
-        `http://${Constants.expoConfig.extra.baseurl}/api/chat/${user._id}`,
-        {},
-        { headers: { token } }
-      );
-      if (response.data.success) {
-        router.push("home");
-      }
-    } catch (error) {
-      console.error("Error handling connection:", error.message);
-    }
-  };
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -138,29 +40,15 @@ export default function ProfileCard({
 
       <View style={styles.info}>
         <Text style={styles.name}>
-          {user.full_name + " "}
-          <Text
-            style={{
-              color: theme.colors.textLight,
-              fontSize: 12,
-              opacity: 0.6,
-              fontWeight: "500",
-            }}
-          >
-            (
-            {user?.userType?.charAt(0).toUpperCase() + user?.userType?.slice(1)}
-            )
-          </Text>
+          {user.full_name}
         </Text>
-
-        <Text style={styles.username}>@{user.username}</Text>
       </View>
       {!ShowRequestButton && (
         <View style={styles.iconButtons}>
           {showMessageButton && (
             <View style={styles.iconButtons}>
               <TouchableOpacity
-                onPress={onChatClick}
+                onPress={() => onAccept(user._id)}
                 style={styles.msgButton}
               >
                 <Feather name="message-square" size={hp(2.2)} color="grey" />

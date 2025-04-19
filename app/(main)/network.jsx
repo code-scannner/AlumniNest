@@ -7,7 +7,7 @@ import {
   View,
   Text,
 } from "react-native";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import ProfileCard from "../../components/ProfileCard";
@@ -26,27 +26,33 @@ export default function ConnectionsScreen() {
   const [network, setNetwork] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reqCount, setReqCount] = useState(0);
-  useEffect(() => {
-    const fetchConnections = async () => {
-      try {
-        setLoading(true);
-        const token = await SecureStore.getItemAsync("token");
-        const response = await axios.get(
-          "http://" + Constants.expoConfig.extra.baseurl + "/api/connect/",
-          {
-            headers: { token },
-          }
-        );
-        setNetwork(response.data.connections);
-      } catch (error) {
-        console.error("Error fetching network:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchConnections = async () => {
+    try {
+      setLoading(true);
+      const token = await SecureStore.getItemAsync("token");
+      const response = await axios.get(
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/connect/",
+        {
+          headers: { token },
+        }
+      );
+      setNetwork(response.data.connections);
+    } catch (error) {
+      console.error("Error fetching network:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchConnections();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchConnections();
+    }, [])
+  );
 
   const getRequestCount = async () => {
     try {

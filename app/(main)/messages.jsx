@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
-import ProfileCard from "../../components/ProfileCard";
+import MessageCard from "../../components/ProfileCard";
 import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
@@ -21,22 +21,20 @@ import ScreenWrapper from "../../components/ScreenWrapper";
 import Loading from "@/components/Loading";
 
 export default function ConnectionsScreen() {
-  const [connections, setConnections] = useState([]);
+  const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    const fetchConnections = async () => {
+    const fetchChats = async () => {
       try {
         setLoading(true);
         const token = await SecureStore.getItemAsync("token");
         const response = await axios.get(
-          "http://" +
-            Constants.expoConfig.extra.baseurl +
-            "/api/connect/myconnections",
+          "http://" + Constants.expoConfig.extra.baseurl + "/api/chat",
           {
             headers: { token },
           }
         );
-        setConnections(response.data.connected);
+        setChats(response.data.chats);
       } catch (error) {
         console.error("Error fetching network:", error);
       } finally {
@@ -44,7 +42,7 @@ export default function ConnectionsScreen() {
       }
     };
 
-    fetchConnections();
+    fetchChats();
   }, []);
 
   if (loading) {
@@ -61,27 +59,23 @@ export default function ConnectionsScreen() {
           <Header title={"Chat"} showBackButton mb={10} />
         </View>
 
-        <FlatList
-          data={connections}
-          keyExtractor={(item) => item?._id}
-          renderItem={({ item }) => (
-            <ProfileCard
-              user={item}
-              status={item.status}
-              onPress={() => {
-                setConnections((prev) =>
-                  prev.filter((conn) => conn._id !== item._id)
-                );
-              }}
-              ShowButton={false}
-            />
-          )}
-          contentContainerStyle={{
-            paddingBottom: hp(2),
-            paddingHorizontal: wp(4),
-            paddingTop: hp(2),
-          }}
-        />
+        {chats.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 30, color: "gray",fontSize:16
+          }}>
+            Nothing here yet. Say hello to your connections!
+          </Text>
+        ) : (
+          <FlatList
+            data={chats}
+            keyExtractor={(item) => item?._id}
+            renderItem={({ item }) => <MessageCard chat={item} />}
+            contentContainerStyle={{
+              paddingBottom: hp(2),
+              paddingHorizontal: wp(4),
+              paddingTop: hp(2),
+            }}
+          />
+        )}
       </View>
     </ScreenWrapper>
   );

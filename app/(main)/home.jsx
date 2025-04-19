@@ -171,7 +171,7 @@ const home = () => {
             <Pressable onPress={() => router.push("messages")}>
               <Feather
                 name={"message-circle"} // or any appropriate icon name like "message"
-                size={hp(3.2)}
+                size={hp(3)}
                 strokeWidth={2}
                 color={theme.colors.text}
               />
@@ -179,7 +179,7 @@ const home = () => {
             <Pressable onPress={() => router.push("network")}>
               <Feather
                 name={"globe"}
-                size={hp(3.2)}
+                size={hp(3)}
                 strokeWidth={2}
                 color={theme.colors.text}
               />
@@ -187,7 +187,7 @@ const home = () => {
             <Pressable onPress={onPress}>
               <Icon
                 name={"heart"}
-                size={hp(3.2)}
+                size={hp(3)}
                 strokeWidth={2}
                 color={theme.colors.text}
               />
@@ -203,7 +203,7 @@ const home = () => {
               <Text>
                 <Icon
                   name={"plus"}
-                  size={hp(3.2)}
+                  size={hp(3)}
                   strokeWidth={2}
                   color={theme.colors.text}
                 />
@@ -213,7 +213,7 @@ const home = () => {
               <Text>
                 <Avatar
                   uri={user?.profile_pic}
-                  size={hp(4.3)}
+                  size={hp(4)}
                   rounded={theme.radius.sm}
                   style={{ borderWidth: 1 }}
                 />
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 12,
   },
   noPosts: {
     fontSize: hp(2),
