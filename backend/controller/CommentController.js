@@ -35,7 +35,7 @@ export async function addNewComment(req, res) {
             return res.status(400).json({ message: "Post ID and content are required." });
         }
 
-        const post = await Post.findById({ post_id });
+        const post = await Post.findById(post_id);
         if (!post) {
             return res.status(400).json({ message: "Post not found." });
         }
