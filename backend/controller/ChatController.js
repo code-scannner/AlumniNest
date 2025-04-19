@@ -68,9 +68,9 @@ export const getAllChatsForUser = async (req, res) => {
             };
         });
 
-        res.status(200).json({ chats: otherUsers });
+        res.status(200).json({success : true, chats: otherUsers });
     } catch (error) {
         console.error("❌ Error in getAllChatsForUser:", error.message);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({success : false, message: "Internal server error" });
     }
 };
