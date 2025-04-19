@@ -5,21 +5,20 @@ import { hp } from "@/helpers/common";
 import moment from "moment";
 import { router } from "expo-router";
 
-// Mock avatar if no real image is available
-const defaultAvatar = require("@/assets/images/alumni.jpg");
-
 const NotificationItem = ({ item }) => {
   const handleClick = () => {
     const type = item.type;
     switch (type) {
       case "connection_request":
         router.push({
-          pathname: "/requestPage"
+          pathname: "/requestPage",
         });
+        break;
       case "connection_accepted":
         router.push({
-          pathname: "/connections"
+          pathname: "/connections",
         });
+        break;
       case "post_created":
         router.push({
           pathname: "/postDetails",
@@ -27,6 +26,7 @@ const NotificationItem = ({ item }) => {
             post_id: item?.redirect_id,
           },
         });
+        break;
       case "post_liked":
         router.push({
           pathname: "/postDetails",
@@ -34,6 +34,7 @@ const NotificationItem = ({ item }) => {
             post_id: item?.redirect_id,
           },
         });
+        break;
       case "post_commented":
         router.push({
           pathname: "/postDetails",
@@ -41,6 +42,7 @@ const NotificationItem = ({ item }) => {
             post_id: item?.redirect_id,
           },
         });
+        break;
       default:
         break;
     }
@@ -59,7 +61,11 @@ const NotificationItem = ({ item }) => {
     <TouchableOpacity style={styles.container} onPress={handleClick}>
       <TouchableOpacity onPress={handleProfileClick} activeOpacity={0.8}>
         <Image
-          source={{ uri: item?.profile_pic || defaultAvatar }}
+          source={{
+            uri:
+              item?.profile_pic ||
+              "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+          }}
           style={{ width: hp(5), height: hp(5), borderRadius: hp(5) / 2 }}
         />
       </TouchableOpacity>
