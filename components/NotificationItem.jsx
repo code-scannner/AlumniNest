@@ -77,7 +77,7 @@ const NotificationItem = ({ item }) => {
         </Text>
       </View>
 
-      <Text style={styles.timetext}>{moment(item?.created_at).fromNow()}</Text>
+      <Text style={styles.timetext}>{moment(item?.timestamp).fromNow()}</Text>
     </TouchableOpacity>
   );
 };

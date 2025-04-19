@@ -2,6 +2,7 @@ import { hp, wp } from "@/helpers/common";
 import { useFocusEffect } from "@react-navigation/native";
 import { Icon } from "@/assets/icons";
 import React, { useEffect, useState, useCallback } from "react";
+import { Feather } from "@expo/vector-icons";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { router } from "expo-router";
 import { theme } from "@/constants/theme";
@@ -22,7 +23,6 @@ import {
 import Avatar from "../../components/Avatar";
 
 const home = () => {
-
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(0);
@@ -145,7 +145,7 @@ const home = () => {
 
       if (response.data.success) {
         setNotificationCount(0);
-        router.push("notifications")
+        router.push("notifications");
       } else {
         console.warn("Failed to mark notifications as read");
       }
@@ -168,9 +168,17 @@ const home = () => {
         <View style={styles.header}>
           <Text style={styles.title}>AlumniNest</Text>
           <View style={styles.icons}>
+            <Pressable onPress={() => router.push("messages")}>
+              <Feather
+                name={"message-circle"} // or any appropriate icon name like "message"
+                size={hp(3.2)}
+                strokeWidth={2}
+                color={theme.colors.text}
+              />
+            </Pressable>
             <Pressable onPress={() => router.push("network")}>
-              <Icon
-                name={"user"}
+              <Feather
+                name={"globe"}
                 size={hp(3.2)}
                 strokeWidth={2}
                 color={theme.colors.text}
@@ -277,7 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 18,
+    gap: 10,
   },
   noPosts: {
     fontSize: hp(2),
