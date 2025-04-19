@@ -7,6 +7,7 @@ const NotificationSchema = new Schema({
     receiverModel: { type: String, enum: ['Student', 'Alumni'], required: true },
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
+    redirect_id: { type: String },
     type: {
         type: String,
         enum: [

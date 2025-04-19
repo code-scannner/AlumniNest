@@ -1,4 +1,5 @@
 import Comment from "../models/Comment.js";
+import Post from "../models/Post.js";
 
 // fetch all comments of post
 // router.get("/comment", getAllComments);
@@ -34,16 +35,34 @@ export async function addNewComment(req, res) {
             return res.status(400).json({ message: "Post ID and content are required." });
         }
 
+        const post = await Post.findById({ post_id });
+        if (!post) {
+            return res.status(400).json({ message: "Post not found." });
+        }
+
         const newComment = new Comment({
             post_id,
             user_id,
-            user_type : role,
+            user_type: role,
             content
         });
 
         await newComment.save();
 
         await newComment.populate("user_id", "full_name profile_pic")
+
+        // Avoid sending notification to the post owner if they're commenting on their own post
+        if (user_id.toString() !== post.user_id.toString()) {
+            await Notification.create({
+                receiver_id: post.poster_id,
+                receiverModel: post.poster_model,
+                sender_id: user_id,
+                senderModel: role,
+                type: "post_commented",
+                message: `commented on your post.`,
+                redirect_id: post_id,
+            });
+        }
 
         res.status(201).json({ success: true, message: "Comment added successfully.", comment: newComment });
     } catch (error) {
@@ -76,9 +95,9 @@ export async function deleteComment(req, res) {
 
         await comment.deleteOne();
 
-        res.status(200).json({success : true, message: "Comment deleted successfully." });
+        res.status(200).json({ success: true, message: "Comment deleted successfully." });
     } catch (error) {
         console.log(error);
-        res.status(500).json({success : false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 }

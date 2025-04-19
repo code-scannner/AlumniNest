@@ -49,6 +49,7 @@ export async function likePost(req, res) {
                 receiver_id: post.poster_id,
                 receiverModel: post.poster_model,
                 content: `liked your post`,
+                redirect_id: post_id,
                 type: 'post_liked',
             });
         }

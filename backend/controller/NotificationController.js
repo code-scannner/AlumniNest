@@ -87,6 +87,10 @@ export const setAllNotificationsRead = async (req, res) => {
             _id: { $nin: top50Ids }
         });
 
+        // to delete all
+        // await Notification.deleteMany({});
+
+
         res.status(200).json({ success: true, message: "All notifications marked as read and older ones deleted" });
     } catch (error) {
         console.error("Error updating notifications:", error);
