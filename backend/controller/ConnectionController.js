@@ -281,7 +281,7 @@ export async function acceptRequest(req, res) {
                 sender_id: from_user,
                 senderModel: from_model,
                 type: "connection_accepted",
-                message: "accepted your request",
+                content: "accepted your request",
             });
 
             return res.status(200).json({ success: true, message: "Connection request accepted" });
