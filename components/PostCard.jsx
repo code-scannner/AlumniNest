@@ -60,12 +60,11 @@ export default function PostCard({
   const [likeCount, setLikeCount] = useState(item?.total_likes);
   const [loading, setLoading] = useState(false);
 
-
   const checkIfLiked = async () => {
     try {
-      console.log("Checking if liked status....")
+      console.log("Checking if liked status....");
       const res = await axios.get(
-        "http://"+Constants.expoConfig.extra.baseurl+"/api/post/isliked",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/post/isliked",
         {
           params: { user_id: user?._id, post_id: item?._id },
         }
@@ -81,10 +80,10 @@ export default function PostCard({
   };
 
   useEffect(() => {
-    if(!item) return;
+    if (!item) return;
     if (!user) return;
     checkIfLiked();
-  }, [item,user]);
+  }, [item, user]);
 
   const onLike = async () => {
     try {
@@ -92,7 +91,7 @@ export default function PostCard({
 
       if (isLiked) {
         const res = await axios.put(
-          "http://"+Constants.expoConfig.extra.baseurl+"/api/post/unlike",
+          "http://" + Constants.expoConfig.extra.baseurl + "/api/post/unlike",
           { post_id: item?._id },
           { headers: { token } }
         );
@@ -103,7 +102,7 @@ export default function PostCard({
         }
       } else {
         const res = await axios.post(
-          "http://"+Constants.expoConfig.extra.baseurl+"/api/post/like",
+          "http://" + Constants.expoConfig.extra.baseurl + "/api/post/like",
           { post_id: item?._id },
           { headers: { token } }
         );
@@ -125,24 +124,10 @@ export default function PostCard({
       pathname: "/postDetails",
       params: {
         post_id: item?._id,
-        user_id: item?.poster_id
+        user_id: item?.poster_id,
       },
     });
   };
-  //   //   const handlePostDelete = async () => {
-  //   //     Alert.alert("Confirm", "Are you sure want to do this!", [
-  //   //       {
-  //   //         text: "Cancel",
-  //   //         onPress: () => console.log("Cancel Pressed"),
-  //   //         style: "cancel"
-  //   //       },
-  //   //       {
-  //   //         text: "delete",
-  //   //         onPress: async () => await onDelete(item),
-  //   //         style: "destructive"
-  //   //       }
-  //   //     ]);
-  // };
   return (
     <View style={[styles.container, hasShadow && shadowStyles]}>
       <View style={styles.header}>
@@ -186,9 +171,7 @@ export default function PostCard({
                 <Icon name={"edit"} size={hp(2.5)} color={theme.colors.text} />
               </TouchableOpacity>
 
-              <TouchableOpacity
-              onPress={onDelete}
-              >
+              <TouchableOpacity onPress={onDelete}>
                 <Icon
                   name={"delete"}
                   size={hp(2.5)}
@@ -243,7 +226,9 @@ export default function PostCard({
             <TouchableOpacity onPress={openDetails}>
               <Icon name={"comment"} size={24} color={theme.colors.text} />
             </TouchableOpacity>
-            <Text style={styles.count}>{commentCount?commentCount:item?.total_comments}</Text>
+            <Text style={styles.count}>
+              {commentCount ? commentCount : item?.total_comments}
+            </Text>
           </View>
 
           {/* <View style={styles.footerButton}>

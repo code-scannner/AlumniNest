@@ -86,7 +86,7 @@ export default function index() {
   };
 
   const onSubmit = async () => {
-    if (!bodyRef.current && !file) {
+    if (!bodyRef.current || !file) {
       Alert.alert("Post", "Please choose an image or add post body");
       return;
     }
@@ -95,7 +95,7 @@ export default function index() {
     let formdata = new FormData();
     formdata.append("file", {
       uri: file.uri,
-      type: file.mimeType || "image/jpeg", // Provide a default type
+      type: file.mimeType || "image/jpeg", 
       name: file.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
     });
     formdata.append("body", bodyRef.current);

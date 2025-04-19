@@ -58,7 +58,7 @@ export default function ConnectionsScreen() {
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
         <View style={{ paddingHorizontal: wp(4) }}>
-          <Header title={"Connections"} showBackButton mb={10} />
+          <Header title={"Chat"} showBackButton mb={10} />
         </View>
 
         <FlatList
@@ -73,7 +73,6 @@ export default function ConnectionsScreen() {
                   prev.filter((conn) => conn._id !== item._id)
                 );
               }}
-              showMessageButton={true}
               ShowButton={false}
             />
           )}

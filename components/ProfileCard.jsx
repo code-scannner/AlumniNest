@@ -19,6 +19,7 @@ export default function ProfileCard({
   user,
   status = "accepted",
   onPress,
+  showMessageButton = false,
   ShowRequestButton = false,
   onAccept = () => {},
   onReject = () => {},
@@ -58,7 +59,7 @@ export default function ProfileCard({
   const onConnect = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
-  
+
       if (localStatus === "not_connected") {
         setLocalStatus("pending");
         const response = await axios.post(
@@ -67,7 +68,6 @@ export default function ProfileCard({
           { headers: { token } }
         );
         console.log("Connect response:", response.data);
-
       } else if (localStatus === "accepted") {
         Alert.alert(
           "Remove Connection",
@@ -94,13 +94,12 @@ export default function ProfileCard({
         );
         return; // prevent onPress call here
       }
-  
+
       if (onPress && localStatus !== "accepted") onPress();
     } catch (error) {
       console.error("Error handling connection:", error.message);
     }
   };
-  
 
   return (
     <View style={styles.card}>
@@ -142,16 +141,28 @@ export default function ProfileCard({
         <Text style={styles.username}>@{user.username}</Text>
       </View>
       {!ShowRequestButton && (
-        <TouchableOpacity
-          style={[styles.button, getButtonStyle()]}
-          onPress={onConnect}
-        >
-          <Feather
-            name={getButtonIcon().name}
-            size={hp(2)}
-            color={getButtonIcon().color}
-          />
-        </TouchableOpacity>
+        <View style={styles.iconButtons}>
+          {showMessageButton && (
+            <View style={styles.iconButtons}>
+              <TouchableOpacity
+                onPress={() => onAccept(user._id)}
+                style={styles.msgButton}
+              >
+                <Feather name="message-square" size={hp(2.2)} color="grey" />
+              </TouchableOpacity>
+            </View>
+          )}
+          <TouchableOpacity
+            style={[styles.button, getButtonStyle()]}
+            onPress={onConnect}
+          >
+            <Feather
+              name={getButtonIcon().name}
+              size={hp(2)}
+              color={getButtonIcon().color}
+            />
+          </TouchableOpacity>
+        </View>
       )}
       {ShowRequestButton && (
         <View style={styles.iconButtons}>
@@ -240,6 +251,12 @@ const styles = StyleSheet.create({
     padding: wp(1),
     borderWidth: 1,
     borderColor: "hsl(120, 46.60%, 45.50%)",
+    borderRadius: theme.radius.sm,
+  },
+  msgButton: {
+    padding: wp(2),
+    borderWidth: 1,
+    borderColor: "hsl(0, 2.30%, 65.50%)",
     borderRadius: theme.radius.sm,
   },
 });
