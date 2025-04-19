@@ -48,6 +48,7 @@ export async function getPosts(req, res) {
 
     res.status(200).json({ posts: postsWithLikes, hasMore });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 }
@@ -60,9 +61,10 @@ export async function createPost(req, res) {
     const content = req.body.body;
     const localPath = req.file?.path;
 
-    const link = await upload(localPath);
-
-    console.log("uploaded file link ", link);
+    let link = null;
+    if (localPath) {
+      link = await upload(localPath);
+    }
 
     if (!content) {
       return res.status(400).json({ message: "Content is required" });
@@ -71,11 +73,39 @@ export async function createPost(req, res) {
     const post = new Post({
       poster_id: req.user.id,
       poster_model: req.user.role,
-      image: link ? link : null,
+      image: link,
       content,
     });
 
     await post.save();
+
+    const connections = await Connection.find({
+      $or: [
+        { from_user: req.user.id, from_model: req.user.role, status: 'accepted' },
+        { to_user: req.user.id, to_model: req.user.role, status: 'accepted' }
+      ]
+    });
+
+    // Extract the connected user IDs
+    const connectedUserIds = connections.map(conn => ({
+      id: conn.from_user.toString() === req.user.id ? conn.to_user : conn.from_user,
+      model: conn.from_user.toString() === req.user.id ? conn.to_model : conn.from_model,
+    }));
+
+    // Create notifications
+    const notifications = connectedUserIds.map(user => ({
+      receiver_id: user.id,
+      receiverModel: user.model,
+      sender_id: req.user.id,
+      senderModel: req.user.role,
+      type: "post_created",
+      content: "posted something",
+      redirect_id: post._id
+    }));
+
+
+    // Save notifications
+    await Notification.insertMany(notifications);
 
     res.status(201).json({
       message: "Post created successfully",
