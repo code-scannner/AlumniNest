@@ -3,7 +3,7 @@ import { Schema, model } from 'mongoose';
 const MessageSchema = new Schema(
     {
         sender_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "senderModel",
             required: true
         }, // Sender of the message

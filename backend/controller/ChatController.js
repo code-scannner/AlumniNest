@@ -43,7 +43,7 @@ export const createOrGetChat = async (req, res) => {
 
 export const getAllChatsForUser = async (req, res) => {
     try {
-        const { id : userId, role } = req.user;
+        const { id: userId, role } = req.user;
 
         const chats = await Chat.find({
             $or: [
@@ -68,9 +68,9 @@ export const getAllChatsForUser = async (req, res) => {
             };
         });
 
-        res.status(200).json({success : true, chats: otherUsers });
+        res.status(200).json({ success: true, chats: otherUsers });
     } catch (error) {
         console.error("❌ Error in getAllChatsForUser:", error.message);
-        res.status(500).json({success : false, message: "Internal server error" });
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
