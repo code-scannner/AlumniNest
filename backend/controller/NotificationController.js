@@ -27,7 +27,7 @@ export const getNotifications = async (req, res) => {
             return {
                 full_name: item.sender_id?.full_name,
                 profile_pic: item.sender_id?.profile_pic,
-                user_id: item.sender_id,
+                user_id: item.sender_id?._id,
                 _id: item._id,
                 content: item.content,
                 type: item.type,
