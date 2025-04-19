@@ -52,23 +52,6 @@ export default function index() {
       isLoading(false);
     }
   };
-  // Function to fetch posts from the server
-  // const getPosts = async () => {
-
-  //   console.log({ userId: user?.id });
-
-  //   let res = await fetchPosts(limit, user?.id);
-
-  //   if (res.success) {
-  //     if (res.data.length < limit) {
-  //       setHasMore(false); // No more posts available
-  //     }
-
-  //     setPosts(res.data); // Update posts
-  //   }
-
-  //   console.log({ res: res.data[0] });
-  // };
   const getPosts = async () => {
     if (!hasMore) return;
     setLimit((prev) => prev + 20); // Increase limit for next fetch

@@ -57,6 +57,7 @@ export default function ConnectionsScreen() {
         { headers: { token } }
       );
       // Remove user from request state
+      console.log(response.data)
       if (response.data.success) {
         setRequests((prev) => prev.filter((user) => user._id !== id));
       }

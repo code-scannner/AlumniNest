@@ -1,5 +1,6 @@
 import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
+import Notification from "../models/Notification.js"
 
 // fetch all comments of post
 // router.get("/comment", getAllComments);
@@ -52,14 +53,14 @@ export async function addNewComment(req, res) {
         await newComment.populate("user_id", "full_name profile_pic")
 
         // Avoid sending notification to the post owner if they're commenting on their own post
-        if (user_id.toString() !== post.user_id.toString()) {
+        if (user_id.toString() !== post.poster_id.toString()) {
             await Notification.create({
                 receiver_id: post.poster_id,
                 receiverModel: post.poster_model,
                 sender_id: user_id,
                 senderModel: role,
                 type: "post_commented",
-                message: `commented on your post.`,
+                content: `commented on your post.`,
                 redirect_id: post._id,
             });
         }

@@ -24,7 +24,7 @@ import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function index() {
-  const {user_id}=useLocalSearchParams()
+  const {user_id} = useLocalSearchParams()
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(0);
@@ -46,23 +46,6 @@ export default function index() {
       isLoading(false);
     }
   };
-  // Function to fetch posts from the server
-  // const getPosts = async () => {
-
-  //   console.log({ userId: user?.id });
-
-  //   let res = await fetchPosts(limit, user?.id);
-
-  //   if (res.success) {
-  //     if (res.data.length < limit) {
-  //       setHasMore(false); // No more posts available
-  //     }
-
-  //     setPosts(res.data); // Update posts
-  //   }
-
-  //   console.log({ res: res.data[0] });
-  // };
   const getPosts = async () => {
     if (!hasMore) return;
     setLimit((prev) => prev + 20); // Increase limit for next fetch
@@ -120,7 +103,7 @@ export default function index() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listStyle}
         keyExtractor={(item) => item._id.toString()}
-        renderItem={({ item }) => <PostCard item={item} user={user} />}
+        renderItem={({ item }) => <PostCard item={item} postuser={user} />}
         ListFooterComponent={
           <>
             {hasMore ? (
