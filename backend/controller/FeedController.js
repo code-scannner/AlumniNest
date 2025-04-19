@@ -31,7 +31,7 @@ export async function getfeed(req, res) {
         // Fetch one extra post to check if more exist
         const posts = await Post.find({ poster_id: { $in: connectedUserIds } })
             .populate('poster_id', 'full_name profile_pic')
-            .sort({ createdAt: -1 })
+            .sort({ timestamp: -1 })
             .skip(skip)
             .limit(limit + 1)
             .exec();
