@@ -2,7 +2,7 @@ import Chat from '../models/Chat.js';
 
 export const createOrGetChat = async (req, res) => {
     try {
-        const { from_user, from_model, to_user, to_model } = req.body;
+        const { from_user, from_model, to_user, to_model } = req.user;
 
         const existingChat = await Chat.findOne({
             $or: [
@@ -43,12 +43,12 @@ export const createOrGetChat = async (req, res) => {
 
 export const getAllChatsForUser = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const { userId, role } = req.user;
 
         const chats = await Chat.find({
             $or: [
-                { from_user: userId },
-                { to_user: userId }
+                { from_user: userId, from_model: role },
+                { to_user: userId, to_model: role }
             ]
         })
             .sort({ timestamp: -1 })

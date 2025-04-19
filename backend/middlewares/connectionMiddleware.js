@@ -26,9 +26,9 @@ const connectionMiddleware = async (req, res, next) => {
 
         // Prevent self connection
         if (to_user.toString() === from_user.toString() && to_model === from_model) {
-            return res.status(400).json({ success: false, message: "You cannot connect with yourself." });
+            return res.status(400).json({ success: false, message: "Same Users Trying to Engage." });
         }
-        
+
         next();
     } catch (error) {
         console.log(error);

@@ -7,7 +7,11 @@ const MessageSchema = new Schema(
             ref: "senderModel",
             required: true
         }, // Sender of the message
-        senderModel: { type: String, required: true, enum: ['Alumni', 'Student'] },
+        senderModel: {
+            type: String,
+            enum: ['Alumni', 'Student'],
+            required: true
+        },
         content: {
             type: String,
             required: true
@@ -26,4 +30,4 @@ const MessageSchema = new Schema(
     }
 );
 
-export default model("Chat", MessageSchema);
+export default model("Message", MessageSchema);
