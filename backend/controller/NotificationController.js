@@ -32,7 +32,8 @@ export const getNotifications = async (req, res) => {
                 content: item.content,
                 type: item.type,
                 read: item.read,
-                timestamp: item.timestamp
+                timestamp: item.timestamp,
+                redirect_id: item.redirect_id
             }
         })
 

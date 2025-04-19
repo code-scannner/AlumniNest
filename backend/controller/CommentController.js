@@ -60,7 +60,7 @@ export async function addNewComment(req, res) {
                 senderModel: role,
                 type: "post_commented",
                 message: `commented on your post.`,
-                redirect_id: post_id,
+                redirect_id: post._id,
             });
         }
 
