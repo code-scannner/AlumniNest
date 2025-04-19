@@ -1,4 +1,4 @@
-import Like from '../models/Like.js'; 
+import Like from '../models/Like.js';
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js'
 import Notification from '../models/Notification.js';
@@ -25,28 +25,30 @@ export async function isLiked(req, res) {
 export async function likePost(req, res) {
     try {
         const { post_id } = req.body;
-        const { id } = req.user;
+        const { id, role } = req.user;
 
-        const post = await Post.findById( post_id );
+        const post = await Post.findById(post_id);
 
         if (!post) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
 
         // Check if already liked
-        const existingLike = await Like.findOne({ post_id, user_id:id });
+        const existingLike = await Like.findOne({ post_id, user_id: id });
         if (existingLike) {
             return res.status(400).json({ success: true, message: 'Post already liked.' });
         }
 
-        const like = new Like({ post_id, user_id:id });
+        const like = new Like({ post_id, user_id: id });
         await like.save();
 
         if (post.poster_id !== id) {
             await Notification.create({
+                sender_id: id,
+                senderModel: role,
                 receiver_id: post.poster_id,
                 receiverModel: post.poster_model,
-                content: `Your post was liked by ${req.user.profile.full_name}`,
+                content: `liked your post`,
                 type: 'post_liked',
             });
         }

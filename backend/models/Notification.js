@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose';
 
 const NotificationSchema = new Schema({
+    sender_id: { type: Schema.Types.ObjectId, refPath: 'senderModel', required: true },
+    senderModel: { type: String, enum: ['Student', 'Alumni'], required: true },
     receiver_id: { type: Schema.Types.ObjectId, refPath: 'receiverModel', required: true },
     receiverModel: { type: String, enum: ['Student', 'Alumni'], required: true },
     content: { type: String, required: true },

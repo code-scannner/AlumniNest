@@ -17,7 +17,7 @@ export const getNotifications = async (req, res) => {
             .sort({ timestamp: -1 })
             .skip(skip)
             .limit(limit + 1)
-            .populate("receiver_id", "full_name profile_pic")
+            .populate("sender_id", "full_name profile_pic")
             .exec();
 
         const hasMore = notifications.length > limit;
@@ -25,8 +25,8 @@ export const getNotifications = async (req, res) => {
 
         const cleaned_notifications = notifications.map(item => {
             return {
-                full_name: item.receiver_id.full_name,
-                profile_pic: item.profile_pic,
+                full_name: item.sender_id?.full_name,
+                profile_pic: item.sender_id?.profile_pic,
                 _id: item._id,
                 content: item.content,
                 type: item.type,
@@ -65,14 +65,31 @@ export const setAllNotificationsRead = async (req, res) => {
     try {
         const { id, role } = req.user;
 
+        // Mark all unread notifications as read
         await Notification.updateMany(
             { receiver_id: id, receiverModel: role, read: false },
             { $set: { read: true } }
         );
 
-        res.status(200).json({ success: true, message: "All notifications marked as read" });
+        // Find top 50 most recent notifications
+        const top50 = await Notification.find({ receiver_id: id, receiverModel: role })
+            .sort({ createdAt: -1 }) // Assuming createdAt exists
+            .limit(50)
+            .select('_id');
+
+        const top50Ids = top50.map(n => n._id);
+
+        // Delete all other read notifications not in the top 50
+        await Notification.deleteMany({
+            receiver_id: id,
+            receiverModel: role,
+            read: true,
+            _id: { $nin: top50Ids }
+        });
+
+        res.status(200).json({ success: true, message: "All notifications marked as read and older ones deleted" });
     } catch (error) {
         console.error("Error updating notifications:", error);
-        res.status(500).json({ success: true, message: "Error updating notifications" });
+        res.status(500).json({ success: false, message: "Error updating notifications" });
     }
 };
