@@ -3,6 +3,36 @@ import Chat from '../models/Chat.js';
 import Message from '../models/Message.js';
 import Student from '../models/Student.js';
 
+export const postMessage = async (req, res) => {
+    try {
+        // Save message to DB
+        const newMessage = await Message.create({
+            chat_id: "68041f926cf20bc3c487db4e",
+            content: "hello bhai",
+            sender_id: "67ff4f43a09c68c01f548089",
+            senderModel: "Alumni"
+        });
+
+        // Populate sender details
+        const populatedMessage = await Message.findById(newMessage._id).populate("sender_id");
+
+        // Format message as per your frontend needs
+        const msg = {
+            _id: populatedMessage._id,
+            content: populatedMessage.content,
+            status: populatedMessage.status,
+            timestamp: populatedMessage.timestamp,
+            sender_id: populatedMessage.sender_id?._id,
+            full_name: populatedMessage.sender_id?.full_name,
+            profile_pic: populatedMessage.sender_id?.profile_pic
+        };
+
+        res.status(201).json({ success: true, message: msg });
+    } catch (error) {
+        console.error("❌ Error in postMessage:", error.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
 export const getMessagesByChat = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -42,12 +72,13 @@ export const getMessagesByChat = async (req, res) => {
 
         const transformedMessages = messages.map(msg => ({
             _id: msg._id,
+            chat_id: msg.chat_id,
+            sender_id: msg.sender_id?._id,
+            full_name: msg.sender_id?.full_name,
+            profile_pic: msg.sender_id?.profile_pic,
             content: msg.content,
             status: msg.status,
             timestamp: msg.timestamp,
-            sender_id: msg.sender_id?._id,
-            full_name: msg.sender_id?.full_name,
-            profile_pic: msg.sender_id?.profile_pic
         }));
 
         return res.status(200).json({ success: true, chatPerson, messages: transformedMessages });

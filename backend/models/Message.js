@@ -2,11 +2,16 @@ import { Schema, model } from 'mongoose';
 
 const MessageSchema = new Schema(
     {
+        chat_id: {
+            type: Schema.Types.ObjectId,
+            ref: "Chat",
+            required: true
+        },
         sender_id: {
             type: Schema.Types.ObjectId,
-            ref: "senderModel",
+            refPath: "senderModel",
             required: true
-        }, // Sender of the message
+        }, 
         senderModel: {
             type: String,
             enum: ['Alumni', 'Student'],
