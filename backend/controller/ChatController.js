@@ -43,7 +43,7 @@ export const createOrGetChat = async (req, res) => {
 
 export const getAllChatsForUser = async (req, res) => {
     try {
-        const { userId, role } = req.user;
+        const { id : userId, role } = req.user;
 
         const chats = await Chat.find({
             $or: [
