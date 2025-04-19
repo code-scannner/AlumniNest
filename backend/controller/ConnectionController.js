@@ -54,6 +54,25 @@ export async function getRequests(req, res) {
     }
 }
 
+// @route GET /api/connect/requests/count
+export async function getRequestsCount(req, res) {
+    try {
+        const userId = req.user.id;
+        const userModel = req.user.role;
+
+        const count = await Connection.countDocuments({
+            to_user: userId,
+            to_model: userModel,
+            status: "pending"
+        });
+
+        res.status(200).json({ success: true, count });
+    } catch (error) {
+        console.error("Error in getRequestsCount:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch request count." });
+    }
+}
+
 // @route GET /api/connect/myconnections
 export async function getConnected(req, res) {
     try {
@@ -107,68 +126,68 @@ export async function getConnected(req, res) {
 // @access  Private 
 export async function getConnections(req, res) {
     try {
-      const userId = req.user.id;
-      const userModel = req.user.role;
-      const { search } = req.query;
-  
-      const query = search
-        ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
-        : { _id: { $ne: userId } };
-  
-      // Get all alumni and students
-      const [alumniList, studentsList] = await Promise.all([
-        Alumni.find(query),
-        Student.find(query)
-      ]);
-  
-      const alumniIds = alumniList.map(a => a._id);
-      const studentIds = studentsList.map(s => s._id);
-      const allUserIds = [...alumniIds, ...studentIds];
-  
-      // Fetch relevant connections
-      const connections = await Connection.find({
-        $or: [
-          { from_user: userId, to_user: { $in: allUserIds } },
-          { to_user: userId, from_user: { $in: allUserIds } }
-        ]
-      });
-  
-      const getConnectionStatus = (targetUserId) => {
-        const conn = connections.find(conn =>
-          (conn.from_user.toString() === userId && conn.to_user.toString() === targetUserId.toString()) ||
-          (conn.to_user.toString() === userId && conn.from_user.toString() === targetUserId.toString())
-        );
-  
-        if (!conn) return 'not_connected';
-        if (conn.status === 'accepted') return 'accepted';
-  
-        if (conn.status === 'pending') {
-          // If current user sent the request, mark as 'pending'; else exclude
-          return conn.from_user.toString() === userId ? 'pending' : 'received';
-        }
-  
-        return 'not_connected';
-      };
-  
-      const filterAndFormat = (list, userType) =>
-        list
-          .map(user => {
-            const status = getConnectionStatus(user._id);
-            return { ...user.toObject(), userType, status };
-          })
-          .filter(user => user.status !== 'received'); // Exclude 'received' ones
-  
-      const alumniWithStatus = filterAndFormat(alumniList, 'alumni');
-      const studentsWithStatus = filterAndFormat(studentsList, 'student');
-  
-      const allConnections = shuffleArray([...alumniWithStatus, ...studentsWithStatus]);
-  
-      res.status(200).json({ connections: allConnections });
+        const userId = req.user.id;
+        const userModel = req.user.role;
+        const { search } = req.query;
+
+        const query = search
+            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
+            : { _id: { $ne: userId } };
+
+        // Get all alumni and students
+        const [alumniList, studentsList] = await Promise.all([
+            Alumni.find(query),
+            Student.find(query)
+        ]);
+
+        const alumniIds = alumniList.map(a => a._id);
+        const studentIds = studentsList.map(s => s._id);
+        const allUserIds = [...alumniIds, ...studentIds];
+
+        // Fetch relevant connections
+        const connections = await Connection.find({
+            $or: [
+                { from_user: userId, to_user: { $in: allUserIds } },
+                { to_user: userId, from_user: { $in: allUserIds } }
+            ]
+        });
+
+        const getConnectionStatus = (targetUserId) => {
+            const conn = connections.find(conn =>
+                (conn.from_user.toString() === userId && conn.to_user.toString() === targetUserId.toString()) ||
+                (conn.to_user.toString() === userId && conn.from_user.toString() === targetUserId.toString())
+            );
+
+            if (!conn) return 'not_connected';
+            if (conn.status === 'accepted') return 'accepted';
+
+            if (conn.status === 'pending') {
+                // If current user sent the request, mark as 'pending'; else exclude
+                return conn.from_user.toString() === userId ? 'pending' : 'received';
+            }
+
+            return 'not_connected';
+        };
+
+        const filterAndFormat = (list, userType) =>
+            list
+                .map(user => {
+                    const status = getConnectionStatus(user._id);
+                    return { ...user.toObject(), userType, status };
+                })
+                .filter(user => user.status !== 'received'); // Exclude 'received' ones
+
+        const alumniWithStatus = filterAndFormat(alumniList, 'alumni');
+        const studentsWithStatus = filterAndFormat(studentsList, 'student');
+
+        const allConnections = shuffleArray([...alumniWithStatus, ...studentsWithStatus]);
+
+        res.status(200).json({ connections: allConnections });
     } catch (error) {
-      console.error("Error in getConnections:", error);
-      res.status(500).json({ message: error.message });
+        console.error("Error in getConnections:", error);
+        res.status(500).json({ message: error.message });
     }
-  }
+}
 
 
 // @desc    Send a connection request
@@ -225,6 +244,7 @@ export async function connectRequest(req, res) {
 
         res.status(201).json({ success: true, message: "Connection request sent." });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -233,54 +253,45 @@ export async function connectRequest(req, res) {
 // @route   PUT /api/connect/accept/:to_user
 export async function acceptRequest(req, res) {
     try {
-
         const { from_user, from_model, to_user, to_model } = req.user;
-
         const { accept } = req.body;
 
         // Find the connection request
-        const connection = await Connection.findOne({ to_user: from_user, from_user: to_user });
+        const connection = await Connection.findOne({
+            to_user: from_user,
+            from_user: to_user
+        });
 
         if (!connection) {
             return res.status(404).json({ success: false, message: "Connection request not found" });
         }
 
-        if (connection.status != 'pending') {
-            return res.status(404).json({ success: false, message: `Connection is already ${connection.status}` });
+        if (connection.status !== 'pending') {
+            return res.status(400).json({ success: false, message: `Connection is already ${connection.status}` });
         }
 
         if (accept) {
-            if (connection.status == 'accept') {
-                return res.status(404).json({ success: false, message: 'Connection already accepted.' })
-            }
-
             connection.status = "accepted";
             await connection.save();
 
-            // Notify that their request was accepted
-            const notification = new Notification({
+            // Create a notification for the sender that their request was accepted
+            await Notification.create({
                 receiver_id: to_user,
                 receiverModel: to_model,
-                content: `Your connection request was accepted by ${req.user.profile.username}`,
-                type: "request-accepted"
+                sender_id: from_user,
+                senderModel: from_model,
+                type: "connection_accepted",
+                message: "accepted your request",
             });
-            await notification.save();
 
             return res.status(200).json({ success: true, message: "Connection request accepted" });
         } else {
-            // Delete connection request if rejected
             await connection.deleteOne();
-            const notification = new Notification({
-                receiver_id: to_user,
-                receiverModel: to_model,
-                content: `Your connection request was rejected by ${req.user.profile.username}`,
-                type: "request-rejected"
-            });
-            await notification.save();
 
             return res.status(200).json({ success: true, message: "Connection request rejected" });
         }
     } catch (error) {
+        console.error("Error in acceptRequest:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 }

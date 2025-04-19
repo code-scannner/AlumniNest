@@ -13,7 +13,6 @@ const NotificationSchema = new Schema({
         enum: [
             "connection_request",
             "connection_accepted",
-            "connection_rejected",
             "post_created",
             "post_liked",
             "post_commented"
