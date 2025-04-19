@@ -5,9 +5,6 @@ import { hp } from "@/helpers/common";
 import moment from "moment";
 import { router } from "expo-router";
 
-// Mock avatar if no real image is available
-const defaultAvatar = require("@/assets/images/alumni.jpg");
-
 const NotificationItem = ({ item }) => {
   const handleClick = () => {
     const type = item.type;
