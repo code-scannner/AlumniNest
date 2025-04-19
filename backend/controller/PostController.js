@@ -77,31 +77,6 @@ export async function createPost(req, res) {
 
     await post.save();
 
-    // const connections = await Connection.find({
-    //   $or: [
-    //     { from_user: req.user._id, from_model: "Alumni", status: "accepted" },
-    //     { to_user: req.user._id, to_model: "Alumni", status: "accepted" },
-    //   ]
-    // });
-
-    // if (connections.length > 0) {
-    //   const notifications = connections.map((conn) => {
-    //     const student_id =
-    //       conn.from_model === "Student" ? conn.from_user : conn.to_model === "Student" ? conn.to_user : null;
-
-    //     if (!student_id) return null;
-
-    //     return {
-    //       receiver_id: student_id,
-    //       receiverModel: "Student",
-    //       content: "A new post has been shared by your connection.",
-    //       type: "post_shared", // Consider renaming from "post-message" for clarity
-    //     };
-    //   }).filter(Boolean); // remove nulls
-
-    //   await Notification.insertMany(notifications);
-    // }
-
     res.status(201).json({
       message: "Post created successfully",
       post,

@@ -233,13 +233,15 @@ export async function connectRequest(req, res) {
         console.log(connection);
         await connection.save();
 
-        // Notify the receiver
-        const notification = new Notification({
+        const notification = await Notification.create({
             receiver_id: to_user,
             receiverModel: to_model,
-            content: `You have a new connection request from ${req.user.profile.username}`,
-            type: "connection-request"
+            sender_id: from_user,
+            senderModel: from_model,
+            type: "connection_request",
+            content: "sent you connection request",
         });
+
         await notification.save();
 
         res.status(201).json({ success: true, message: "Connection request sent." });
