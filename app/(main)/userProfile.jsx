@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Header from "@/components/Header";
 import { hp, wp } from "@/helpers/common";
@@ -24,7 +24,7 @@ import Constants from "expo-constants";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function index() {
-  const {user_id} = useLocalSearchParams()
+  const { user_id } = useLocalSearchParams();
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [limit, setLimit] = useState(0);
@@ -36,7 +36,10 @@ export default function index() {
     isLoading(true);
     try {
       const response = await axios.get(
-        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile/getuser/"+user_id,
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          "/api/profile/getuser/" +
+          user_id
       );
 
       setUser(response.data.info);
@@ -88,7 +91,7 @@ export default function index() {
       }
     }, [])
   );
-  
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -112,7 +115,10 @@ export default function index() {
               </View>
             ) : (
               <View style={{ marginVertical: 30 }}>
-                <Text style={styles.noPosts}>No more posts</Text>
+                <Text style={styles.noPosts}>
+                  {" "}
+                  {posts.length > 0 ? "No more posts" : "No posts to show"}
+                </Text>
               </View>
             )}
           </>
@@ -195,7 +201,7 @@ const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
     "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin";
- 
+
   return (
     <View
       style={{ flex: 1, backgroundColor: "white", paddingHorizontal: wp(4) }}

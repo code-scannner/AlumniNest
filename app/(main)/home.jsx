@@ -11,9 +11,7 @@ import Loading from "@/components/Loading";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import Constants from "expo-constants";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import {
-  Button,
   FlatList,
   Pressable,
   StyleSheet,
@@ -176,7 +174,7 @@ const home = () => {
           <View style={styles.icons}>
             <Pressable onPress={() => router.push("messages")}>
               <Feather
-                name={"message-circle"} // or any appropriate icon name like "message"
+                name={"message-circle"} 
                 size={hp(3)}
                 strokeWidth={2}
                 color={theme.colors.text}

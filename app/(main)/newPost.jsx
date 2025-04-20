@@ -52,8 +52,6 @@ export default function index() {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
 
-  // console.log({ file });
-
   useEffect(() => {
     fetchUser();
   }, []);

@@ -9,6 +9,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import BackButton from "../../components/BackButton";
 import { hp, wp } from "@/helpers/common";
@@ -22,6 +23,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import moment from "moment";
 import { io } from "socket.io-client";
+import { router } from "expo-router";
 import Loading from "@/components/Loading";
 
 const socket = io("http://" + Constants.expoConfig.extra.baseurl);
@@ -188,14 +190,23 @@ const ChatPage = () => {
         <View style={styles.header}>
           <BackButton />
           <Text style={styles.username}>{other?.full_name}</Text>
-          <Image
-            source={{
-              uri:
-                other?.profile_pic ||
-                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
-            }}
-            style={styles.avatarImage}
-          />
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/(main)/userProfile",
+                params: { user_id: other?._id },
+              })
+            }
+          >
+            <Image
+              source={{
+                uri:
+                  other?.profile_pic ||
+                  "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
+              }}
+              style={styles.avatarImage}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Messages */}
@@ -206,18 +217,6 @@ const ChatPage = () => {
           contentContainerStyle={{ gap: 12, paddingVertical: 10 }}
           inverted
         />
-
-        {/* {showEmojiPicker && (
-          <View style={{ height: hp(35), backgroundColor: "#fff" }}>
-            <EmojiSelector
-              onEmojiSelected={handleEmojiSelect}
-              showSearchBar={false}
-              showTabs={true}
-              columns={8}
-            />
-          </View>
-        )} */}
-
         {/* Input Bar */}
         {isTyping && <Text style={styles.typingText}>Typing...</Text>}
         <KeyboardAvoidingView
@@ -225,10 +224,6 @@ const ChatPage = () => {
           keyboardVerticalOffset={100}
         >
           <View style={styles.inputBar}>
-            {/* <Pressable onPress={() => setShowEmojiPicker(prev => !prev)}>
-                <MaterialCommunityIcons name="emoticon-outline" size={26} color={theme.colors.textLight} />
-                </Pressable> */}
-
             <TextInput
               value={newMessage}
               onChangeText={(text) => {
@@ -318,7 +313,7 @@ const styles = StyleSheet.create({
   messageText: {
     color: theme.colors.text,
     fontSize: hp(2),
-    fontWeight: "500",
+    fontWeight: "400",
     alignSelf: "flex-start",
   },
   messageFooter: {
