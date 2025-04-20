@@ -8,9 +8,9 @@ export const postMessage = async (req, res) => {
         // Save message to DB
         const newMessage = await Message.create({
             chat_id: "68041f926cf20bc3c487db4e",
-            content: "hello bhai",
-            sender_id: "67ff4f43a09c68c01f548089",
-            senderModel: "Alumni"
+            content: "bsdk jaldi kro",
+            sender_id: "67f90dc22c9797a534acd804",
+            senderModel: "Student"
         });
 
         // Populate sender details
@@ -85,5 +85,33 @@ export const getMessagesByChat = async (req, res) => {
     } catch (error) {
         console.error("❌ Error in getMessagesByChat:", error.message);
         return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const readAllMessages = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { chat_id } = req.body;
+
+        if (!chat_id) {
+            return res.status(400).json({ success: false, message: "Chat ID is required" });
+        }
+
+        const result = await Message.updateMany(
+            {
+                chat_id,
+                sender_id: { $ne: userId }, // exclude self-sent messages
+                status: { $ne: "read" } // only update unread ones
+            },
+            {
+                $set: { status: "read" }
+            }
+        );
+
+        return res.status(200).json({ success: true, message: "Messages marked as read", updatedCount: result.modifiedCount });
+
+    } catch (error) {
+        console.error("❌ Error in readAllMessages:", error.message);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
