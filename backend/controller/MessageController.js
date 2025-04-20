@@ -60,13 +60,13 @@ export const getMessagesByChat = async (req, res) => {
 
 export const readAllMessages = async (req, res) => {
     try {
-        const { id: sender_id, role: senderModel } = req.user;
+        const { id } = req.user;
+        const { chat_id } = req.params;
 
         const result = await Message.updateMany(
             {
-                sender_id,
-                senderModel,
-                status: { $ne: "read" } // only unread messages
+                chat_id,
+                sender_id: { $ne: id },
             },
             {
                 $set: { status: "read" }
