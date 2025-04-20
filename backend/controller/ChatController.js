@@ -1,4 +1,5 @@
 import Chat from '../models/Chat.js';
+import Message from '../models/Message.js';
 
 export const createOrGetChat = async (req, res) => {
     try {
@@ -56,19 +57,27 @@ export const getAllChatsForUser = async (req, res) => {
             .populate('to_user', 'full_name profile_pic');
 
         // Only include the other user in each chat
-        const otherUsers = chats.map(chat => {
+        const formattedChats = await Promise.all(chats.map(async chat => {
             const isFromUser = chat.from_user._id.toString() === userId;
             const otherUser = isFromUser ? chat.to_user : chat.from_user;
+
+            // Count unread messages in this chat where current user is not the sender
+            const unreadCount = await Message.countDocuments({
+                chat_id: chat._id,
+                sender_id: { $ne: userId },
+                status: { $ne: 'read' }
+            });
 
             return {
                 _id: chat._id,
                 user_id: otherUser._id,
                 full_name: otherUser.full_name,
                 profile_pic: otherUser.profile_pic,
+                unread_count: unreadCount
             };
-        });
+        }));
 
-        res.status(200).json({ success: true, chats: otherUsers });
+        res.status(200).json({ success: true, chats: formattedChats });
     } catch (error) {
         console.error("❌ Error in getAllChatsForUser:", error.message);
         res.status(500).json({ success: false, message: "Internal server error" });

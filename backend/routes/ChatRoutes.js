@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.put("/:to_user", authMiddleware, connectionMiddleware, createOrGetChat);
 router.get("/", authMiddleware, getAllChatsForUser);
+router.get("/readall/:to_user", authMiddleware, connectionMiddleware, readAllChats);
 router.get("/messages/:chat_id", authMiddleware, getMessagesByChat);
 router.post("/messages", postMessage);
 export default router;
