@@ -1,221 +1,336 @@
-// import React, { useState } from "react";
-// import {
-//   View,
-//   Text,
-//   FlatList,
-//   StyleSheet,
-//   TextInput,
-//   Pressable,
-//   Image,
-//   KeyboardAvoidingView,
-//   Platform,
-// } from "react-native";
-// import { hp, wp } from "@/helpers/common";
-// import { theme } from "@/constants/theme";
-// import ScreenWrapper from "@/components/ScreenWrapper";
-// import EmojiSelector from "react-native-emoji-selector";
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import BackButton from "../../components/BackButton";
+import { hp, wp } from "@/helpers/common";
+import { theme } from "@/constants/theme";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import EmojiSelector from "react-native-emoji-selector";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import Constants from "expo-constants";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import moment from "moment";
+import { io } from "socket.io-client";
 
-// const initialMessages = [
-//   { id: "1", text: "Hey there!", time: "10:20 AM", sender: true, date: "Today" },
-//   { id: "2", text: "Hi! How can I help you?", time: "10:21 AM", sender: false, date: "Today" },
-//   { id: "3", text: "I'm interested in your career journey.", time: "10:22 AM", sender: true, date: "Today" },
-//   { id: "4", text: "That's great! I'm happy to share.", time: "10:23 AM", sender: false, date: "Yesterday" },
-// ];
+const socket = io("http://" + Constants.expoConfig.extra.baseurl);
+const ChatMessage = ({ text, time, sender_id, current_user }) => (
+  <View
+    style={[
+      styles.messageContainer,
+      sender_id === current_user ? styles.messageRight : styles.messageLeft,
+    ]}
+  >
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+        gap: 6,
+        maxWidth: "80%",
+      }}
+    >
+      <Text style={styles.messageText}>{text}</Text>
+      <Text style={styles.messageTime}>{moment(time).format("MMM D")}</Text>
+    </View>
+  </View>
+);
 
-// const ChatMessage = ({ text, time, sender }) => (
-//   <View style={[styles.messageContainer, sender ? styles.messageRight : styles.messageLeft]}>
-//     <Text style={styles.messageText}>{text}</Text>
-//     <View style={styles.messageFooter}>
-//       <Text style={styles.messageTime}>{time}</Text>
-//     </View>
-//   </View>
-// );
+const ChatPage = () => {
+  const { chat_id } = useLocalSearchParams();
+  const [other, setOther] = useState();
+  const [user, setUser] = useState();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [type, setType] = useState();
+  const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-// const ChatPage = () => {
-//   const [messages, setMessages] = useState(initialMessages.reverse());
-//   const [newMessage, setNewMessage] = useState("");
-//   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const fetchUser = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
 
-//   const sendMessage = () => {
-//     if (newMessage.trim() !== "") {
-//       const newMsg = {
-//         id: (messages.length + 1).toString(),
-//         text: newMessage,
-//         time: "Just now",
-//         sender: true,
-//         date: "Today", // mock
-//       };
-//       setMessages([newMsg, ...messages]);
-//       setNewMessage("");
-//     }
-//   };
+      if (!token) throw new Error("No token found");
 
-//   const renderItem = ({ item, index }) => {
-//     const prevMsg = messages[index + 1];
-//     const showDate = !prevMsg || prevMsg.date !== item.date;
+      const response = await axios.get(
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
+        {
+          headers: { token: `${token}` },
+        }
+      );
 
-//     return (
-//       <>
-//         {showDate && (
-//           <View style={styles.dateDivider}>
-//             <Text style={styles.dateText}>{item.date}</Text>
-//           </View>
-//         )}
-//         <ChatMessage text={item.text} time={item.time} sender={item.sender} />
-//       </>
-//     );
-//   };
+      setUser(response.data.info);
+      setType(response.data.type);
+    } catch (error) {
+      console.error("Failed to fetch user:", error.message);
+    }
+  };
 
-//   const handleEmojiSelect = (emoji) => {
-//     setNewMessage((prev) => prev + emoji);
-//   };
+  useEffect(() => {
+    if (!chat_id || !user) return;
 
-//   return (
-//     <ScreenWrapper bg={"white"}>
-//       <View style={styles.container}>
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <Image
-//             source={require("../../assets/images/student.jpg")}
-//             style={styles.avatarImage}
-//           />
-//           <Text style={styles.username}>Alumni Name</Text>
-//         </View>
+    socket.emit("joinRoom", chat_id);
+    console.log(`Joined room: ${chat_id}`);
 
-//         {/* Messages */}
-//         <FlatList
-//           data={messages}
-//           keyExtractor={(item) => item.id}
-//           renderItem={renderItem}
-//           contentContainerStyle={{ gap: 12, paddingVertical: 10 }}
-//           inverted
-//         />
+    loadMessages();
+    socket.on("receiveMessage", (newMessage) => {
+      setIsTyping(false);
+      setMessages((prevMessages) => [newMessage, ...prevMessages]);
+    });
 
-//         {/* Emoji Picker */}
-//         {showEmojiPicker && (
-//             <View style={{ height: hp(35), backgroundColor: "#fff" }}>
-//                 <EmojiSelector
-//                 onEmojiSelected={handleEmojiSelect}
-//                 showSearchBar={false}
-//                 showTabs={true}
-//                 columns={8}
-//                 />
-//             </View>
-//         )}
+    socket.on("userTyped", () => {
+      setIsTyping(true);
+      console.log("User Typed");
+      setTimeout(() => setIsTyping(false), 1500);
+    });
 
+    return () => {
+      socket.off("receiveMessage");
+      socket.off("userTyped");
+      socket.emit("leaveRoom", chat_id); // Ensure user leaves room on unmount
+    };
+  }, [chat_id, user]);
 
-//         {/* Input Bar */}
-//         <KeyboardAvoidingView
-//             behavior={Platform.OS === "ios" ? "padding" : undefined}
-//             keyboardVerticalOffset={80}
-//             >
-//             <View style={styles.inputBar}>
-//                 {/* <Pressable onPress={() => setShowEmojiPicker(prev => !prev)}>
-//                 <MaterialCommunityIcons name="emoticon-outline" size={26} color={theme.colors.textLight} />
-//                 </Pressable> */}
+  // Scroll to bottom when messages update
+  // useEffect(() => {
+  //     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
 
-//                 <TextInput
-//                 value={newMessage}
-//                 onChangeText={setNewMessage}
-//                 placeholder="Type a message"
-//                 style={styles.input}
-//                 multiline
-//                 />
+  const sendMessage = () => {
+    console.log(newMessage);
+    if (!newMessage.trim() || !user) return;
+    const newMsg = {
+      chat_id,
+      sender_id: user._id,
+      senderModel: type,
+      content: newMessage,
+    };
 
-//                 <Pressable onPress={sendMessage}>
-//                 <MaterialCommunityIcons name="send" size={24} color={theme.colors.primary} />
-//                 </Pressable>
-//             </View>
-//         </KeyboardAvoidingView>
+    socket.emit("sendMessage", newMsg);
+    setNewMessage("");
+  };
+  const loadMessages = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      const response = await axios.get(
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          `/api/chat/messages/${chat_id}`,
+        {
+          headers: { token },
+        }
+      );
+      console.log(response.data.messages);
+      console.log(response.data.chatPerson);
+      setMessages(response.data.messages.reverse());
+      setOther(response.data.chatPerson);
+    } catch (error) {
+      console.error("Error fetching network:", error);
+    }
+  };
 
-//       </View>
-//     </ScreenWrapper>
-//   );
-// };
+  useEffect(() => {
+    fetchUser();
+  }, []);
+  const renderItem = ({ item, index }) => {
+    return (
+      <>
+        <ChatMessage
+          text={item.content}
+          time={item.timestamp}
+          sender_id={item.sender_id}
+          current_user={user._id}
+        />
+      </>
+    );
+  };
 
-// export default ChatPage;
+  return (
+    <ScreenWrapper bg={"white"}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <BackButton />
+          <Text style={styles.username}>{other?.full_name}</Text>
+          <Image
+            source={{
+              uri:
+                other?.profile_pic ||
+                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+            }}
+            style={styles.avatarImage}
+          />
+        </View>
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     paddingHorizontal: wp(4),
-//     paddingTop: hp(1),
-//   },
-//   header: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: wp(3),
-//     marginBottom: hp(2),
-//   },
-//   username: {
-//     fontSize: hp(2.3),
-//     fontWeight: "600",
-//     color: theme.colors.text,
-//   },
-//   avatarImage: {
-//     height: hp(4.3),
-//     width: hp(4.3),
-//     borderRadius: theme.radius.sm,
-//     borderCurve: "continuous",
-//     borderWidth: 3,
-//     borderColor: theme.colors.gray,
-//   },
-//   messageContainer: {
-//     maxWidth: "75%",
-//     padding: wp(3),
-//     borderRadius: theme.radius.xl,
-//     backgroundColor: theme.colors.grayLight,
-//   },
-//   messageLeft: {
-//     alignSelf: "flex-start",
-//     backgroundColor: "#E0E0E0",
-//   },
-//   messageRight: {
-//     alignSelf: "flex-end",
-//     backgroundColor: "#DCF8C6",
-//   },
-//   messageText: {
-//     color: theme.colors.text,
-//     fontSize: hp(2),
-//     fontWeight: "500",
-//   },
-//   messageFooter: {
-//     marginTop: hp(0.5),
-//     alignItems: "flex-end",
-//   },
-//   messageTime: {
-//     fontSize: hp(1.4),
-//     color: theme.colors.textLight,
-//   },
-//   dateDivider: {
-//     alignItems: "center",
-//     marginVertical: hp(1),
-//   },
-//   dateText: {
-//     fontSize: hp(2),
-//     fontWeight: "600",
-//     color: theme.colors.textLight,
-//   },
-//   inputBar: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     padding: 10,
-//     borderTopWidth: 1,
-//     borderTopColor: theme.colors.gray,
-//     gap: 10,
-//     backgroundColor: "white",
-//   },
-//   input: {
-//     flex: 1,
-//     fontSize: hp(1.9),
-//     color: theme.colors.text,
-//     paddingVertical: 8,
-//   },
-//   emojiPicker: {
-//     height: hp(35),
-//     backgroundColor: "white",
-//     borderTopWidth: 1,
-//     borderColor: theme.colors.gray,
-//   },
-// });
+        {/* Messages */}
+        <FlatList
+          data={messages}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={{ gap: 12, paddingVertical: 10 }}
+          inverted
+        />
+
+        {/* {showEmojiPicker && (
+          <View style={{ height: hp(35), backgroundColor: "#fff" }}>
+            <EmojiSelector
+              onEmojiSelected={handleEmojiSelect}
+              showSearchBar={false}
+              showTabs={true}
+              columns={8}
+            />
+          </View>
+        )} */}
+
+        {/* Input Bar */}
+        {isTyping && <Text style={styles.typingText}>Typing...</Text>}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={100}
+        >
+          <View style={styles.inputBar}>
+            {/* <Pressable onPress={() => setShowEmojiPicker(prev => !prev)}>
+                <MaterialCommunityIcons name="emoticon-outline" size={26} color={theme.colors.textLight} />
+                </Pressable> */}
+
+            <TextInput
+              value={newMessage}
+              onChangeText={(text) => {
+                setNewMessage(text);
+                socket.emit("userTyping", chat_id);
+              }}
+              placeholder="Type a message"
+              placeholderTextColor="gray"
+              style={styles.input}
+              multiline
+            />
+
+            <Pressable onPress={sendMessage}>
+              <MaterialCommunityIcons
+                name="send"
+                size={24}
+                color={theme.colors.primary}
+              />
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </ScreenWrapper>
+  );
+};
+
+export default ChatPage;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: wp(4),
+    paddingTop: hp(1),
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  typingText: {
+    fontSize: hp(1.8),
+    fontStyle: "italic",
+    color: theme.colors.textLight,
+    marginLeft: wp(2),
+    marginBottom: hp(0.5),
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  username: {
+    fontSize: hp(2.3),
+    fontWeight: "600",
+    color: theme.colors.text,
+  },
+  avatarImage: {
+    height: hp(4.3),
+    width: hp(4.3),
+    borderRadius: theme.radius.sm,
+    borderCurve: "continuous",
+    borderWidth: 3,
+    borderColor: theme.colors.gray,
+  },
+  messageContainer: {
+    maxWidth: "80%",
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1),
+    borderRadius: theme.radius.xl,
+    backgroundColor: theme.colors.grayLight,
+  },
+  messageLeft: {
+    alignSelf: "flex-start",
+    backgroundColor: "#E0E0E0",
+  },
+  messageRight: {
+    alignSelf: "flex-end",
+    backgroundColor: "#DCF8C6",
+  },
+  messageText: {
+    color: theme.colors.text,
+    fontSize: hp(2),
+    fontWeight: "500",
+  },
+  messageFooter: {
+    marginTop: hp(0.5),
+    alignItems: "flex-end",
+  },
+  messageTime: {
+    fontSize: hp(1.2),
+    color: theme.colors.textLight,
+  },
+  dateDivider: {
+    alignItems: "center",
+    marginVertical: hp(1),
+  },
+  dateText: {
+    fontSize: hp(2),
+    fontWeight: "600",
+    color: theme.colors.textLight,
+  },
+  inputBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.gray,
+    gap: 10,
+    backgroundColor: "white",
+    marginBottom: 15,
+  },
+  input: {
+    flex: 1,
+    fontSize: hp(1.9),
+    color: theme.colors.text,
+    paddingVertical: 8,
+  },
+  emojiPicker: {
+    height: hp(35),
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderColor: theme.colors.gray,
+  },
+});

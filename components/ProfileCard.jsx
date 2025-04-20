@@ -110,7 +110,10 @@ export default function ProfileCard({
         { headers: { token } }
       );
       if (response.data.success) {
-        router.push("home");
+        router.push({
+          pathname: "/(main)/chatPage",
+          params: { chat_id: response.data.chat?._id },
+        });
       }
     } catch (error) {
       console.error("Error handling connection:", error.message);
@@ -159,10 +162,7 @@ export default function ProfileCard({
         <View style={styles.iconButtons}>
           {showMessageButton && (
             <View style={styles.iconButtons}>
-              <TouchableOpacity
-                onPress={onChatClick}
-                style={styles.msgButton}
-              >
+              <TouchableOpacity onPress={onChatClick} style={styles.msgButton}>
                 <Feather name="message-square" size={hp(2.2)} color="grey" />
               </TouchableOpacity>
             </View>

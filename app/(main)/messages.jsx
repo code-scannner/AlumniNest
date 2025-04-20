@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
-import MessageCard from "../../components/ProfileCard";
+import MessageCard from "../../components/MessageCard";
 import Header from "../../components/Header";
 import { Icon } from "@/assets/icons";
 import Feather from "@expo/vector-icons/Feather";
@@ -34,6 +34,7 @@ export default function ConnectionsScreen() {
             headers: { token },
           }
         );
+        console.log(response.data.chats);
         setChats(response.data.chats);
       } catch (error) {
         console.error("Error fetching network:", error);
@@ -60,15 +61,21 @@ export default function ConnectionsScreen() {
         </View>
 
         {chats.length === 0 ? (
-          <Text style={{ textAlign: "center", marginTop: 30, color: "gray",fontSize:16
-          }}>
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 30,
+              color: "gray",
+              fontSize: 16,
+            }}
+          >
             Nothing here yet. Say hello to your connections!
           </Text>
         ) : (
           <FlatList
             data={chats}
             keyExtractor={(item) => item?._id}
-            renderItem={({ item }) => <MessageCard chat={item} />}
+            renderItem={({ item }) => <MessageCard item={item} />}
             contentContainerStyle={{
               paddingBottom: hp(2),
               paddingHorizontal: wp(4),

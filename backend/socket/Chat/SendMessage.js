@@ -1,4 +1,4 @@
-
+import Message from "../../models/Message.js";
 const sendMessage = async (socket, io) => {
     socket.on("sendMessage", async (data) => {
         // try {
@@ -24,8 +24,8 @@ const sendMessage = async (socket, io) => {
             const { chat_id, content, sender_id, senderModel } = data;
 
             if (!chat_id || !content || !sender_id || !senderModel) {
-                console.error("Missing required fields:", { doubt_id, sender_id, message });
-                return socket.emit("error", { message: "Doubt ID, Sender ID, and Message are required." });
+                console.error("Missing required fields:", { chat_id, sender_id });
+                return socket.emit("error", { message: "Chat ID, Sender ID, and Message are required." });
             }
 
             // Save message to DB
@@ -49,7 +49,7 @@ const sendMessage = async (socket, io) => {
                 profile_pic: newMessage.sender_id?.profile_pic
             };
 
-            io.to(chat_id).emit("receiveMessage", msg.toJSON());
+            io.to(chat_id).emit("receiveMessage", msg);
 
         } catch (error) {
             console.error("Error sending message:", error);
