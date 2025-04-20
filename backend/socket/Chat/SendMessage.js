@@ -1,25 +1,6 @@
 import Message from "../../models/Message.js";
 const sendMessage = async (socket, io) => {
     socket.on("sendMessage", async (data) => {
-        // try {
-        //     const { doubt_id, sender_id, message } = data;
-
-        //     if (!doubt_id || !sender_id || !message) {
-        //         console.error("Missing required fields:", { doubt_id, sender_id, message });
-        //         return socket.emit("error", { message: "Doubt ID, Sender ID, and Message are required." });
-        //     }
-
-        //     const chatMessage = new Chat({ doubt_id, sender_id, message });
-
-        //     await chatMessage.save();
-        //     await chatMessage.populate("sender_id", "username");
-
-        //     io.to(doubt_id).emit("receiveMessage", chatMessage.toJSON());
-
-        // } catch (error) {
-        //     console.error("Error sending message:", error);
-        //     socket.emit("error", { message: "Internal server error" });
-        // }
         try {
             const { chat_id, content, sender_id, senderModel } = data;
 
@@ -27,6 +8,17 @@ const sendMessage = async (socket, io) => {
                 console.error("Missing required fields:", { chat_id, sender_id });
                 return socket.emit("error", { message: "Chat ID, Sender ID, and Message are required." });
             }
+
+            await Message.updateMany(
+                {
+                    chat_id,
+                    sender_id: { $ne: sender_id },
+                    status: "sent"
+                },
+                {
+                    $set: { status: "read" }
+                }
+            );
 
             // Save message to DB
             const newMessage = new Message({

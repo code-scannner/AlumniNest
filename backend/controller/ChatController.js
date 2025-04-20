@@ -83,3 +83,27 @@ export const getAllChatsForUser = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+export const deleteChat = async (req, res) => {
+    try {
+        const { chat_id } = req.params;
+        const { id, role } = req.user;
+
+        const chat = await Chat.findById(chat_id);
+        if (!chat) {
+            return res.status(404).json({ success: false, message: "Chat not found" });
+        }
+
+        if (!(id == chat.from_user && role == chat.from_model) && !(id == chat.to_user && role == chat.to_model)) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        await Chat.deleteOne({ _id: chat_id });
+
+        return res.status(200).json({ success: true, message: "Chat deleted for user" });
+
+    } catch (error) {
+        console.error("❌ Error in deleteChat:", error.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};

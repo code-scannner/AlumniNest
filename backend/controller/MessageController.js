@@ -67,6 +67,7 @@ export const readAllMessages = async (req, res) => {
             {
                 chat_id,
                 sender_id: { $ne: id },
+                status: "sent"
             },
             {
                 $set: { status: "read" }
