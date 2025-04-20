@@ -3,36 +3,6 @@ import Chat from '../models/Chat.js';
 import Message from '../models/Message.js';
 import Student from '../models/Student.js';
 
-export const postMessage = async (req, res) => {
-    try {
-        // Save message to DB
-        const newMessage = await Message.create({
-            chat_id: "68041f926cf20bc3c487db4e",
-            content: "bsdk jaldi kro",
-            sender_id: "67f90dc22c9797a534acd804",
-            senderModel: "Student"
-        });
-
-        // Populate sender details
-        const populatedMessage = await Message.findById(newMessage._id).populate("sender_id");
-
-        // Format message as per your frontend needs
-        const msg = {
-            _id: populatedMessage._id,
-            content: populatedMessage.content,
-            status: populatedMessage.status,
-            timestamp: populatedMessage.timestamp,
-            sender_id: populatedMessage.sender_id?._id,
-            full_name: populatedMessage.sender_id?.full_name,
-            profile_pic: populatedMessage.sender_id?.profile_pic
-        };
-
-        res.status(201).json({ success: true, message: msg });
-    } catch (error) {
-        console.error("❌ Error in postMessage:", error.message);
-        res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
 export const getMessagesByChat = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -90,28 +60,27 @@ export const getMessagesByChat = async (req, res) => {
 
 export const readAllMessages = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const { chat_id } = req.body;
-
-        if (!chat_id) {
-            return res.status(400).json({ success: false, message: "Chat ID is required" });
-        }
+        const { id: sender_id, role: senderModel } = req.user;
 
         const result = await Message.updateMany(
             {
-                chat_id,
-                sender_id: { $ne: userId }, // exclude self-sent messages
-                status: { $ne: "read" } // only update unread ones
+                sender_id,
+                senderModel,
+                status: { $ne: "read" } // only unread messages
             },
             {
                 $set: { status: "read" }
             }
         );
 
-        return res.status(200).json({ success: true, message: "Messages marked as read", updatedCount: result.modifiedCount });
+        return res.status(200).json({
+            success: true,
+            message: "Messages marked as read",
+            updatedCount: result.modifiedCount
+        });
 
     } catch (error) {
-        console.error("❌ Error in readAllMessages:", error.message);
+        console.error("❌ Error in readMessagesFromSender:", error.message);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
