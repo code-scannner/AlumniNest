@@ -22,6 +22,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import moment from "moment";
 import { io } from "socket.io-client";
+import Loading from "@/components/Loading";
 
 const socket = io("http://" + Constants.expoConfig.extra.baseurl);
 const ChatMessage = ({ text, time, sender_id, current_user }) => (
@@ -31,15 +32,7 @@ const ChatMessage = ({ text, time, sender_id, current_user }) => (
       sender_id === current_user ? styles.messageRight : styles.messageLeft,
     ]}
   >
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "flex-end",
-        gap: 6,
-        maxWidth: "80%",
-      }}
-    >
+    <View style={styles.messageContainer}>
       <Text style={styles.messageText}>{text}</Text>
       <Text style={styles.messageTime}>{moment(time).format("MMM D")}</Text>
     </View>
@@ -54,6 +47,7 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState("");
   const [type, setType] = useState();
   const [isTyping, setIsTyping] = useState(false);
+  const [loading, isLoading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const fetchUser = async () => {
@@ -121,6 +115,7 @@ const ChatPage = () => {
   };
   const loadMessages = async () => {
     try {
+      isLoading(true);
       const token = await SecureStore.getItemAsync("token");
       const response = await axios.get(
         "http://" +
@@ -132,8 +127,32 @@ const ChatPage = () => {
       );
       console.log(response.data.messages);
       console.log(response.data.chatPerson);
-      setMessages(response.data.messages.reverse());
-      setOther(response.data.chatPerson);
+      if (response.data.success) {
+        setMessages(response.data.messages.reverse());
+        setOther(response.data.chatPerson);
+        readAll();
+      }
+    } catch (error) {
+      console.error("Error fetching network:", error);
+    } finally {
+      isLoading(false);
+    }
+  };
+
+  const readAll = async () => {
+    try {
+      console.log("Reading all msgs..");
+      const token = await SecureStore.getItemAsync("token");
+      const response = await axios.put(
+        "http://" +
+          Constants.expoConfig.extra.baseurl +
+          `/api/chat/readall/${chat_id}`,
+        {},
+        {
+          headers: { token },
+        }
+      );
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching network:", error);
     }
@@ -155,6 +174,13 @@ const ChatPage = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading />
+      </View>
+    );
+  }
   return (
     <ScreenWrapper bg={"white"}>
       <View style={styles.container}>
@@ -166,7 +192,7 @@ const ChatPage = () => {
             source={{
               uri:
                 other?.profile_pic ||
-                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
             }}
             style={styles.avatarImage}
           />
@@ -276,9 +302,9 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     maxWidth: "80%",
-    paddingHorizontal: wp(3),
-    paddingVertical: hp(1),
-    borderRadius: theme.radius.xl,
+    paddingHorizontal: wp(1.5),
+    paddingVertical: wp(1),
+    borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.grayLight,
   },
   messageLeft: {
@@ -287,20 +313,22 @@ const styles = StyleSheet.create({
   },
   messageRight: {
     alignSelf: "flex-end",
-    backgroundColor: "#DCF8C6",
+    backgroundColor: "rgba(170, 255, 146, 0.58)",
   },
   messageText: {
     color: theme.colors.text,
     fontSize: hp(2),
     fontWeight: "500",
+    alignSelf: "flex-start",
   },
   messageFooter: {
     marginTop: hp(0.5),
     alignItems: "flex-end",
   },
   messageTime: {
-    fontSize: hp(1.2),
+    fontSize: hp(1.1),
     color: theme.colors.textLight,
+    alignSelf: "flex-end",
   },
   dateDivider: {
     alignItems: "center",

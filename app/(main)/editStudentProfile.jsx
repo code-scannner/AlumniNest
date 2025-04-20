@@ -62,7 +62,10 @@ const index = () => {
         setProfilePic({ uri: fetchedUser.profile_pic });
       } else if (fetchedUser.profile_pic) {
         setProfilePic({
-          uri: "http://" + Constants.expoConfig.extra.baseurl + fetchedUser.profile_pic,
+          uri:
+            "http://" +
+            Constants.expoConfig.extra.baseurl +
+            fetchedUser.profile_pic,
         });
       }
 
@@ -92,12 +95,7 @@ const index = () => {
     });
 
     if (!result.canceled) {
-      const asset = result.assets[0];
-      setProfilePic({
-        uri: asset.uri,
-        mimeType: asset.type || "image/jpeg",
-        fileName: asset.fileName || `image_${Date.now()}.jpg`,
-      });
+      setProfilePic(result.assets[0].uri);
     }
   };
 
@@ -114,12 +112,7 @@ const index = () => {
     });
 
     if (!result.canceled) {
-      const asset = result.assets[0];
-      setProfilePic({
-        uri: asset.uri,
-        mimeType: asset.type || "image/jpeg",
-        fileName: asset.fileName || `image_${Date.now()}.jpg`,
-      });
+      setProfilePic(result.assets[0].uri);
     }
   };
 
@@ -159,11 +152,12 @@ const index = () => {
       formData.append("college", collegeRef.current.trim());
       formData.append("bio", bioRef.current.trim());
 
-      if (profilePic?.uri) {
+      if (typeof profilePic === "string" && profilePic.startsWith("file://")) {
+        const fileType = profilePic.split(".").pop();
         formData.append("file", {
-          uri: profilePic.uri,
-          type: profilePic.mimeType || "image/jpeg",
-          name: profilePic.fileName || `image_${Date.now()}.jpg`,
+          uri: profilePic,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
         });
       }
 
@@ -178,7 +172,7 @@ const index = () => {
 
       if (response.status === 200) {
         Alert.alert("Success", "Profile updated successfully");
-        router.push("/(main)/profile");
+        router.back();
       } else {
         Alert.alert("Error", response.data.message || "Something went wrong");
       }

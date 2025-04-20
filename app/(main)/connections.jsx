@@ -60,29 +60,41 @@ export default function ConnectionsScreen() {
         <View style={{ paddingHorizontal: wp(4) }}>
           <Header title={"Connections"} showBackButton mb={10} />
         </View>
-
-        <FlatList
-          data={connections}
-          keyExtractor={(item) => item?._id}
-          renderItem={({ item }) => (
-            <ProfileCard
-              user={item}
-              status={item.status}
-              onPress={() => {
-                setConnections((prev) =>
-                  prev.filter((conn) => conn._id !== item._id)
-                );
-              }}
-              showMessageButton={true}
-              ShowButton={false}
-            />
-          )}
-          contentContainerStyle={{
-            paddingBottom: hp(2),
-            paddingHorizontal: wp(4),
-            paddingTop: hp(2),
-          }}
-        />
+        {connections.length === 0 ? (
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 30,
+              color: "gray",
+              fontSize: 16,
+            }}
+          >
+            No connections yet. Connect and grow!
+          </Text>
+        ) : (
+          <FlatList
+            data={connections}
+            keyExtractor={(item) => item?._id}
+            renderItem={({ item }) => (
+              <ProfileCard
+                user={item}
+                status={item.status}
+                onPress={() => {
+                  setConnections((prev) =>
+                    prev.filter((conn) => conn._id !== item._id)
+                  );
+                }}
+                showMessageButton={true}
+                ShowButton={false}
+              />
+            )}
+            contentContainerStyle={{
+              paddingBottom: hp(2),
+              paddingHorizontal: wp(4),
+              paddingTop: hp(2),
+            }}
+          />
+        )}
       </View>
     </ScreenWrapper>
   );

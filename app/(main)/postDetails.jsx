@@ -75,8 +75,6 @@ export default function index() {
       console.log("New Comment getting added ...");
       if (!inputValue) return null;
 
-      console.log(inputRef);
-
       let data = {
         post_id,
         content: String(inputValue),

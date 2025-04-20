@@ -62,7 +62,6 @@ export default function PostCard({
 
   const checkIfLiked = async () => {
     try {
-      console.log("Checking if liked status....");
       const res = await axios.get(
         "http://" + Constants.expoConfig.extra.baseurl + "/api/post/isliked",
         {
@@ -137,7 +136,7 @@ export default function PostCard({
             uri={
               postuser?.profile_pic
                 ? postuser.profile_pic
-                : "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin"
+                : "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin"
             }
             rounded={theme.radius.md}
           />
@@ -148,28 +147,16 @@ export default function PostCard({
             </Text>
           </View>
         </View>
-
-        {showMoreIcon && (
-          <TouchableOpacity onPress={() => {}}>
-            <Icon
-              name={"threeDotsHorizontal"}
-              size={hp(3.4)}
-              strokeWidth={3}
-              color={theme.colors.text}
-            />
-          </TouchableOpacity>
-        )}
-
         {showDelete && user?._id === postuser?._id && (
           <>
             <View style={styles.actins}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
               // onPress={() => {
               //   onEdit(item);
               // }}
               >
                 <Icon name={"edit"} size={hp(2.5)} color={theme.colors.text} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity onPress={onDelete}>
                 <Icon

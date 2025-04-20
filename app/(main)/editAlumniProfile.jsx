@@ -176,7 +176,7 @@ const AlumniEdit = () => {
 
       if (response.status === 200) {
         Alert.alert("Success", "Profile updated successfully");
-        router.push("/(main)/profile");
+        router.back();
       } else {
         Alert.alert("Error", response.data?.message || "Something went wrong");
       }

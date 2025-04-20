@@ -13,7 +13,6 @@ import Header from "@/components/Header";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Avatar from "@/components/Avatar";
-//   import { useAuth } from "@/context/AuthContext";
 import RichTextEditor from "@/components/RichTextEditor";
 import { Icon } from "@/assets/icons";
 import Button from "@/components/Button";
@@ -22,8 +21,6 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import Constants from "expo-constants";
 import { Image } from "expo-image";
-//   import { getSupabaseFileUrl } from "@/services/image.service";
-//   import { createOrUpdatePost } from "@/services/post.service";
 import { router } from "expo-router";
 
 export default function index() {
@@ -36,7 +33,7 @@ export default function index() {
       if (!token) throw new Error("No token found");
 
       const response = await axios.get(
-        "http://"+Constants.expoConfig.extra.baseurl+"/api/profile",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/profile",
         {
           headers: { token: `${token}` },
         }
@@ -48,8 +45,6 @@ export default function index() {
       console.error("Failed to fetch user:", error.message);
     }
   };
-
-  // const post = useLocalSearchParams();
 
   const bodyRef = useRef(null);
   const editorRef = useRef(null);
@@ -86,29 +81,36 @@ export default function index() {
   };
 
   const onSubmit = async () => {
-    if (!bodyRef.current || !file) {
+    if (!bodyRef.current?.trim() && !file) {
       Alert.alert("Post", "Please choose an image or add post body");
       return;
     }
 
     const token = await SecureStore.getItemAsync("token");
     let formdata = new FormData();
-    formdata.append("file", {
-      uri: file.uri,
-      type: file.mimeType || "image/jpeg", 
-      name: file.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
-    });
+    if (file) {
+      formdata.append("file", {
+        uri: file.uri,
+        type: file.mimeType || "image/jpeg",
+        name: file.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
+      });
+    }
     formdata.append("body", bodyRef.current);
 
-    console.log(file.uri, file.mimeType, file.fileName);
+    console.log(file?.uri, file?.mimeType, file?.fileName);
 
     setLoading(true);
-    let res = await axios.post("http://"+Constants.expoConfig.extra.baseurl+"/api/post", formdata, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        token: `${token}`,
-      },
-    });
+    console.log("Calling Post Api");
+    let res = await axios.post(
+      "http://" + Constants.expoConfig.extra.baseurl + "/api/post",
+      formdata,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          token: `${token}`,
+        },
+      }
+    );
     setLoading(false);
     if (res.data.success) {
       // clear!
@@ -134,7 +136,11 @@ export default function index() {
         >
           {/* avatar! */}
           <View style={styles.header}>
-            <Avatar uri={user.profile_pic} size={hp(6.5)} rounded={theme.radius.xl} />
+            <Avatar
+              uri={user.profile_pic}
+              size={hp(6.5)}
+              rounded={theme.radius.xl}
+            />
             <View style={{ gap: 2 }}>
               <Text style={styles.username}>{user.full_name}</Text>
               <Text style={styles.publicText}>@{user.username}</Text>

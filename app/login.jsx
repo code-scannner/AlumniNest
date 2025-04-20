@@ -97,7 +97,7 @@ const login = () => {
             }}
             secureTextEntry
           />
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          {/* <Text style={styles.forgotPassword}>Forgot Password?</Text> */}
 
           <Button title="Login" loading={loading} onPress={handleLogin} />
         </View>

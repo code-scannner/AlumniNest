@@ -64,7 +64,7 @@ const NotificationItem = ({ item }) => {
           source={{
             uri:
               item?.profile_pic ||
-              "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+              "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
           }}
           style={{ width: hp(5), height: hp(5), borderRadius: hp(5) / 2 }}
         />

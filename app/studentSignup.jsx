@@ -71,7 +71,7 @@ const StudentSignup = () => {
     });
 
     if (!result.canceled) {
-      setProfilePic(result.assets[0]);
+      setProfilePic(result.assets[0].uri);
     }
   };
 
@@ -129,18 +129,18 @@ const StudentSignup = () => {
       formData.append("college", collegeRef.current.trim());
       formData.append("bio", bioRef.current.trim());
 
-      if (profilePic && profilePic !== studentPlaceholder) {
+      if (typeof profilePic === "string" && profilePic.startsWith("file://")) {
+        const fileType = profilePic.split(".").pop();
         formData.append("file", {
-          uri: profilePic.uri,
-          type: profilePic.mimeType || "image/jpeg", // Provide a default type
-          name: profilePic.fileName || `image_${Date.now()}.jpg`, // Ensure a filename
+          uri: profilePic,
+          name: `profile.${fileType}`,
+          type: `image/${fileType}`,
         });
       }
-
       console.log("Signup Request FormData:", formData);
 
       const response = await axios.post(
-        "http://"+Constants.expoConfig.extra.baseurl+"/api/signup/student",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/signup/student",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -182,7 +182,9 @@ const StudentSignup = () => {
               source={
                 typeof profilePic === "string"
                   ? { uri: profilePic }
-                  : profilePic
+                  : {
+                      uri: "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
+                    }
               }
               style={styles.avatar}
             />
@@ -316,7 +318,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowOffset: {
       width: 0,
-      height: 4
+      height: 4,
     },
     position: "absolute",
     bottom: 0,
@@ -324,19 +326,19 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 50,
     backgroundColor: "white",
-    shadowColor: theme.colors.textLight
+    shadowColor: theme.colors.textLight,
   },
   avatarContainer: {
     height: hp(14),
     width: hp(14),
-    alignSelf: "center"
+    alignSelf: "center",
   },
   avatar: {
     width: "100%",
     height: "100%",
     borderRadius: theme.radius.xxl * 1.8,
     borderCurve: "continuous",
-    borderWidth:2,
-    borderColor: theme.colors.primary
-  }
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  },
 });

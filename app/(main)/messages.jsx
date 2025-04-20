@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import MessageCard from "../../components/MessageCard";
@@ -23,28 +24,34 @@ import Loading from "@/components/Loading";
 export default function ConnectionsScreen() {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        setLoading(true);
-        const token = await SecureStore.getItemAsync("token");
-        const response = await axios.get(
-          "http://" + Constants.expoConfig.extra.baseurl + "/api/chat",
-          {
-            headers: { token },
-          }
-        );
-        console.log(response.data.chats);
-        setChats(response.data.chats);
-      } catch (error) {
-        console.error("Error fetching network:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchChats = async () => {
+    try {
+      setLoading(true);
+      const token = await SecureStore.getItemAsync("token");
+      const response = await axios.get(
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/chat",
+        {
+          headers: { token },
+        }
+      );
+      console.log(response.data.chats);
+      setChats(response.data.chats);
+    } catch (error) {
+      console.error("Error fetching network:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchChats();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchChats();
+    }, [])
+  );
 
   if (loading) {
     return (

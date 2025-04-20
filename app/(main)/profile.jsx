@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Header from "@/components/Header";
 import { hp, wp } from "@/helpers/common";
@@ -85,6 +86,12 @@ export default function index() {
     fetchUser();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUser();
+    }, [])
+  );
+
   useEffect(() => {
     if (hasMore) {
       getPosts();
@@ -99,7 +106,7 @@ export default function index() {
       }
     }, [])
   );
-  
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -114,7 +121,9 @@ export default function index() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listStyle}
         keyExtractor={(item) => item._id.toString()}
-        renderItem={({ item }) => <PostCard item={item} user={user} postuser={user} />}
+        renderItem={({ item }) => (
+          <PostCard item={item} user={user} postuser={user} />
+        )}
         ListFooterComponent={
           <>
             {hasMore ? (
@@ -123,7 +132,9 @@ export default function index() {
               </View>
             ) : (
               <View style={{ marginVertical: 30 }}>
-                <Text style={styles.noPosts}>No more posts</Text>
+                <Text style={styles.noPosts}>
+                  {posts.length > 0 ? "No more posts" : "No posts to show"}
+                </Text>
               </View>
             )}
           </>
@@ -190,6 +201,9 @@ const styles = StyleSheet.create({
     fontSize: hp(1.6),
     fontWeight: "500",
     color: theme.colors.textLight,
+    fontStyle: "italic",
+    textAlign: "center",
+    paddingHorizontal: wp(4),
   },
   info: {
     alignItems: "center",
@@ -205,7 +219,9 @@ const styles = StyleSheet.create({
 const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
-    "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin";
+    "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin";
+
+  const navigation = useNavigation();
   const handleLogout = () => {
     Alert.alert("Confirm", "Are you sure you want to logout?", [
       {
@@ -219,11 +235,12 @@ const UserHeader = ({ user }) => {
         onPress: async () => {
           try {
             // Remove token from SecureStore
-            await SecureStore.deleteItemAsync("authToken");
+            await SecureStore.deleteItemAsync("token");
 
-            // Optionally, invalidate session on the backend
-            router.replace("/login");
-            console.log("User logged out successfully");
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "login" }], // replace with your actual route name
+            });
           } catch (error) {
             console.error("Logout failed:", error);
           }
@@ -286,7 +303,7 @@ const UserHeader = ({ user }) => {
             >
               {user?.passout_year ? "(Student)" : "(Alumni)"}
             </Text>
-            {user?.bio && <Text style={styles.infoText}>"{user?.bio}"</Text>}
+            {user?.bio && <Text style={styles.infoText}>{user?.bio}</Text>}
           </View>
 
           <View style={{ gap: 10 }}>

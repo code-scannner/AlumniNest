@@ -57,7 +57,7 @@ export default function ConnectionsScreen() {
         { headers: { token } }
       );
       // Remove user from request state
-      console.log(response.data)
+      console.log(response.data);
       if (response.data.success) {
         setRequests((prev) => prev.filter((user) => user._id !== id));
       }
@@ -112,25 +112,38 @@ export default function ConnectionsScreen() {
         <View style={{ paddingHorizontal: wp(4) }}>
           <Header title={"Requests"} showBackButton mb={10} />
         </View>
-        <FlatList
-          data={requests}
-          keyExtractor={(item) => item?._id}
-          renderItem={({ item }) => (
-            <ProfileCard
-              user={item}
-              status={item.status}
-              onPress={() => console.log(`${item.full_name} pressed`)}
-              ShowRequestButton={true}
-              onAccept={onAccept}
-              onReject={onReject}
-            />
-          )}
-          contentContainerStyle={{
-            paddingBottom: hp(2),
-            paddingHorizontal: wp(4),
-            paddingTop: hp(2),
-          }}
-        />
+        {requests.length === 0 ? (
+          <Text
+            style={{
+              textAlign: "center",
+              marginTop: 30,
+              color: "gray",
+              fontSize: 16,
+            }}
+          >
+            No connection requests !
+          </Text>
+        ) : (
+          <FlatList
+            data={requests}
+            keyExtractor={(item) => item?._id}
+            renderItem={({ item }) => (
+              <ProfileCard
+                user={item}
+                status={item.status}
+                onPress={() => console.log(`${item.full_name} pressed`)}
+                ShowRequestButton={true}
+                onAccept={onAccept}
+                onReject={onReject}
+              />
+            )}
+            contentContainerStyle={{
+              paddingBottom: hp(2),
+              paddingHorizontal: wp(4),
+              paddingTop: hp(2),
+            }}
+          />
+        )}
       </View>
     </ScreenWrapper>
   );

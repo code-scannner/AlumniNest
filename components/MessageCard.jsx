@@ -18,12 +18,13 @@ import { router } from "expo-router";
 export default function MessageCard({ item }) {
   return (
     <TouchableOpacity
-    onPress={()=>
-      router.push({
-        pathname: "/(main)/chatPage",
-        params: { chat_id: item?._id },
-      })
-    }>
+      onPress={() =>
+        router.push({
+          pathname: "/(main)/chatPage",
+          params: { chat_id: item?._id },
+        })
+      }
+    >
       <View style={styles.card}>
         <TouchableOpacity
           onPress={() =>
@@ -37,7 +38,7 @@ export default function MessageCard({ item }) {
             source={{
               uri:
                 item?.profile_pic ||
-                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin",
+                "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin",
             }}
             style={styles.avatar}
           />
@@ -45,6 +46,13 @@ export default function MessageCard({ item }) {
 
         <View style={styles.info}>
           <Text style={styles.name}>{item.full_name}</Text>
+          {item.unread_count > 0 && (
+            <>
+              <View style={styles.pill}>
+                <Text style={styles.pillText}>{item.unread_count}</Text>
+              </View>
+            </>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -78,22 +86,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: theme.colors.text,
   },
-  username: {
-    fontSize: hp(1.4),
-    color: theme.colors.textLight,
+  pill: {
+    position: "absolute",
+    right: 20,
+    top:0,
+    flex:1,
+    backgroundColor: "hsl(0, 0.00%, 63.10%)",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    width: hp(2.6),
+    height: hp(2.6),
   },
-  button: {
-    paddingHorizontal: wp(3),
-    paddingVertical: hp(1),
-    borderRadius: theme.radius.sm,
-  },
-  buttonText: {
+  pillText: {
     color: "white",
-    fontWeight: "600",
-    fontSize: hp(1.6),
+    fontSize: hp(1.2),
+    fontWeight: "bold",
   },
-  iconButtons: {
-    flexDirection: "row",
-    gap: wp(4),
-  },
+  // button: {
+  //   paddingHorizontal: wp(3),
+  //   paddingVertical: hp(1),
+  //   borderRadius: theme.radius.sm,
+  // },
+  // buttonText: {
+  //   color: "white",
+  //   fontWeight: "600",
+  //   fontSize: hp(1.6),
+  // },
+  // iconButtons: {
+  //   flexDirection: "row",
+  //   gap: wp(4),
+  // },
 });

@@ -45,7 +45,7 @@ const index = () => {
         <View style={{ gap: 20 }}>
           <Text style={styles.title}>AlumniNest!</Text>
           <Text style={styles.punchLine}>
-            Where connections thrive. Where moments come alive.
+            Bridging generations, empowering futures and growing together!
           </Text>
         </View>
 

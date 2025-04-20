@@ -8,7 +8,7 @@ import Header from "@/components/Header";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
-import NotificationItem from "../../components/NotificationItem"; 
+import NotificationItem from "../../components/NotificationItem";
 import Loading from "@/components/Loading";
 
 export default function NotificationScreen() {
@@ -30,7 +30,7 @@ export default function NotificationScreen() {
           },
         }
       );
-      
+
       if (response.data.success) {
         setHasMore(response.data.hasMore);
         setNotifications([...response.data.notifications]);
@@ -71,9 +71,22 @@ export default function NotificationScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
         >
-          {notifications.map((item) => (
-            <NotificationItem key={item._id} item={item} />
-          ))}
+          {notifications.length === 0 ? (
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 30,
+                color: "gray",
+                fontSize: 16,
+              }}
+            >
+              Nothing here to show!
+            </Text>
+          ) : (
+            notifications.map((item) => (
+              <NotificationItem key={item._id} item={item} />
+            ))
+          )}
         </ScrollView>
       </View>
     </ScreenWrapper>
@@ -83,7 +96,7 @@ export default function NotificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: hp(4),
+    paddingHorizontal: hp(2),
   },
   listStyle: {
     paddingVertical: 20,

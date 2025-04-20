@@ -111,6 +111,12 @@ const home = () => {
     fetchUser();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUser();
+    }, [])
+  );
+
   useEffect(() => {
     if (hasMore) {
       getPosts();
@@ -212,7 +218,11 @@ const home = () => {
             <Pressable onPress={() => router.push("profile")}>
               <Text>
                 <Avatar
-                  uri={user?.profile_pic}
+                  uri={
+                    user?.profile_pic
+                      ? user.profile_pic
+                      : "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin"
+                  }
                   size={hp(4)}
                   rounded={theme.radius.sm}
                   style={{ borderWidth: 1 }}
@@ -238,7 +248,7 @@ const home = () => {
                 </View>
               ) : (
                 <View style={{ marginVertical: 30 }}>
-                  <Text style={styles.noPosts}>No more posts</Text>
+                  <Text style={styles.noPosts}>{posts.length > 0 ? "No more posts" : "Connect and interact!"}</Text>
                 </View>
               )}
             </>

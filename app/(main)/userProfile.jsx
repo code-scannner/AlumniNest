@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
 const UserHeader = ({ user }) => {
   const USER_IMAGE =
     user?.image ||
-    "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/67fecfeb003d718fc6cc/view?project=67f8e5020020502a85c0&mode=admin";
+    "https://fra.cloud.appwrite.io/v1/storage/buckets/67f8e53c0001a80cdbde/files/680565aa00223ec57c6d/view?project=67f8e5020020502a85c0&mode=admin";
  
   return (
     <View
