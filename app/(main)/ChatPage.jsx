@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   messageRight: {
     alignSelf: "flex-end",
-    backgroundColor: "rgba(170, 255, 146, 0.58)",
+    backgroundColor: "hsla(212, 100.00%, 85.10%, 0.70)",
   },
   messageText: {
     color: theme.colors.text,

@@ -37,7 +37,7 @@ export default function ProfileCard({
       case "accepted":
         return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
       case "not_connected":
-        return { name: "user-plus", color: "hsl(126, 58.70%, 43.70%)" };
+        return { name: "user-plus", color: "#166ccf" };
       default:
         return { name: "user-x", color: "hsl(0, 97.50%, 68.20%)" };
     }
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   connectBtn: {
     borderWidth: 1,
-    borderColor: "hsl(126, 58.70%, 43.70%)",
+    borderColor: "hsl(212.11, 80.79% ,40%)",
   },
   pendingBtn: {
     borderWidth: 1,
