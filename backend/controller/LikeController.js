@@ -42,7 +42,8 @@ export async function likePost(req, res) {
         const like = new Like({ post_id, user_id: id });
         await like.save();
 
-        if (post.poster_id !== id) {
+        // for not sending like notification to itself
+        if (post.poster_id.toString() !== id.toString()) {
             await Notification.create({
                 sender_id: id,
                 senderModel: role,
