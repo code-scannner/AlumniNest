@@ -13,9 +13,13 @@ import BackButton from "@/components/BackButton";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Button from "@/components/Button";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import axios from "axios";
+import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 
 const VerifyOtp = () => {
+  const { email, role, type } = useLocalSearchParams();
   const inputRefs = useRef([]);
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [secondsLeft, setSecondsLeft] = useState(30);
@@ -46,21 +50,49 @@ const VerifyOtp = () => {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const finalOtp = otp.join("");
 
     if (finalOtp.length !== 6) {
       Alert.alert("Verification", "Please enter the 6-digit OTP");
       return;
     }
-
-    Alert.alert("Verified", "Your email has been verified successfully!");
-    router.push("/(main)/home");
+    // Call your API to verify the OTP
+    try {
+      const response = await axios.post(
+        "http://" + Constants.expoConfig.extra.baseurl + `/api/verify/${type === "forgot" ? "forgot" : "email"}`,
+        {
+          email,
+          role,
+          otp: finalOtp,
+        }
+      );
+      if (response.data.success) {
+        Alert.alert("OTP Verification Successful");
+        await SecureStore.setItemAsync("token", response.data.token);
+        if (type === "forgot") {
+          router.push({
+            pathname: "/forgotPassword",
+            params: {
+              role: role,
+            },
+          });
+        } else {
+          router.push({
+            pathname: "/(main)/home",
+          });
+        }
+      }
+    } catch (error) {
+      console.log("Error verifying OTP:", error);
+      Alert.alert("Verification Failed", "Invalid OTP or other error");
+    }
   };
 
   const handleResendOtp = () => {
     if (secondsLeft === 0) {
-      Alert.alert("Resend OTP", "OTP resent!");
+      handleVerify();
+      Alert.alert("OTP Resent", "A new OTP has been sent to your email");
       setSecondsLeft(30); // Restart the timer
       // Trigger resend OTP API here if needed
     }
@@ -93,9 +125,9 @@ const VerifyOtp = () => {
               maxLength={1}
               style={[
                 styles.otpInput,
-                digit && { borderColor: theme.colors.primaryDark }
+                digit && { borderColor: theme.colors.primaryDark },
               ]}
-          />
+            />
           ))}
         </View>
 
@@ -105,9 +137,7 @@ const VerifyOtp = () => {
           <Text style={styles.footerText}>Didn't receive the code?</Text>
           {secondsLeft === 0 ? (
             <Pressable onPress={handleResendOtp}>
-              <Text style={[styles.footerText, styles.resendText]}>
-                Resend
-              </Text>
+              <Text style={[styles.footerText, styles.resendText]}>Resend</Text>
             </Pressable>
           ) : (
             <Text style={[styles.footerText, styles.resendText]}>

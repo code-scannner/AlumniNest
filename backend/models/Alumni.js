@@ -10,7 +10,7 @@ const AlumniSchema = new Schema({
     curr_work: { type: String },
     position: { type: String },
     bio: { type: String },
-    emailVerified: { type: String, default: false },
+    emailVerified: { type: Boolean, default: false },
     emailOtp: { type: Number },
     forgetOtp: { type: Number },
 });
