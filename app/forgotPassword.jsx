@@ -6,51 +6,60 @@ import {
   TextInput,
   Pressable,
   Alert,
-  TouchableOpacity,
 } from "react-native";
 import React, { useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import BackButton from "@/components/BackButton";
 import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Input from "@/components/Input";
-import { Icon } from "@/assets/icons";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
 import Constants from "expo-constants";
-import { getValueFor, save } from "../helpers/SecureStore";
-
-const login = () => {
-  const emailRef = useRef("");
-  const passwordRef = useRef("");
+import * as SecureStore from "expo-secure-store";
+const forgotPassword = ({ role }) => {
+  const newPassRef = useRef("");
+  const cnfrmPassRef = useRef("");
   const [loading, setLoading] = useState(false);
-
-  const handleLogin = async () => {
-    if (!emailRef.current || !passwordRef.current) {
-      Alert.alert("Login", "Please fill all details");
+  const navigation = useNavigation();
+  const handleUpdate = async () => {
+    if (!newPassRef.current || !cnfrmPassRef.current) {
+      Alert.alert("Update Password", "Please fill all details");
       return;
     }
 
-    const email = emailRef.current.trim();
-    const password = passwordRef.current.trim();
+    if (newPassRef.current !== cnfrmPassRef.current) {
+      Alert.alert("Update Password", "Passwords do not match");
+      return;
+    }
+    const password = newPassRef.current.trim();
 
     setLoading(true);
 
     try {
+      const token = await SecureStore.getItemAsync("token");
       const response = await axios.post(
-        "http://" + Constants.expoConfig.extra.baseurl + "/api/login",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/updatePass",
         {
-          email,
+          role,
           password,
+        },
+        {
+          headers: { token },
         }
       );
 
-      if (response.data.token) {
-        console.log(await getValueFor("token"));
-        Alert.alert("Login Successful");
-        await save("token", response.data.token);
-        router.push("/(main)/home");
+      if (response.data.success) {
+        Alert.alert(
+          "Password Updated",
+          "Your password has been updated successfully."
+        );
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "login" }],
+        });
       } else {
         Alert.alert(
           "Login Failed",
@@ -77,8 +86,7 @@ const login = () => {
 
         {/* welcome */}
         <View>
-          <Text style={styles.welcomeText}>Hey,</Text>
-          <Text style={styles.welcomeText}>Welcome Back</Text>
+          <Text style={styles.welcomeText}>Set up your Password</Text>
         </View>
 
         {/* form! */}
@@ -89,56 +97,46 @@ const login = () => {
               color: theme.colors.text,
             }}
           >
-            Please login to continue
+            Please choose a strong password
           </Text>
 
           <Input
-            icon={<Icon name={"mail"} size={26} strokeWidth={1.6} />}
-            placeholder={"Enter your email"}
+            placeholder={"Enter a new password"}
             onChangeText={(value) => {
-              emailRef.current = value;
-            }}
-          />
-          <Input
-            icon={<Icon name={"lock"} size={26} strokeWidth={1.6} />}
-            placeholder={"Enter your password"}
-            onChangeText={(value) => {
-              passwordRef.current = value;
+              newPassRef.current = value;
             }}
             secureTextEntry
           />
-          <TouchableOpacity
-            onPress={() => {
-              router.push("/forgotPassword");
+          <Input
+            placeholder={"Confirm your password"}
+            onChangeText={(value) => {
+              cnfrmPassRef.current = value;
             }}
-          >
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <Button title="Login" loading={loading} onPress={handleLogin} />
+          />
+          <Button title="Update" loading={loading} onPress={handleUpdate} />
         </View>
 
         {/* footer! */}
-        <View style={styles.footer}>
+        {/* <View style={styles.footer}>
           <Text style={styles.footerText}>Don't have an account?</Text>
 
           <Pressable onPress={() => router.push("/signUp")}>
             <Text
               style={[
                 styles.footerText,
-                { color: theme.colors.primaryDark, fontWeight: "700" },
+                { color: theme.colors.primaryDark, fontWeight: "700" }
               ]}
             >
               Sign up
             </Text>
           </Pressable>
-        </View>
+        </View> */}
       </View>
     </ScreenWrapper>
   );
 };
 
-export default login;
+export default forgotPassword;
 
 const styles = StyleSheet.create({
   container: {
@@ -152,22 +150,23 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   form: {
+    marginTop: hp(3),
     gap: 25,
   },
   forgotPassword: {
     textAlign: "right",
     fontWeight: "700",
-    color: theme.colors.primary,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 5,
-  },
-  footerText: {
-    textAlign: "center",
     color: theme.colors.text,
-    fontSize: hp(1.6),
   },
+  // footer: {
+  //   flexDirection: "row",
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  //   gap: 5
+  // },
+  // footerText: {
+  //   textAlign: "center",
+  //   color: theme.colors.text,
+  //   fontSize: hp(1.6)
+  // }
 });
