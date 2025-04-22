@@ -21,15 +21,19 @@ export const authMiddleware = async (req, res, next) => {
     const alumni = await Alumni.findById(decoded.id);
 
     if (!student && !alumni) {
-      console.log("User not found in both collections");
+      console.log("User not found in any collections");
       return res.status(404).json({ message: "User not found" });
     }
 
+    const user = student || alumni;
+
+    if (!user.emailVerified) return res.status(400).json({ message: "Unverified User" });
+
     req.user.role = student ? "Student" : "Alumni"; // Store role
-    req.user.profile = student || alumni; // Store profile
+    req.user.profile = user; // Store profile
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid Token" });
-    console.log("Invalid Token");
+    console.log(error);
+    return res.status(401).json({ error, message: "Invalid Token" });
   }
 };

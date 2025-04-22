@@ -39,8 +39,6 @@ export async function updatePassword(req, res) {
 
 }
 
-
-
 export async function getForgetOtp(req, res) {
   try {
     const { email, role } = req.body;
@@ -58,7 +56,7 @@ export async function getForgetOtp(req, res) {
 
     user.forgetOtp = forgetOtp;
 
-    await sendOTP(email, `Your otp for forget password is ${forgetOtp}`);
+    await sendOTP(email, user.full_name, `Your otp for forget password is: ${forgetOtp}`);
 
     await user.save();
 
@@ -87,7 +85,9 @@ export async function verifyForgetOtp(req, res) {
       return res.status(400).json({ success: false, message: "Invalid Otp!" });
     }
 
+    user.emailVerified = true;
     await user.save();
+
     const token = generateToken(user._id);
 
     return res.json({ token, user, success: true });
@@ -162,7 +162,7 @@ export async function registerStudent(req, res) {
     const hashedPassword = await hash(password, 10);
 
     const emailOtp = generateOTP();
-    await sendOTP(email, `Your otp for email authentication is ${otp}`);
+    await sendOTP(email, full_name, `Your otp for email authentication is: ${otp}`);
 
     const student = new Student({
       username, email, password: hashedPassword, full_name, passout_year, phone_no, course, branch, college, bio, profile_pic,
@@ -192,7 +192,7 @@ export async function registerAlumni(req, res) {
     const hashedPassword = await hash(password, 10);
 
     const emailOtp = generateOTP();
-    await sendOTP(email, `Your otp for email authentication is ${otp}`);
+    await sendOTP(email, full_name, `Your otp for email authentication is: ${otp}`);
 
     const alumni = new Alumni({
       username, email, password: hashedPassword, full_name, batch, curr_work, position, bio, profile_pic

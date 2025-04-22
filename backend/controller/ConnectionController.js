@@ -127,12 +127,11 @@ export async function getConnected(req, res) {
 export async function getConnections(req, res) {
     try {
         const userId = req.user.id;
-        const userModel = req.user.role;
         const { search } = req.query;
 
         const query = search
-            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId } }
-            : { _id: { $ne: userId } };
+            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId }, emailVerified: true }
+            : { _id: { $ne: userId }, emailVerified: true };
 
         // Get all alumni and students
         const [alumniList, studentsList] = await Promise.all([
