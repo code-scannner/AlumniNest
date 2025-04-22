@@ -2,6 +2,8 @@ import Student from "../models/Student.js";
 import Alumni from "../models/Alumni.js";
 import { compare, hash } from "bcryptjs";
 import pkg from "jsonwebtoken";
+const { verify } = pkg;
+import pkg from "jsonwebtoken";
 import { upload } from "../utils/uploadtoappwrite.js";
 const { sign } = pkg;
 import { sendOTP, generateOTP } from "../utils/otp.js";
@@ -56,7 +58,7 @@ export async function getForgetOtp(req, res) {
 
     user.forgetOtp = forgetOtp;
 
-    await sendOTP(email, user.full_name, `Your otp for forget password is: ${forgetOtp}`);
+    await sendOTP(email, user.full_name, `Your OTP for updating Password is: ${forgetOtp}`);
 
     await user.save();
 
