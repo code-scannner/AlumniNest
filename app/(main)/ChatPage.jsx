@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import BackButton from "../../components/BackButton";
 import { hp, wp } from "@/helpers/common";
@@ -60,15 +61,15 @@ const ChatPage = () => {
       useNativeDriver: true,
     }).start();
   };
-  
+
   const hideTyping = () => {
     Animated.timing(typingOpacity, {
       toValue: 0,
-      duration: 300, // fade-out duration
+      duration: 200,
       useNativeDriver: true,
     }).start();
   };
-  
+
   const fetchUser = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
@@ -146,8 +147,6 @@ const ChatPage = () => {
           headers: { token },
         }
       );
-      console.log(response.data.messages);
-      console.log(response.data.chatPerson);
       if (response.data.success) {
         setMessages(response.data.messages.reverse());
         setOther(response.data.chatPerson);
