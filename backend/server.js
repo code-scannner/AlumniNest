@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { json } from "express";
 import cors from "cors";
 import path from "path";
@@ -14,6 +16,7 @@ import { authMiddleware } from "./middlewares/authMiddleware.js";
 import { getfeed } from "./controller/FeedController.js";
 import socket from './socket/index.js'
 import ChatRoutes from './routes/ChatRoutes.js'
+
 
 const app = express();
 const server = http.createServer(app); // Create HTTP server for WebSocket

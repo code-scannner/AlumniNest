@@ -8,10 +8,13 @@ const StudentSchema = new Schema({
     profile_pic: { type: String },
     passout_year: { type: Number, required: true },
     phone_no: { type: Number, required: true },
-    course: { type: String, enum: ["B.Tech", "M.Tech","PhD"], required: true },
+    course: { type: String, enum: ["B.Tech", "M.Tech", "PhD"], required: true },
     branch: { type: String, enum: ["CSE", "EE", "ECE", "AIDS", "VLSI", "CIVIL", "MECHANICAL", "AEROSPACE"], required: true },
     college: { type: String, required: true },
-    bio: { type: String }
+    bio: { type: String },
+    emailVerified: { type: String, default: false },
+    emailOtp: { type: Number },
+    forgetOtp: { type: Number },
 });
 
 export default model('Student', StudentSchema);
