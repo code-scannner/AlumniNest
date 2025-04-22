@@ -130,8 +130,8 @@ export async function getConnections(req, res) {
         const { search } = req.query;
 
         const query = search
-            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId }, emailVerified: true }
-            : { _id: { $ne: userId }, emailVerified: true };
+            ? { username: { $regex: search, $options: 'i' }, _id: { $ne: userId }}
+            : { _id: { $ne: userId }};
 
         // Get all alumni and students
         const [alumniList, studentsList] = await Promise.all([

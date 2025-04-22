@@ -8,6 +8,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+import Dropdown from "@/components/Dropdown";
 import React, { useRef, useState } from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import BackButton from "@/components/BackButton";
@@ -19,38 +20,43 @@ import Button from "@/components/Button";
 import { router } from "expo-router";
 import axios from "axios";
 import Constants from "expo-constants";
-import { getValueFor, save } from "../helpers/SecureStore";
 
-const login = () => {
+const verifyUser = () => {
   const emailRef = useRef("");
-  const passwordRef = useRef("");
   const [loading, setLoading] = useState(false);
+  const roleOptions = ["Alumni", "Student"];
+  const [selectedRole, setSelectedRole] = useState("");
+  const roleRef = useRef("");
 
-  const handleLogin = async () => {
-    if (!emailRef.current || !passwordRef.current) {
-      Alert.alert("Login", "Please fill all details");
+  const handleVerify = async () => {
+    if (!emailRef.current || !roleRef.current) {
+      Alert.alert("Verify User", "Please fill all details");
       return;
     }
 
     const email = emailRef.current.trim();
-    const password = passwordRef.current.trim();
+    const role = roleRef.current.trim();
 
     setLoading(true);
 
     try {
       const response = await axios.post(
-        "http://" + Constants.expoConfig.extra.baseurl + "/api/login",
+        "http://" + Constants.expoConfig.extra.baseurl + "/api/forgot",
         {
           email,
-          password,
+          role,
         }
       );
 
-      if (response.data.token) {
-        console.log(await getValueFor("token"));
-        Alert.alert("Login Successful");
-        await save("token", response.data.token);
-        router.push("/(main)/home");
+      if (response.data.success) {
+        router.push({
+          pathname: "/verifyOtp",
+          params: {
+            email: email,
+            role: role,
+            type: "forgot",
+          },
+        });
       } else {
         Alert.alert(
           "Login Failed",
@@ -77,8 +83,7 @@ const login = () => {
 
         {/* welcome */}
         <View>
-          <Text style={styles.welcomeText}>Hey,</Text>
-          <Text style={styles.welcomeText}>Welcome Back</Text>
+          <Text style={styles.welcomeText}>Verify your Identity</Text>
         </View>
 
         {/* form! */}
@@ -89,56 +94,33 @@ const login = () => {
               color: theme.colors.text,
             }}
           >
-            Please login to continue
+            Please verify to update your password
           </Text>
 
           <Input
-            icon={<Icon name={"mail"} size={26} strokeWidth={1.6} />}
-            placeholder={"Enter your email"}
+            placeholder={"Enter your registered email"}
             onChangeText={(value) => {
               emailRef.current = value;
             }}
           />
-          <Input
-            icon={<Icon name={"lock"} size={26} strokeWidth={1.6} />}
-            placeholder={"Enter your password"}
-            onChangeText={(value) => {
-              passwordRef.current = value;
+          <Dropdown
+            placeholder="Select Role"
+            data={roleOptions}
+            selected={selectedRole}
+            onSelect={(v) => {
+              setSelectedRole(v);
+              roleRef.current = v;
             }}
-            secureTextEntry
           />
-          <TouchableOpacity
-            onPress={() => {
-              router.push("/verifyUser");
-            }}
-          >
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </TouchableOpacity>
 
-          <Button title="Login" loading={loading} onPress={handleLogin} />
-        </View>
-
-        {/* footer! */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-
-          <Pressable onPress={() => router.push("/signUp")}>
-            <Text
-              style={[
-                styles.footerText,
-                { color: theme.colors.primaryDark, fontWeight: "700" },
-              ]}
-            >
-              Sign up
-            </Text>
-          </Pressable>
+          <Button title="Get OTP" loading={loading} onPress={handleVerify} />
         </View>
       </View>
     </ScreenWrapper>
   );
 };
 
-export default login;
+export default verifyUser;
 
 const styles = StyleSheet.create({
   container: {

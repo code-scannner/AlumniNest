@@ -148,9 +148,14 @@ const StudentSignup = () => {
       );
 
       if (response.status === 201) {
-        Alert.alert("Success", "Account created successfully");
-        await SecureStore.setItemAsync("token", response.data.token);
-        router.push("/(main)/home");
+        router.push({
+          pathname: "/verifyOtp",
+          params: {
+            email: emailRef.current.trim(),
+            role: "Student",
+            type: "signup",
+          },
+        });
       } else {
         Alert.alert("Error", response.data.message || "Something went wrong");
       }

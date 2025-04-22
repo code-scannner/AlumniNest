@@ -12,7 +12,7 @@ const StudentSchema = new Schema({
     branch: { type: String, enum: ["CSE", "EE", "ECE", "AIDS", "VLSI", "CIVIL", "MECHANICAL", "AEROSPACE"], required: true },
     college: { type: String, required: true },
     bio: { type: String },
-    emailVerified: { type: String, default: false },
+    emailVerified: { type: Boolean, default: false },
     emailOtp: { type: Number },
     forgetOtp: { type: Number },
 });

@@ -15,11 +15,12 @@ import { hp, wp } from "@/helpers/common";
 import { theme } from "@/constants/theme";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
-const forgotPassword = ({ role }) => {
+const forgotPassword = ({}) => {
+  const {role}=useLocalSearchParams();
   const newPassRef = useRef("");
   const cnfrmPassRef = useRef("");
   const [loading, setLoading] = useState(false);

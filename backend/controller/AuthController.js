@@ -3,7 +3,6 @@ import Alumni from "../models/Alumni.js";
 import { compare, hash } from "bcryptjs";
 import pkg from "jsonwebtoken";
 const { verify } = pkg;
-import pkg from "jsonwebtoken";
 import { upload } from "../utils/uploadtoappwrite.js";
 const { sign } = pkg;
 import { sendOTP, generateOTP } from "../utils/otp.js";
@@ -83,7 +82,7 @@ export async function verifyForgetOtp(req, res) {
 
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    if (user.forgetOtp !== otp) {
+    if (user.forgetOtp != otp) {
       return res.status(400).json({ success: false, message: "Invalid Otp!" });
     }
 
@@ -103,6 +102,7 @@ export async function verifyForgetOtp(req, res) {
 export async function verifyEmailOtp(req, res) {
   try {
     const { email, otp, role } = req.body;
+    console.log(email, otp, role);
     let user;
     if (role === "Student") {
       user = await Student.findOne({ email });
@@ -113,7 +113,7 @@ export async function verifyEmailOtp(req, res) {
 
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    if (user.emailOtp !== otp) {
+    if (user.emailOtp != otp) {
       return res.status(400).json({ success: false, message: "Invalid Otp!" });
     }
 
@@ -158,13 +158,22 @@ export async function registerStudent(req, res) {
     const localPath = req.file?.path;
     const profile_pic = localPath ? await upload(localPath) : null;
 
-    if (await Student.findOne({ email })) return res.status(400).json({ message: "Email already exists" });
-    if (await Student.findOne({ username })) return res.status(400).json({ message: "Username already exists" });
+    let user = await Student.findOne({ email });
+    if (user && user.emailVerified) {
+       return res.status(400).json({ message: "Email already exists" });
+    }
+    user = await Student.findOne({username});
+
+    if(user && user.emailVerified) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    await user.deleteOne();
 
     const hashedPassword = await hash(password, 10);
 
     const emailOtp = generateOTP();
-    await sendOTP(email, full_name, `Your otp for email authentication is: ${otp}`);
+    await sendOTP(email, full_name, `Your OTP for email authentication is: ${emailOtp}`);
 
     const student = new Student({
       username, email, password: hashedPassword, full_name, passout_year, phone_no, course, branch, college, bio, profile_pic,
@@ -188,13 +197,21 @@ export async function registerAlumni(req, res) {
     const localPath = req.file?.path;
     const profile_pic = localPath ? await upload(localPath) : null;
 
-    if (await Alumni.findOne({ email })) return res.status(400).json({ message: "Email already exists" });
-    if (await Alumni.findOne({ username })) return res.status(400).json({ message: "Username already exists" });
+    let user = await Student.findOne({ email });
+
+    if (user && user.emailVerified) {
+       return res.status(400).json({ message: "Email already exists" });
+    }
+    user = await Student.findOne({username});
+
+    if(user && user.emailVerified) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
 
     const hashedPassword = await hash(password, 10);
 
     const emailOtp = generateOTP();
-    await sendOTP(email, full_name, `Your otp for email authentication is: ${otp}`);
+    await sendOTP(email, full_name, `Your OTP for email authentication is: ${emailOtp}`);
 
     const alumni = new Alumni({
       username, email, password: hashedPassword, full_name, batch, curr_work, position, bio, profile_pic
