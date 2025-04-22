@@ -51,7 +51,24 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [loading, isLoading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const typingOpacity = useState(new Animated.Value(0))[0];
 
+  const showTyping = () => {
+    Animated.timing(typingOpacity, {
+      toValue: 1,
+      duration: 300, // fade-in duration
+      useNativeDriver: true,
+    }).start();
+  };
+  
+  const hideTyping = () => {
+    Animated.timing(typingOpacity, {
+      toValue: 0,
+      duration: 300, // fade-out duration
+      useNativeDriver: true,
+    }).start();
+  };
+  
   const fetchUser = async () => {
     try {
       const token = await SecureStore.getItemAsync("token");
@@ -85,9 +102,11 @@ const ChatPage = () => {
     });
 
     socket.on("userTyped", () => {
-      setIsTyping(true);
+      // setIsTyping(true);
       console.log("User Typed");
-      setTimeout(() => setIsTyping(false), 1500);
+      // setTimeout(() => setIsTyping(false), 1500);
+      showTyping();
+      setTimeout(() => hideTyping(), 1500);
     });
 
     return () => {
@@ -218,7 +237,11 @@ const ChatPage = () => {
           inverted
         />
         {/* Input Bar */}
-        {isTyping && <Text style={styles.typingText}>Typing...</Text>}
+        {/* {isTyping && <Text style={styles.typingText}>Typing...</Text>} */}
+        <Animated.View style={{ opacity: typingOpacity }}>
+          <Text style={styles.typingText}>Typing...</Text>
+        </Animated.View>
+
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           keyboardVerticalOffset={100}
