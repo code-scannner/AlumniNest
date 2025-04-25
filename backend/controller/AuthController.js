@@ -168,7 +168,9 @@ export async function registerStudent(req, res) {
       return res.status(400).json({ message: "Username already exists" });
     }
 
-    await user.deleteOne();
+    if(user){
+      await user.deleteOne();
+    }
 
     const hashedPassword = await hash(password, 10);
 
@@ -207,6 +209,10 @@ export async function registerAlumni(req, res) {
     if(user && user.emailVerified) {
       return res.status(400).json({ message: "Username already exists" });
     }
+
+    if(user){
+    await user.deleteOne();
+  }
 
     const hashedPassword = await hash(password, 10);
 
