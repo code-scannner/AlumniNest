@@ -22,12 +22,8 @@ router.get("/isliked", isLiked);
 router.post("/like", authMiddleware, likePost);
 router.put("/unlike", authMiddleware, unlikePost);
 
-// delete comment
 router.delete("/comment/:comment_id", authMiddleware, deleteComment);
-// fetch all comments of post
 router.get("/comment", getAllComments);
-
-//add new comment
 router.post("/comment", authMiddleware, addNewComment);
 
 router.get("/:post_id", getParticularPost);
